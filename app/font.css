@@ -1,0 +1,27 @@
+@font-face {
+  font-family: "Notosans-L";
+  src: url("/fonts/NotoSansKR/NotoSansKR-Light.woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Notosans-R";
+  src: url("/fonts/NotoSansKR/NotoSansKR-Regular.woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Notosans-SB";
+  src: url("/fonts/NotoSansKR/NotoSansKR-SemiBold.woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Notosans-B";
+  src: url("/fonts/NotoSansKR/NotoSansKR-Bold.woff2");
+  font-weight: 700;
+}
+
+body {
+  font-family: "Notosans-R";
+}
