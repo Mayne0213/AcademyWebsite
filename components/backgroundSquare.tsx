@@ -10,7 +10,7 @@ const getDeviceClasses = (deviceType: number) => {
         titleIconSize: 32,
         titleTextSize: "text-2xl",
         contentTextSize: "text-base",
-        backgroundPadding: "p-[40px]",
+        backgroundPadding: "p-[30px]",
       };
     case 2: // Tablet
       return {
@@ -24,19 +24,19 @@ const getDeviceClasses = (deviceType: number) => {
         titleIconSize: 27,
         titleTextSize: "text-lg",
         contentTextSize: "text-sm",
-        backgroundPadding: "p-[25px]",
+        backgroundPadding: "p-[20px]",
       };
     default: // Mobile
       return {
         titleIconSize: 25,
         titleTextSize: "text-base",
         contentTextSize: "text-sm",
-        backgroundPadding: "p-[20px]",
+        backgroundPadding: "p-[10px]",
       };
   }
 };
 
-const BackgroundPadding = () => {
+const BackgroundSquare = () => {
   const deviceCondition = useDeviceDetect();
   const { titleIconSize, titleTextSize, contentTextSize, backgroundPadding } =
     getDeviceClasses(deviceCondition);
@@ -52,4 +52,4 @@ const BackgroundPadding = () => {
   );
 };
 
-export default BackgroundPadding;
+export default BackgroundSquare;

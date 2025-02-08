@@ -133,7 +133,7 @@ const SubNavbar: React.FC = () => {
 
         {/* 탭 설명 */}
         <div
-          className={`font-sansKR-Regular whitespace-pre-line ${subContentTextSize}`}
+          className={`font-sansKR-Light whitespace-pre-line ${subContentTextSize}`}
         >
           {GetTabsValue("Description", pathname) as string}
         </div>
