@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -77,7 +78,7 @@ const Navbar: React.FC = () => {
                     fixed z-[3] w-full flex items-center justify-end transition duration-300 border-b-2`}
       >
         {/* Logo */}
-        <Link href={"/"}>
+        <Link href={"/home"}>
           <Image
             priority
             src={deviceCondition === 0 ? logoWithoutMark : logo}
@@ -93,7 +94,7 @@ const Navbar: React.FC = () => {
 
         {/* Main Menu */}
         {deviceCondition === 3 && (
-          <div className="text-md flex pt-[35px]">
+          <div className="text-md flex pt-[35px] items-center justify-center">
             {tabs.map((tab, index) => (
               <div className={`cursor-pointer`} key={index}>
                 {/* <Link className={cursor-pointer} href={tab.href} key={index}> */}
@@ -101,7 +102,7 @@ const Navbar: React.FC = () => {
                   onMouseEnter={() => handleSubmenuTab(index)}
                   onMouseLeave={() => handleSubmenuTab(-1)}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`${index === 5 ? "" : "pr-12"} 
+                  className={`pr-12
                             ${backgroundShouldBeWhite ? "text-black" : "text-white"}
                             
                             items-center justify-center
@@ -136,6 +137,17 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
             ))}
+            <div className="pb-[35px] pr-12">
+              <Button
+                asChild
+                className="transition-all duration-300"
+                style={{
+                  filter: backgroundShouldBeWhite ? "none" : "invert(100%)",
+                }}
+              >
+                <Link href="/login">로그인</Link>
+              </Button>
+            </div>
           </div>
         )}
 
@@ -148,7 +160,7 @@ const Navbar: React.FC = () => {
             width={30}
             height={30}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`${deviceCondition <= 2 ? "absolute right-[20px]" : "ml-[60px] mr-[40px] hover:bg-gray-300"}
+            className={`${deviceCondition <= 2 ? "absolute right-[20px]" : "mr-[40px] hover:bg-gray-300"}
                         rounded-sm transition-all duration-300 cursor-pointer `}
           />
         )}
@@ -159,7 +171,7 @@ const Navbar: React.FC = () => {
             width={30}
             height={30}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`ml-[60px] mr-[40px] hover:bg-gray-300 rounded-sm transition-all duration-300 cursor-pointer`}
+            className={`mr-[40px] hover:bg-gray-300 rounded-sm transition-all duration-300 cursor-pointer`}
           />
         )}
       </nav>
@@ -167,19 +179,18 @@ const Navbar: React.FC = () => {
       {/* Hamburger Desktop icon function */}
       {deviceCondition === 3 && (
         <div
-          className={`z-[2] fixed min-w-full h-[300px] border-b-2 border-gray-200 border-opacity-50 bg-white transition duration-500 px-[30px]
+          className={`z-[2] fixed min-w-full h-[300px] border-b-2 border-gray-200 border-opacity-50 bg-white transition duration-500 p-[30px]
                       ${isMenuOpen ? "translate-y-[90px]" : "translate-y-[-300px]"}
-                      overflow-x-auto`}
+                      overflow-x-uto`}
         >
-          <div className="flex py-[20px] justify-between flex-shrink-0">
+          <div className="flex">
             {tabs.map((tab, index) => (
-              <div key={index} className="flex-shrink-0">
+              <div key={index} className="w-1/4 flex flex-col px-[20px]">
                 <Link
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   href={tab.href}
-                  className={`font-sansKR-SemiBold block text-gray-600 transition duration-300 px-[100px] relative
-                              ${index === 5 ? "hidden" : ""}
-                              before:absolute before:w-[250px] before:top-0 before:bottom-[-10px] before:left-2 before:right-0  before:border-b-[2px] before:border-blue-300`}
+                  className={`font-sansKR-SemiBold text-lg text-gray-600 w-full text-center pb-[10px]
+                              border-b-2 border-blue-200`}
                 >
                   {tab.label}
                 </Link>
@@ -190,7 +201,7 @@ const Navbar: React.FC = () => {
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                         key={subIndex}
                         href={item.href}
-                        className="block text-gray-600 hover:text-blue-700 text-sm pl-4 py-2"
+                        className="block text-gray-600 hover:text-blue-700 text-base pl-4 py-1"
                       >
                         {item.label}
                       </Link>
