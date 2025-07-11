@@ -9,11 +9,26 @@ export default {
   ],
   theme: {
     extend: {
+    // screens: {
+    //   sm: '640px',
+    //   md: '768px',
+    //   lg: '1024px',
+    //   xl: '1280px',
+    //   '2xl': '1536px',
+    // },
+
       fontFamily: {
         "sansKR-Light": ["NotoSans-L"],
         "sansKR-Regular": ["NotoSans-R"],
         "sansKR-SemiBold": ["NotoSans-SB"],
         "sansKR-Bold": ["NotoSans-B"],
+        "MaruBuri": ["MaruBuri"],
+        "MaruBuri-Regular": ["MaruBuri"],
+        "MaruBuri-Light": ["MaruBuriLight"],
+        "MaruBuri-ExtraLight": ["MaruBuriExtraLight"],
+        "MaruBuri-SemiBold": ["MaruBuriSemiBold"],
+        "MaruBuri-Bold": ["MaruBuriBold"],
+        "GangwonEdu": ["GangwonEdu_OTFBoldA"],
       },
       colors: {
         background: "hsl(var(--background))",

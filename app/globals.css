@@ -66,3 +66,49 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Shimmer Animation for Skeleton UI */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@font-face {
+  font-family: "Darakbang-Bold";
+  src: url("/fonts/Darakbang/DarakbangB.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Darakbang-Light";
+  src: url("/fonts/Darakbang/DarakbangL.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Darakbang-Regular";
+  src: url("/fonts/Darakbang/DarakbangR.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gaeseong-Bold";
+  src: url("/fonts/Gaeseong/GaeseongB.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gaeseong-Light";
+  src: url("/fonts/Gaeseong/GaeseongL.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gaeseong-Regular";
+  src: url("/fonts/Gaeseong/GaeseongR.ttf") format("truetype");
+  font-display: swap;
+}

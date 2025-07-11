@@ -1,9 +1,8 @@
-function ParentComponent() {
+import React from 'react';
+
+export default function TestPage() {
   return (
-    <p>
-      asdc
-    </p>
+    <div className="min-h-screen bg-white">
+    </div>
   );
 }
-
-export default ParentComponent;

@@ -2,11 +2,10 @@
 
 import React from "react";
 import { Suspense } from "react";
-import SubNavbar from "@/app/structureComponent/subNavbar";
+import SubNavbar from "@/app/HomeStructureComponent/subNavbar";
 import Loading from "@/app/loading";
-import DeviceType from "@/components/deviceType";
+import DeviceType from "@/components/home/deviceType";
 import useDeviceDetect from "@/components/hooks/useMobileDetect";
-import { useRouter } from "next/router";
 
 const getMarginClasses = (deviceType: DeviceType) =>
   ({

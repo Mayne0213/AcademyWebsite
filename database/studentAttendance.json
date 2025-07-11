@@ -1,0 +1,37 @@
+{
+  "StudentAttendance": [
+    { "attendanceId": 1,  "studentId": 1,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 2,  "studentId": 2,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 3,  "studentId": 3,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 4,  "studentId": 4,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 5,  "studentId": 5,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 6,  "studentId": 6,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 7,  "studentId": 7,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 8,  "studentId": 8,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 9,  "studentId": 9,  "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+    { "attendanceId": 10, "studentId": 10, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "출석" },
+
+    { "attendanceId": 11, "studentId": 11, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 12, "studentId": 12, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 13, "studentId": 13, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 14, "studentId": 14, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 15, "studentId": 15, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 16, "studentId": 16, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 17, "studentId": 17, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 18, "studentId": 18, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 19, "studentId": 19, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+    { "attendanceId": 20, "studentId": 20, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "지각" },
+
+    { "attendanceId": 21, "studentId": 21, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 22, "studentId": 22, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 23, "studentId": 23, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 24, "studentId": 24, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 25, "studentId": 25, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 26, "studentId": 26, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 27, "studentId": 27, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 28, "studentId": 28, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 29, "studentId": 29, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 30, "studentId": 30, "academyId": "목동 사과나무", "attendanceDate": "20250502", "attendanceStatus": "결석" },
+    { "attendanceId": 31, "studentId": 31, "academyId": "대치 명인",     "attendanceDate": "20250502", "attendanceStatus": "결석" }
+  ]
+}

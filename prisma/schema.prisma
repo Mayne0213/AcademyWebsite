@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DEVELOPER
+  ADMIN
+  STUDENT
+}
+
+model User {
+  memberId     Int      @id @default(autoincrement())
+  userId       String   @unique
+  userPassword String
+  createdAt    DateTime @default(now())
+  role         Role     @default(STUDENT)
+  admin        Admin?   @relation("UserToAdmin")
+  student      Student? @relation("UserToStudent")
+
+  qna      QnABoard[] @relation("UserInQnABoard")
+  qnaComments QnABoardComment[] @relation("UserInQnAComment")
+}
+
+model Admin {
+  memberId   Int    @id
+  adminName  String
+  adminPhone String @unique
+
+  user          User  @relation("UserToAdmin", fields: [memberId], references: [memberId])
+  academy      Academy[]      @relation("AdminToAcademy")
+  announcement Announcement[] @relation("AdminToAnnouncements")
+}
+
+model Student {
+  memberId          Int     @id
+  academyId         Int
+  studentName       String
+  studentPhone      String  @unique
+  studentHighschool String?
+  studentBirthYear  Int
+  studentMemo       String?
+
+  user     User     @relation("UserToStudent", fields: [memberId], references: [memberId])
+  academy  Academy  @relation("AcademyToStudents",fields: [academyId], references: [academyId])
+}
+
+model Academy {
+  academyId      Int       @id @default(autoincrement())
+  academyName    String    @unique
+  academyPhone   String?   @unique
+  academyAddress String
+  createdAt      DateTime  @default(now())
+  academyMainImage String?   // 대표 이미지
+  images           AcademyImage[] // 학원 이미지들
+
+  students        Student[]      @relation("AcademyToStudents")
+  admins          Admin[]        @relation("AdminToAcademy")
+  announcements   Announcement[] @relation("AnnouncementToAcademy")
+}
+
+model AcademyImage {
+  academyImageId        Int      @id @default(autoincrement())
+  academyImageUrl       String   // 이미지 URL
+  academyImageName      String?   // 파일명 (nullable)
+  academyId Int
+
+  academy   Academy  @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Announcement {
+  announcementId Int      @id @default(autoincrement())
+  title          String
+  content        String   @db.Text
+  authorId       Int?
+  isItAssetAnnouncement Boolean @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  author   Admin?    @relation("AdminToAnnouncements", fields: [authorId], references: [memberId], onDelete: SetNull)
+  files    AnnouncementFile[]
+  academies Academy[] @relation("AnnouncementToAcademy")
+}
+
+model AnnouncementFile {
+  id             Int      @id @default(autoincrement())
+  key            String   // S3 key or url
+  originalName   String   
+  fileType       String 
+  announcementId Int
+  uploadedAt     DateTime @default(now())
+
+  announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
+}
+
+model QnABoard {
+  qnaId Int @id @default(autoincrement())
+  qnaTitle String
+  qnaContent String @db.Text
+  qnaUserId Int
+  qnaImageUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation("UserInQnABoard", fields: [qnaUserId], references: [memberId])
+  comments QnABoardComment[] @relation("QnAWithComments")
+}
+
+model QnABoardComment {
+  commentId       Int      @id @default(autoincrement())
+  commentContent  String   @db.Text
+  commentUserId   Int
+  qnaId           Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User      @relation("UserInQnAComment", fields: [commentUserId], references: [memberId])
+  qna             QnABoard  @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
+}

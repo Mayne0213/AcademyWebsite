@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import DeviceType from "../deviceType";
+import DeviceType from "../home/deviceType";
 
-const mobileMaxWidth = 480;
-const smallTabletMaxWidth = 768;
-const tabletMaxWidth = 1024;
+const mobileMaxWidth = 600;
+const smallTabletMaxWidth = 990;
+const tabletMaxWidth = 1200;
 
 const useDeviceDetect = () => {
   const [deviceCondition, setDeviceCondition] = useState<any>(null);
