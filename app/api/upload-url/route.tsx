@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+export const dynamic = 'force-dynamic';
+
 const s3Client = new S3Client({
   region: "ap-northeast-2",
   credentials: {
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest) {
       process.env.AWS_SECRET_ACCESS_KEY ? "설정됨" : "없음",
     );
 
-    const { searchParams } = new URL(req.url);
+    const searchParams = req.nextUrl.searchParams;
     const fileType = searchParams.get("fileType");
     let folder = searchParams.get("folder") || ""; // folder 파라미터 추가
 
