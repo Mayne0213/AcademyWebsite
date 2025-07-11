@@ -1,18 +1,8 @@
-"use client";
+import React from 'react';
 
-import Image from "next/image";
-import specialTimetable from "@/public/home/content/timeTable/special/specialTimetable.png";
-import specialTimetableRotated from "@/public/home/content/timeTable/special/specialTimetableRotated.png";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
-
-const Sat = () => {
+export default function SpecialPage() {
   return (
-    <Image
-      alt=""
-      src={useDeviceDetect() === 0 ? specialTimetableRotated : specialTimetable}
-      className={`border-l-2 border-b-2`}
-    />
+    <div className="min-h-screen bg-white">
+    </div>
   );
-};
-
-export default Sat;
+}
