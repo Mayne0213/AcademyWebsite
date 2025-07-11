@@ -24,7 +24,7 @@
     "@shadcn/ui": "^0.0.4",
     "@types/navermaps": "^3.7.8",
     "axios": "^1.8.2",
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cookie": "^1.0.2",
