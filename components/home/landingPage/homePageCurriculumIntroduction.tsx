@@ -154,4 +154,6 @@ const HomePageCurriculumIntroduction = forwardRef<HTMLDivElement>(
   },
 );
 
+HomePageCurriculumIntroduction.displayName = "HomePageCurriculumIntroduction";
+
 export default HomePageCurriculumIntroduction;
