@@ -141,4 +141,6 @@ const HomePageTextbookIntroduction = forwardRef<HTMLDivElement>(
   },
 );
 
+HomePageTextbookIntroduction.displayName = "HomePageTextbookIntroduction";
+
 export default HomePageTextbookIntroduction;

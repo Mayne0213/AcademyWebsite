@@ -59,7 +59,6 @@ const AttendanceList = ({
             onAcademyChange={(academy) => {
               onAcademyChange(academy);
             }}
-            users={students}
             academys={academys}
           />
           <AllChangeToAttend
@@ -83,9 +82,8 @@ const AttendanceList = ({
         paginatedUsers.map((user) => {
           const status = attendanceStatusMap[user.studentId];
           return (
-            <div>
+            <div key={user.studentId}>
               <AttendanceItem
-                key={user.studentId}
                 user={user}
                 status={status}
                 onStatusChange={onStatusChange}
