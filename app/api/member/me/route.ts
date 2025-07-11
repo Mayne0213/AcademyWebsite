@@ -148,7 +148,7 @@ export async function PATCH(req: Request) {
       userId: userId ?? undefined,
     };
     if (userPassword) {
-      const bcrypt = await import('bcrypt');
+      const bcrypt = await import('bcryptjs');
       const hashedPassword = await bcrypt.hash(userPassword, 10);
       updateUserData.userPassword = hashedPassword;
     }
