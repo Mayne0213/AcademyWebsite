@@ -31,7 +31,7 @@ interface AnnouncementUpdateInput {
 interface AnnouncementState {
   announcements: Announcement[];
   files: Announcement[];
-  loading: boolean;
+  isLoading: boolean;
   loadInitialAnnouncement: () => void;
   loadInitialAsset: () => void;
   getAnnouncementDetail: (announcementId: number) => Promise<AnnouncementDetail | null>;
@@ -43,9 +43,10 @@ interface AnnouncementState {
 export const useAnnouncement = create<AnnouncementState>((set) => ({
   announcements: [],
   files: [],
-  loading: true,
+  isLoading: false,
 
   loadInitialAnnouncement: async () => {
+    set({ isLoading: true });
     try {
       const res = await fetch(`/api/announcement?isItAssetAnnouncement=false`);
       if (!res.ok) throw new Error("Failed to fetch");
@@ -56,11 +57,12 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
     } catch (error) {
       toast.error("공지사항 로딩 중 오류가 발생했습니다.");
     } finally {
-      set({ loading: false });
+      set({ isLoading: false });
     }
   },
 
   loadInitialAsset: async () => {
+    set({ isLoading: true });
     try {
       const res = await fetch(`/api/announcement?isItAssetAnnouncement=true`);
       if (!res.ok) throw new Error("Failed to fetch");
@@ -70,7 +72,7 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
     } catch (error) {
       toast.error("공지사항 로딩 중 오류가 발생했습니다.");
     } finally {
-      set({ loading: false });
+      set({ isLoading: false });
     }
   },
 
@@ -88,7 +90,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
 
   addAnnouncement: async (newAnnouncement) => {
     try {
-      console.log("[디버그] addAnnouncement 호출, 파라미터:", newAnnouncement);
       const res = await fetch("/api/announcement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,7 +99,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
       if (!res.ok) throw new Error("공지사항 추가 실패");
 
       const created: Announcement = await res.json();
-      console.log("[디버그] addAnnouncement 결과:", created);
 
       set((state) => ({
         announcements: [created, ...state.announcements],
@@ -109,7 +109,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
       });
     } catch (error) {
       toast.error("공지사항 추가 중 오류가 발생했습니다.");
-      console.log(error);
     }
   },
 

@@ -16,7 +16,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head />
+      <head>
+        {/* 폰트 프리로딩 */}
+        <link
+          rel="preload"
+          href="/fonts/MaruBuri/MaruBuri-Light.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/MaruBuri/MaruBuri-SemiBold.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/MaruBuri/MaruBuri-Bold.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        {/* LCP 이미지 프리로딩 */}
+        <link
+          rel="preload"
+          href="/homeCopy/jooMain.png"
+          as="image"
+          type="image/png"
+        />
+      </head>
       <body>
         <NextNProgress color={"#1d4ed8"} height={5} shadow={false} />
         <AuthProvider>{children}</AuthProvider>

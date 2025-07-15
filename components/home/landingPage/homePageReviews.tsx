@@ -9,7 +9,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import { DESIGN_SYSTEM } from "./designSystem";
 
 const peopleReviews = [
@@ -74,9 +74,9 @@ const HomePageReviews = () => {
       return "grid-cols-1 px-[60px]";
     } else if (windowWidth < 800) {
       return "grid-cols-2";
-    } else if (deviceCondition === 1) {
+    } else if (deviceCondition === DeviceType.SMALLTABLET) {
       return "grid-cols-2 px-[50px]";
-    } else if (deviceCondition === 2) {
+    } else if (deviceCondition === DeviceType.TABLET) {
       return "grid-cols-3";
     } else {
       return "grid-cols-4";

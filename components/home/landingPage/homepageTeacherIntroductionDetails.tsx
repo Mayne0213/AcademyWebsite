@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import useDeviceDetect from "../../hooks/useMobileDetect";
+import { useDeviceDetect } from "@/components/home/deviceType";
 import DeviceType from "../deviceType";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -59,7 +59,7 @@ const CountUp = ({ target, unit, isMobile }: { target: number; unit: string; isM
 
 const HomePageTeacherIntroductionDetails = () => {
   const device = useDeviceDetect();
-  const isMobile = device === DeviceType.Mobile;
+  const isMobile = device === DeviceType.MOBILE;
 
   return (
     <div

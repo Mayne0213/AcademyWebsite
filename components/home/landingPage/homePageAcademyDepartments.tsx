@@ -4,8 +4,7 @@ import Image from "next/image";
 import useAcademy from "@/components/hooks/useAcademy";
 import BackgroundDot from "../backgroundDot";
 import { useEffect, useState } from "react";
-import examImage from "@/public/homeCopy/home.png";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { DESIGN_SYSTEM } from "./designSystem";
@@ -39,9 +38,9 @@ const HomePageAcademyDepartments = () => {
       return "grid-cols-1";
     } else if (windowWidth < 800) {
       return "grid-cols-2";
-    } else if (deviceType === 1) {
+    } else if (deviceType === DeviceType.SMALLTABLET) {
       return "grid-cols-2";
-    } else if (deviceType === 2) {
+    } else if (deviceType === DeviceType.TABLET) {
       return "grid-cols-3";
     } else {
       return "grid-cols-3";
@@ -52,7 +51,7 @@ const HomePageAcademyDepartments = () => {
 
   useEffect(() => {
     loadInitialAcademy();
-  }, []);
+  }, [loadInitialAcademy]);
 
   useEffect(() => {
     if (academys.length > 0) {
@@ -71,7 +70,7 @@ const HomePageAcademyDepartments = () => {
       <BackgroundDot />
       <div className="container max-w-7xl mx-auto px-4 relative">
         <h2
-          className={`text-center font-MaruBuri-Bold mb-10 ${deviceType === 0 ? "text-4xl" : "text-5xl"}`}
+                      className={`text-center font-MaruBuri-Bold mb-10 ${deviceType === DeviceType.MOBILE ? "text-4xl" : "text-5xl"}`}
         >
           현강 관별 소개
         </h2>
@@ -82,7 +81,6 @@ const HomePageAcademyDepartments = () => {
               {...DESIGN_SYSTEM.animations.fadeInUp}
               transition={{
                 ...DESIGN_SYSTEM.animations.fadeInUp.transition,
-                delay: index * 0.1,
               }}
               className="flex flex-col bg-white rounded-2xl shadow-md overflow-hidden p-5 gap-4"
             >

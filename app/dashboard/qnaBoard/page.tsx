@@ -7,7 +7,7 @@ import Header from "@/app/DashboardStructureComponent/header";
 import Pagination from "@/components/main/student/paginationControls";
 import { useAuth } from "@/contexts/authContexts";
 import { useQna } from "@/components/hooks/useQna";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import AttachedFile from "@/components/attachedFile";
 import { QnaCommentFormInput } from "@/components/type/qnaType";
 
@@ -19,7 +19,7 @@ const QnaBoard: React.FC = () => {
   const ITEMS_PER_PAGE = 10;
   const { user } = useAuth();
   const deviceType = useDeviceDetect();
-  const isCompact = deviceType <= 1;
+  const isCompact = deviceType ? deviceType <= DeviceType.SMALLTABLET : false;
 
   const {
     loading,

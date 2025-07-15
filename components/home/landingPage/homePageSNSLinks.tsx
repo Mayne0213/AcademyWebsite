@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import { useDeviceDetect } from "@/components/home/deviceType";
 import DeviceType from "@/components/home/deviceType";
 import BackgroundDot from "../backgroundDot";
 import { DESIGN_SYSTEM } from "./designSystem";
@@ -40,13 +40,13 @@ const snsList = [
 
 const HomePageSNSLinks = () => {
   const deviceType = useDeviceDetect();
-  const isMobile = deviceType === DeviceType.Mobile;
+  const isMobile = deviceType === DeviceType.MOBILE;
 
   return (
     <section className="py-16 px-4 bg-white relative">
       <BackgroundDot />
       <h2
-        className={`text-center font-MaruBuri-Bold mb-10 text-gray-800 ${deviceType <= 1 ? "text-4xl" : "text-5xl"}`}
+        className={`text-center font-MaruBuri-Bold mb-10 text-gray-800 ${deviceType && deviceType <= DeviceType.SMALLTABLET ? "text-4xl" : "text-5xl"}`}
       >
         SNS 바로가기
       </h2>

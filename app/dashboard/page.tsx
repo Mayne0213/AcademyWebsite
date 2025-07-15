@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function Dashboard() {
   const { user } = useAuth();
   const {
-    loading,
+    isLoading,
     announcements,
     files,
     loadInitialAnnouncement,
@@ -95,7 +95,7 @@ export default function Dashboard() {
               </a>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -173,7 +173,7 @@ export default function Dashboard() {
                 전체보기 →
               </a>
             </div>
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -250,7 +250,7 @@ export default function Dashboard() {
               </a>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div

@@ -12,9 +12,8 @@ import {
   ArrowRight,
   ChevronDown,
 } from "lucide-react";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
-import DeviceType from "@/components/home/deviceType";
-import { DESIGN_SYSTEM } from "./designSystem";
+import DeviceType, { useDeviceDetect } from "../deviceType";
+import { SectionUp } from "./designSystem";
 
 const roadmapSteps = [
   {
@@ -66,8 +65,8 @@ const roadmapSteps = [
 
 const HomePageCurriculumDetails = () => {
   const deviceType = useDeviceDetect();
-  const isMobile = deviceType === DeviceType.Mobile;
-  const isSmallTablet = deviceType === DeviceType.SmallTablet;
+  const isMobile = deviceType === DeviceType.MOBILE;
+  const isSmallTablet = deviceType === DeviceType.SMALLTABLET;
   const [isExpanded, setIsExpanded] = useState(false);
 
   const columns = isMobile ? 1 : isSmallTablet ? 2 : 3;
@@ -87,8 +86,8 @@ const HomePageCurriculumDetails = () => {
   };
 
   const styles = {
-    titleSize: isMobile ? "text-2xl" : "text-5xl",
-    descSize: isMobile ? "text-sm" : "text-base",
+    titleSize: isMobile ? "text-2xl" : isSmallTablet ? "text-3xl" : "text-5xl",
+    descSize: isMobile ? "text-xs" : isSmallTablet ? "text-sm" : "text-base",
     iconSize: isMobile ? "w-8 h-8" : "w-10 h-10",
     textSize: isMobile ? "text-sm" : "text-base",
     cardPadding: isMobile ? "p-4 sm:p-6" : "p-8",
@@ -104,8 +103,7 @@ const HomePageCurriculumDetails = () => {
     <div className="bg-gray-50 px-4 md:px-8 w-full flex justify-center py-12 md:py-20">
       <div className="w-full max-w-7xl flex flex-col items-center">
         {/* Header */}
-        <motion.header
-          {...DESIGN_SYSTEM.animations.fadeInUp}
+        <SectionUp
           className="text-center mb-12"
         >
           <h1 className={`text-gray-800 font-MaruBuri-Bold mb-4 ${styles.titleSize}`}>
@@ -116,7 +114,7 @@ const HomePageCurriculumDetails = () => {
             향상시키고, 최종적으로 수능 만점을 달성할 수 있도록 설계된 완벽한
             커리큘럼입니다.
           </p>
-        </motion.header>
+        </SectionUp>
 
         {/* Mobile: 겹쳐진 카드 형태 */}
         {isMobile && (
@@ -327,8 +325,7 @@ const HomePageCurriculumDetails = () => {
 
               return (
                 <div key={index} className="relative flex flex-col">
-                  <motion.div
-                    {...DESIGN_SYSTEM.animations.fadeInUp}
+                  <SectionUp
                     transition={{ delay: index * 0.1 }}
                     className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex-1 flex flex-col"
                   >
@@ -357,7 +354,7 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     </div>
                     {arrow}
-                  </motion.div>
+                  </SectionUp>
                 </div>
               );
             })}
