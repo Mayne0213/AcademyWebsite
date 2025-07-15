@@ -1,146 +1,103 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import { forwardRef } from "react";
-import textbookCrafting from "@/public/homeCopy/homePageBoard/bnImg2.jpg";
+import { SectionUp } from "./designSystem";
 import BackgroundDot from "../backgroundDot";
-import DeviceType from "@/components/home/deviceType";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
-import { DESIGN_SYSTEM } from "./designSystem";
+import Loading from "@/components/ui/loading";
+import { useState } from "react";
+import { forwardRef } from "react";
+import Image from "next/image";
 
-const getDeviceClasses = (deviceType: DeviceType | null) => {
-  if (deviceType === null) {
-    return {
-      layoutDirection: "",
-      textWidth: "",
-      textAlign: "",
-      textColor: "",
-      showLineBreak: false,
-      sectionPadding: "",
-      headingSize: "",
-      textSize: "",
-      gap: "",
-    };
-  }
+const TEXTBOOK_IMAGE_URL = "/homeCopy/homePageBoard/bnImg2.jpg";
+const TITLE = `혜연쌤의 영혼을 탈탈 털어넣은\n1등급 노하우의 집약체.`;
+const DESCRIPTION = `EBS 1타 강사로 10년 넘게 활약한 주혜연 선생님의 노하우가 가득 담긴 교재로, 교재 개발 경험까지 더해 출제자의 핵심을 정확히 짚어내는 문제로 엄선합니다. 최고의 연구진과 함께 꾸준히 업데이트되며, 시험장에서도 든든한 친구가 되어줄 학습 파트너입니다.`;
 
-  return {
-    [DeviceType.Desktop]: {
-      sectionPadding: "py-20 px-6 bg-[#e3e9e0]",
-      headingSize: "text-4xl",
-      layoutDirection: "flex-row",
-      gap: "gap-10",
-      textSize: "text-xl",
-      textWidth: "w-[55%]",
-      textAlign: "text-left",
-      textColor: "text-black",
-    },
-    [DeviceType.Tablet]: {
-      sectionPadding: "py-16 px-6 bg-[#e3e9e0]",
-      headingSize: "text-3xl",
-      layoutDirection: "flex-row",
-      gap: "gap-8",
-      textSize: "text-lg",
-      textWidth: "w-[55%]",
-      textAlign: "text-left",
-      textColor: "text-black",
-    },
-    [DeviceType.SmallTablet]: {
-      sectionPadding: "bg-black",
-      headingSize: "text-2xl",
-      gap: "gap-6",
-      layoutDirection: "flex-col",
-      textSize: "text-base",
-      textWidth: "w-full",
-      textAlign: "text-center",
-      textColor: "text-white",
-    },
-    [DeviceType.Mobile]: {
-      sectionPadding: "py-10 px-4 bg-[#e3e9e0]",
-      headingSize: "text-xl",
-      gap: "gap-4",
-      layoutDirection: "flex-col",
-      textSize: "text-sm",
-      textWidth: "w-full",
-      textAlign: "text-center",
-      textColor: "text-black",
-    },
-  }[deviceType];
+const STYLES = {
+  layoutDirection: [
+    "flex-col",
+    "tablet:flex-row",
+  ].join(" "),
+  textWidth: [
+    "w-full",
+    "tablet:w-[55%]",
+  ].join(" "),
+  textAlign: [
+    "text-center",
+    "smalltablet:absolute smalltablet:inset-0 smalltablet:text-center smalltablet:z-10",
+    "tablet:text-left tablet:static tablet:block",
+  ].join(" "),
+  textColor: [
+    "text-black",
+    "smalltablet:text-white",
+    "tablet:text-black",
+  ].join(" "),
+  padding: [
+    "py-10 px-4 bg-[#e3e9e0]",
+    "smalltablet:py-0 smalltablet:px-0 smalltablet:bg-black",
+    "tablet:py-16 tablet:px-6 tablet:bg-[#e3e9e0]",
+    "desktop:py-20",
+  ].join(" "),
+  titleSize: [
+    "text-xl",
+    "smalltablet:text-2xl",
+    "tablet:text-3xl",
+    "desktop:text-4xl",
+  ].join(" "),
+  textSize: [
+    "text-sm",
+    "smalltablet:text-base smalltablet:px-[80px]",
+    "tablet:text-lg tablet:px-0",
+    "desktop:text-xl",
+  ].join(" "),
+  gap: [
+    "gap-4",
+    "tablet:gap-8",
+    "desktop:gap-10",
+  ].join(" "),
+  imageClasses: [
+    "w-full rounded-2xl aspect-video",
+    "smalltablet:opacity-60 smalltablet:max-h-[300px] smalltablet:rounded-none",
+    "tablet:opacity-100 tablet:w-[50%] tablet:rounded-2xl",
+  ].join(" "),
 };
 
-const HomePageTextbookIntroduction = forwardRef<HTMLDivElement>(
-  (props, ref) => {
-    const deviceType = useDeviceDetect();
-    const {
-      sectionPadding,
-      headingSize,
-      layoutDirection,
-      gap,
-      textSize,
-      textColor,
-      textWidth,
-      textAlign,
-    } = getDeviceClasses(deviceType);
+const HomePageTextbookIntroduction = forwardRef<HTMLElement>((_,ref) => (
+  <SectionUp ref={ref} className={`relative ${STYLES.padding}`}>
+    <BackgroundDot />
+    <main className={`relative w-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection}`}>
+      <TextbookTextSection />
+      <TextbookImageSection />
+    </main>
+  </SectionUp>
+));
 
-    const isSmallTablet = deviceType === DeviceType.SmallTablet;
+const TextbookImageSection = () => {
+  const [isLoading, setIsLoading] = useState(true);
 
-    return (
-      <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        viewport={{ once: true }}
-        ref={ref}
-        className={`relative ${sectionPadding}`}
-      >
-        <BackgroundDot />
+  return (
+  <figure className={`relative overflow-hidden shadow-xl max-h-[500px] ${STYLES.imageClasses}`}>
+    {isLoading && (
+      <Loading type="hash" size={30} color="#3B82F6" />
+    )}
+    <Image
+      src={TEXTBOOK_IMAGE_URL}
+      alt="주혜연 선생님 교재 제작 과정"
+      fill
+      className={`object-cover transition-opacity duration-300`}
+      onLoad={() => setIsLoading(false)}
+    />
+  </figure>
+  );
+};
 
-        <div
-          className={`relative w-full m-auto flex items-center max-w-7xl ${gap} ${layoutDirection}`}
-        >
-          <motion.div
-            {...DESIGN_SYSTEM.animations.fadeInUp}
-            className={`z-[1] ${
-              isSmallTablet
-                ? "absolute inset-0 flex flex-col justify-center items-center px-32 text-center"
-                : `relative ${textAlign} ${textWidth}`
-            }`}
-          >
-            <div className={`space-y-4 ${textColor}`}>
-              <h2 className={`${headingSize} font-MaruBuri-Bold`}>
-                혜연쌤의 영혼을 탈탈 털어넣은
-                <br />
-                1등급 노하우의 집약체.
-              </h2>
-              <p className={`leading-relaxed font-MaruBuri-Light ${textSize}`}>
-                EBS 1타 강사로 10년 넘게 활약한 주혜연 선생님의 노하우가 가득
-                담긴 교재로, 교재 개발 경험까지 더해 출제자의 핵심을
-                정확히 짚어내는 문제로 엄선합니다. 최고의 연구진과 함께 꾸준히
-                업데이트되며, 시험장에서도 든든한 친구가 되어줄 학습
-                파트너입니다.
-              </p>
-            </div>
-          </motion.div>
-
-          <Image
-            src={textbookCrafting}
-            alt="Background Image"
-            className={`rounded-2xl shadow-xl
-                        ${
-                          deviceType === 0
-                            ? "w-full"
-                            : deviceType === 1
-                              ? "opacity-60 w-full"
-                              : "object-cover relative w-[50%]"
-                        }
-                      `}
-          />
-        </div>
-      </motion.section>
-    );
-  },
+const TextbookTextSection = () => (
+  <SectionUp className={`${STYLES.textWidth} ${STYLES.textAlign}`}>
+    <section className={`h-full flex flex-col justify-center space-y-4 ${STYLES.textColor}`}>
+      <h1 className={`font-MaruBuri-Bold whitespace-pre-line ${STYLES.titleSize}`}>{TITLE}</h1>
+      <p className={`leading-relaxed font-MaruBuri-Light ${STYLES.textSize}`}>{DESCRIPTION}</p>
+    </section>
+  </SectionUp>
 );
 
-HomePageTextbookIntroduction.displayName = "HomePageTextbookIntroduction";
 
+HomePageTextbookIntroduction.displayName = "HomePageTextbookIntroduction";
 export default HomePageTextbookIntroduction;

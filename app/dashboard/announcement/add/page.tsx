@@ -28,8 +28,8 @@ interface AnnouncementFormInput {
 const AddAnnouncementPage = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [selectedAcademyIds, setSelectedAcademyIds] = useState<number[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false); // 제출 로딩 상태 추가
-  const [isFileUploading, setIsFileUploading] = useState(false); // 파일 업로드 로딩 상태 추가
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFileUploading, setIsFileUploading] = useState(false);
   const router = useRouter();
   const { academys, loadInitialAcademy } = useAcademy();
   const { addAnnouncement } = useAnnouncement();
@@ -41,12 +41,10 @@ const AddAnnouncementPage = () => {
     isItAssetAnnouncement: false,
   });
 
-  // 학원 목록 로드
   useEffect(() => {
     loadInitialAcademy();
   }, [loadInitialAcademy]);
 
-  // 학원 목록이 로드되면 모든 학원을 기본 선택으로 설정
   useEffect(() => {
     if (academys.length > 0) {
       const allAcademyIds = academys.map(academy => academy.academyId);
@@ -54,17 +52,10 @@ const AddAnnouncementPage = () => {
     }
   }, [academys]);
 
-  // 여러 파일 업로드 핸들러
-  const handleFilesUploadComplete = (uploadedFiles: FileItem[]) => {
-    setFiles(uploadedFiles);
-  };
-
-  // 파일 업로드 로딩 상태 핸들러
   const handleFileUploadLoading = (isLoading: boolean) => {
     setIsFileUploading(isLoading);
   };
 
-  // 학원 선택 핸들러
   const handleAcademyToggle = (academyId: number) => {
     setSelectedAcademyIds(prev => 
       prev.includes(academyId)
@@ -76,7 +67,7 @@ const AddAnnouncementPage = () => {
   const handleAdd = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const target = e.target as HTMLInputElement; // 타입 단언
+    const target = e.target as HTMLInputElement;
     const { name, value, type, checked } = target;
     setForm((prev) => ({
       ...prev,
@@ -109,7 +100,6 @@ const AddAnnouncementPage = () => {
         router.push("/dashboard/announcement");
       }
     } catch (err) {
-      console.log(err);
       toast.error("공지 작성 중 오류가 발생했습니다.");
     }
   };
@@ -147,7 +137,6 @@ const AddAnnouncementPage = () => {
             />
           </div>
 
-          {/* 체크박스 추가 */}
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -165,7 +154,6 @@ const AddAnnouncementPage = () => {
             </label>
           </div>
 
-          {/* 학원 선택 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               공지를 볼 수 있는 학원 선택
@@ -191,7 +179,6 @@ const AddAnnouncementPage = () => {
             </div>
           </div>
 
-          {/* 파일 업로드 컴포넌트 교체 */}
           <S3ImageUploadMultiple 
             onUploadComplete={setFiles} 
             initialFiles={files} 
@@ -202,7 +189,7 @@ const AddAnnouncementPage = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={isSubmitting || isFileUploading} // 파일 업로드 중에도 비활성화
+              disabled={isSubmitting || isFileUploading}
               className={`px-4 py-2 rounded-md transition-all duration-200 ${
                 isSubmitting || isFileUploading
                   ? "bg-gray-400 text-gray-600 cursor-not-allowed"

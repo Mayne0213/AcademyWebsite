@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/authContexts";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function Navbar() {
   const { logout } = useAuth();
   const deviceType = useDeviceDetect(); // 0=모바일, 1=작은 태블릿, 2=태블릿, 3=데스크탑
-  const isMobile = deviceType <= 1;
+  const isMobile = deviceType ? deviceType === DeviceType.MOBILE : false
 
   const [menuOpen, setMenuOpen] = useState(false);
 

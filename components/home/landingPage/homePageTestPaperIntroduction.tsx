@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import BackgroundDot from "../backgroundDot";
 import { forwardRef } from "react";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import { useDeviceDetect } from "@/components/home/deviceType";
 import DeviceType from "@/components/home/deviceType";
 import { DESIGN_SYSTEM } from "./designSystem";
 
@@ -35,7 +35,7 @@ const getDeviceClasses = (deviceType: DeviceType | null) => {
   }
 
   return {
-    [DeviceType.Desktop]: {
+    [DeviceType.DESKTOP]: {
       padding: "py-24 px-6",
       layout: "flex-row",
       gap: "gap-16",
@@ -49,7 +49,7 @@ const getDeviceClasses = (deviceType: DeviceType | null) => {
       textAlign: "text-left",
       textSpacing: "space-y-6",
     },
-    [DeviceType.Tablet]: {
+    [DeviceType.TABLET]: {
       padding: "py-20 px-6",
       layout: "flex-row",
       gap: "gap-12",
@@ -63,7 +63,7 @@ const getDeviceClasses = (deviceType: DeviceType | null) => {
       textAlign: "text-left",
       textSpacing: "space-y-5",
     },
-    [DeviceType.SmallTablet]: {
+    [DeviceType.SMALLTABLET]: {
       padding: "py-16 px-4",
       layout: "flex-col",
       gap: "gap-8",
@@ -77,7 +77,7 @@ const getDeviceClasses = (deviceType: DeviceType | null) => {
       textAlign: "text-center",
       textSpacing: "space-y-4",
     },
-    [DeviceType.Mobile]: {
+    [DeviceType.MOBILE]: {
       padding: "py-12 px-4",
       layout: "flex-col",
       gap: "gap-6",
@@ -112,7 +112,7 @@ const TestPaperIntroduction = forwardRef<HTMLDivElement>((_props, ref) => {
   } = getDeviceClasses(deviceType);
 
   const isDesktopOrTablet =
-    deviceType === DeviceType.Desktop || deviceType === DeviceType.Tablet;
+    deviceType === DeviceType.DESKTOP || deviceType === DeviceType.TABLET;
 
   return (
     <motion.section
@@ -171,48 +171,48 @@ const TestPaperIntroduction = forwardRef<HTMLDivElement>((_props, ref) => {
               <LineChart
                 data={mockData}
                 margin={{
-                  top: deviceType === DeviceType.Mobile ? 5 : 10,
-                  right: deviceType === DeviceType.Mobile ? 5 : 10,
-                  left: deviceType === DeviceType.Mobile ? 0 : 10,
-                  bottom: deviceType === DeviceType.Mobile ? 5 : 10,
+                  top: deviceType === DeviceType.MOBILE ? 5 : 10,
+                  right: deviceType === DeviceType.MOBILE ? 5 : 10,
+                  left: deviceType === DeviceType.MOBILE ? 0 : 10,
+                  bottom: deviceType === DeviceType.MOBILE ? 5 : 10,
                 }}
               >
                 <XAxis
                   dataKey="name"
                   tick={{
                     fill: "#555",
-                    fontSize: deviceType === DeviceType.Mobile ? 12 : 14,
+                    fontSize: deviceType === DeviceType.MOBILE ? 12 : 14,
                     fontFamily: "MaruBuri-Regular",
                   }}
                   axisLine={{ stroke: "#e5e5e5" }}
                   tickLine={{ stroke: "#e5e5e5" }}
-                  tickMargin={deviceType === DeviceType.Mobile ? 2 : 5}
+                  tickMargin={deviceType === DeviceType.MOBILE ? 2 : 5}
                 />
                 <YAxis
                   tick={{
                     fill: "#555",
-                    fontSize: deviceType === DeviceType.Mobile ? 12 : 14,
+                    fontSize: deviceType === DeviceType.MOBILE ? 12 : 14,
                     fontFamily: "MaruBuri-Regular",
                   }}
                   domain={[60, 100]}
                   axisLine={{ stroke: "#e5e5e5" }}
                   tickLine={{ stroke: "#e5e5e5" }}
-                  width={deviceType === DeviceType.Mobile ? 30 : 40}
-                  tickMargin={deviceType === DeviceType.Mobile ? 2 : 5}
+                  width={deviceType === DeviceType.MOBILE ? 30 : 40}
+                  tickMargin={deviceType === DeviceType.MOBILE ? 2 : 5}
                 />
                 <Line
                   type="monotone"
                   dataKey="score"
                   stroke="#7b3fe4"
-                  strokeWidth={deviceType === DeviceType.Mobile ? 3 : 4}
+                  strokeWidth={deviceType === DeviceType.MOBILE ? 3 : 4}
                   dot={{
-                    r: deviceType === DeviceType.Mobile ? 4 : 6,
+                    r: deviceType === DeviceType.MOBILE ? 4 : 6,
                     fill: "#7b3fe4",
                     strokeWidth: 2,
                     stroke: "#fff",
                   }}
                   activeDot={{
-                    r: deviceType === DeviceType.Mobile ? 6 : 8,
+                    r: deviceType === DeviceType.MOBILE ? 6 : 8,
                     fill: "#7b3fe4",
                     stroke: "#fff",
                     strokeWidth: 2,

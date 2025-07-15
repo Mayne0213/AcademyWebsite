@@ -14,7 +14,7 @@ import Header from "@/app/DashboardStructureComponent/header";
 import Pagination from "@/components/main/student/paginationControls";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContexts";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import AttachedFile from "@/components/attachedFile";
 
 interface ExpandedItems {
@@ -25,10 +25,10 @@ const Announcements: React.FC = () => {
   const ITEMS_PER_PAGE = 10;
   const { user } = useAuth();
   const deviceType = useDeviceDetect();
-  const isCompact = deviceType <= 1;
+  const isCompact = deviceType ? deviceType <= DeviceType.SMALLTABLET : false;
 
   const {
-    loading,
+    isLoading,
     announcements,
     loadInitialAnnouncement,
     removeAnnouncement,
@@ -93,7 +93,7 @@ const Announcements: React.FC = () => {
 
       <div className="max-w-6xl mx-auto px-4">
         <div className="space-y-4">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
@@ -110,7 +110,7 @@ const Announcements: React.FC = () => {
                           style={{ width: `${Math.random() * 30 + 50}%` }}
                         />
                         <div className="flex flex-wrap items-center gap-2">
-                          {deviceType !== 0 && (
+                          {deviceType && deviceType !== DeviceType.MOBILE && (
                             <div className="flex items-center gap-1">
                               <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse" />
                               <div className="h-3 w-16 bg-gray-200 rounded-full animate-pulse" />
@@ -167,7 +167,7 @@ const Announcements: React.FC = () => {
                             isCompact ? "text-xs" : "text-sm"
                           }`}
                         >
-                          {deviceType !== 0 && (
+                          {deviceType && deviceType !== DeviceType.MOBILE && (
                             <div className="flex items-center gap-1">
                               <User className="w-4 h-4" />
                               <span>연구소 조교</span>

@@ -5,16 +5,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import tabs from "@/components/home/tabs";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import Loading from "../loading";
 import { useAuth } from "@/contexts/authContexts";
 
-import {
-  MenuIcon,
-  X,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
+import { MenuIcon, X, ChevronDown, ChevronUp } from "lucide-react";
 
 const Navbar: React.FC = () => {
   const { user } = useAuth();
@@ -27,7 +22,7 @@ const Navbar: React.FC = () => {
   const backgroundShouldBeWhite =
     route === "/home/login" ||
     isScrolled ||
-    (deviceCondition === 3 && (isHovered || isMenuOpen));
+    (deviceCondition === DeviceType.DESKTOP && (isHovered || isMenuOpen));
 
   const handleSubmenuTab = (index: number) => {
     setOpenSubMenuTab(index);
@@ -36,8 +31,9 @@ const Navbar: React.FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50);
-      sessionStorage.setItem("isScrolled", isScrolled.toString());
+      const newIsScrolled = scrollTop > 50;
+      setIsScrolled(newIsScrolled);
+      sessionStorage.setItem("isScrolled", newIsScrolled.toString());
     };
 
     setIsScrolled(sessionStorage.getItem("isScrolled") === "true");
@@ -50,8 +46,7 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <div className="relative font-MaruBuri-Bold">
-
+    <div className="relative font-MaruBuri-Bold z-50">
       {/* Navbar width, height, and background initialization */}
       <nav
         onMouseEnter={() => {
@@ -61,30 +56,32 @@ const Navbar: React.FC = () => {
           setIsHovered(false);
         }}
         className={`${backgroundShouldBeWhite ? " bg-white border-gray-200 border-opacity-50" : "bg-transparent border-white border-opacity-5"}
-                    ${deviceCondition === 0 ? "h-[50px]" : deviceCondition === 1 || deviceCondition === 2 ? "h-[70px]" : "h-[90px]"}
+                    ${deviceCondition === DeviceType.MOBILE ? "h-[50px]" : deviceCondition === DeviceType.SMALLTABLET || deviceCondition === DeviceType.TABLET ? "h-[70px]" : "h-[90px]"}
                     fixed z-[3] w-full flex items-center justify-between transition duration-300 border-b-2`}
       >
         {/* Logo */}
         <Link href={"/home"}>
           <div
-            className={`font-GangwonEdu flex items-center justify-center
-                        ${deviceCondition === 0 ? "pl-4 text-3xl" : deviceCondition === 1 || deviceCondition === 2 ? "pl-8 text-4xl" : "pl-8 text-5xl"}
+            className={`font-GangwonEdu-Bold flex items-center justify-center
+                        ${deviceCondition === DeviceType.MOBILE ? "pl-4 text-3xl" : deviceCondition === DeviceType.SMALLTABLET || deviceCondition === DeviceType.TABLET ? "pl-8 text-4xl" : "pl-8 text-5xl"}
                         ${backgroundShouldBeWhite ? "text-[#092C4C]" : "text-[#092C4C]"}
                         cursor-pointer transition-all duration-300 hover:opacity-80`}
             onClick={() => {
               setIsMenuOpen(false);
             }}
           >
-            주혜연T
+            주혜연T{deviceCondition}
           </div>
         </Link>
 
         {/* Main Menu */}
         <div className={`flex items-center justify-center`}>
           {/* {deviceCondition <= 3 && ( */}
-          {deviceCondition <= 3 && (
+          {deviceCondition && deviceCondition <= DeviceType.DESKTOP && (
             <div className="text-md flex pt-[35px] items-center justify-center">
-              <div className={`flex ${user?.role === "DEVELOPER" ? "" : "hidden"}`}>
+              <div
+                className={`flex ${user?.role === "DEVELOPER" ? "" : "hidden"}`}
+              >
                 {tabs.map((tab, index) => (
                   <div className={`cursor-pointer`} key={index}>
                     {/* <Link className={cursor-pointer} href={tab.href} key={index}> */}
@@ -146,13 +143,13 @@ const Navbar: React.FC = () => {
               width={30}
               height={30}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`${deviceCondition <= 2 ? "absolute right-[20px]" : "mr-[40px] hover:bg-gray-300"}
+              className={`${deviceCondition && deviceCondition <= DeviceType.TABLET ? "absolute right-[20px]" : "mr-[40px] hover:bg-gray-300"}
                           rounded-sm transition-all duration-300 cursor-pointer `}
             />
           )}
 
           {/* X icon (When Hamburger icon is clicked) */}
-          {deviceCondition === 3 && isMenuOpen && (
+          {deviceCondition === DeviceType.DESKTOP && isMenuOpen && (
             <X
               width={30}
               height={30}
@@ -164,7 +161,7 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Hamburger Desktop icon function */}
-      {deviceCondition === 3 && (
+      {deviceCondition === DeviceType.DESKTOP && (
         <div
           className={`z-[2] fixed min-w-full h-[300px] border-b-2 border-gray-200 border-opacity-50 bg-white transition duration-500 p-[30px]
                       ${isMenuOpen ? "translate-y-[90px]" : "translate-y-[-300px]"}
@@ -202,7 +199,7 @@ const Navbar: React.FC = () => {
       )}
 
       {/* Hamburger Mobile icon function */}
-      {deviceCondition <= 2 && (
+      {deviceCondition && deviceCondition <= DeviceType.TABLET && (
         <div>
           {/* Blurs background */}
           <div

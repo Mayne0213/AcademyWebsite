@@ -2,8 +2,8 @@
 
 import { useRef } from "react";
 
-// 개별 컴포넌트 import
 import HomePageWelcome from "@/components/home/landingPage/homePageWelcome";
+import HomePageWelcome2 from "@/components/home/landingPage/homePageWelcome copy";
 import HomePageAnnouncement from "@/components/home/landingPage/homePageAnnouncement";
 import HomePageTeacherIntroductionDetails from "@/components/home/landingPage/homepageTeacherIntroductionDetails";
 import HomePageCurriculumIntroduction from "@/components/home/landingPage/homePageCurriculumIntroduction";
@@ -20,47 +20,45 @@ import HomePageSNSLinks from "@/components/home/landingPage/homePageSNSLinks";
 import HomePageFloatingChatButton from "@/components/home/landingPage/homePageFloatingChatButton";
 
 import BackgroundDot from "@/components/home/backgroundDot";
+import LCPTest from "@/components/home/lcptest";
 
 const Home = () => {
   const welcomeRef = useRef<HTMLDivElement>(null);
-  const teacherRef = useRef<HTMLDivElement>(null);
+  const curriculumRef = useRef<HTMLDivElement>(null);
   const textbookRef = useRef<HTMLDivElement>(null);
   const testPaperRef = useRef<HTMLDivElement>(null);
   const advertisingRef = useRef<HTMLDivElement>(null);
 
   return (
     <main className="relative flex flex-col w-full bg-gray-50 font-MaruBuri-Regular">
-      {/* 배경에 땡떙이 */}
-      <BackgroundDot />
 
       {/* 플로팅 네비게이션 버튼 */}
       <HomePageFloatingChatButton
         sectionRefs={{
           welcomeRef,
-          teacherRef,
+          curriculumRef,
           textbookRef,
           testPaperRef,
           advertisingRef,
         }}
       />
 
-      {/* 히어로 섹션 */}
-      <HomePageWelcome ref={welcomeRef} />
+      {/* 배경에 땡떙이 */}
+      <BackgroundDot />
 
-      {/* 공지사항 섹션 */}
+      {/* 히어로 섹션  리팩토링 아직 안됨*/}
+      {/* <HomePageWelcome ref={welcomeRef} /> */}
+      {/* <LCPTest /> */}
+      <HomePageWelcome2 ref={welcomeRef} />
+
+      {/* 공지사항 */}
       <HomePageAnnouncement />
 
-      {/* 선생님 경력 */}
-      {/* <HomePageTeacherIntroductionDetails /> */}
-
       {/* 커리큘럼 소개 섹션 */}
-      <HomePageCurriculumIntroduction ref={teacherRef} />
+      <HomePageCurriculumIntroduction ref={curriculumRef} />
 
-      {/* 커리큘럼 세부사항 섹션 */}
+      {/* 커리큘럼 세부사항 섹션 나중에 다시 코딩*/}
       <HomePageCurriculumDetails />
-
-      {/* 현강생 전용 커리큘럼 */}
-      {/* <HomePageTeacherIntroductionDetails /> */}
 
       {/* 교재 소개 섹션 */}
       <HomePageTextbookIntroduction ref={textbookRef} />
@@ -71,6 +69,7 @@ const Home = () => {
       {/* 현강생 교재 쇼케이스 섹션 */}
       <HomePageBookOfflineShowcase />
 
+                                                            {/* 여기 위에 까지 리팩토링 끝남 */}
       {/* 모의고사 소개 섹션 */}
       <HomePageTestPaperIntroduction ref={testPaperRef} />
 

@@ -52,8 +52,6 @@ export async function GET(req: NextRequest) {
     const uniqueFileName = folder 
       ? `${folder}/${Date.now()}-${Math.floor(Math.random() * 1e6)}.${ext}`
       : `${Date.now()}-${Math.floor(Math.random() * 1e6)}.${ext}`;
-    console.log("생성된 파일명:", uniqueFileName);
-    console.log("폴더 경로:", folder);
 
     const command = new PutObjectCommand({
       Bucket: "jooeng",

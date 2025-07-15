@@ -1,147 +1,118 @@
 "use client";
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-
-import book1 from "@/public/homeCopy/textbooks/book1.jpg";
-import book2 from "@/public/homeCopy/textbooks/book2.jpg";
-import book3 from "@/public/homeCopy/textbooks/book3.jpg";
-import book4 from "@/public/homeCopy/textbooks/book4.jpg";
-import book5 from "@/public/homeCopy/textbooks/book5.jpg";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
 
 import BackgroundGrayShape from "../backgroundGrayShelf";
+import { SectionUp } from "./designSystem";
+import Loading from "@/components/ui/loading";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { useState } from "react";
 
-import DeviceType from "@/components/home/deviceType";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
-import { DESIGN_SYSTEM } from "./designSystem";
+const BOOK_IMAGE_URL_1 = "/homeCopy/textbooks/book1.jpg";
+const BOOK_IMAGE_URL_2 = "/homeCopy/textbooks/book2.jpg";
+const BOOK_IMAGE_URL_3 = "/homeCopy/textbooks/book3.jpg";
+const BOOK_IMAGE_URL_4 = "/homeCopy/textbooks/book4.jpg";
+const BOOK_IMAGE_URL_5 = "/homeCopy/textbooks/book5.jpg";
 
-const bookList = [book1, book2, book3, book4, book5];
+const bookList = [BOOK_IMAGE_URL_1, BOOK_IMAGE_URL_2, BOOK_IMAGE_URL_3, BOOK_IMAGE_URL_4, BOOK_IMAGE_URL_5];
 
-const getDeviceClasses = (deviceType: DeviceType | null) => {
-  if (deviceType === null) {
-    return {
-      slidesPerView: 0,
-      spaceBetween: 0,
-      paddingX: "",
-      textBookPadding: "",
-      titleSize: "",
-      titleAlign: "",
-    };
-  }
-  return {
-    [DeviceType.Desktop]: {
-      slidesPerView: 4,
-      spaceBetween: 30,
-      textBookPadding: "px-0",
-      titleSize: "text-5xl",
-      titleAlign: "text-left",
-      subTitleSize: "text-xl",
-      sectionPadding: "px-6 py-24",
-    },
-    [DeviceType.Tablet]: {
-      slidesPerView: 3,
-      spaceBetween: 20,
-      textBookPadding: "px-4",
-      titleSize: "text-4xl",
-      titleAlign: "text-left",
-      subTitleSize: "text-lg",
-      sectionPadding: "px-6 py-24",
-    },
-    [DeviceType.SmallTablet]: {
-      slidesPerView: 3,
-      spaceBetween: 15,
-      textBookPadding: "px-2",
-      titleSize: "text-4xl",
-      titleAlign: "text-center",
-      subTitleSize: "text-base",
-      sectionPadding: "px-6 py-12",
-    },
-    [DeviceType.Mobile]: {
-      slidesPerView: 2,
-      spaceBetween: 10,
-      textBookPadding: "px-4",
-      titleSize: "text-4xl",
-      titleAlign: "text-center",
-      subTitleSize: "text-xs",
-      sectionPadding: "px-4 py-12",
-    },
-  }[deviceType];
+const STYLES = {
+  textBookPadding: [
+    "px-2",
+    "smalltablet:px-4",
+    "tablet:px-0",
+  ].join(" "),
+  titleSize: [
+    "text-4xl",
+    "desktop:text-5xl",
+  ].join(" "),
+  titleAlign: [
+    "text-center",
+    "smalltablet:text-center",
+    "tablet:text-left",
+  ].join(" "),
+  subTitleSize: [
+    "text-xs",
+    "smalltablet:text-base",
+    "tablet:text-xl",
+  ].join(" "),
+  sectionPadding: [
+    "px-4 py-12",
+    "smalltablet:px-0 smalltablet:py-8",
+    "tablet:px-6 tablet:py-24 tablet:bg-transparent",
+  ].join(" "),
 };
 
-const HomePageTextBookDetails = () => {
-  const deviceType = useDeviceDetect();
-  const {
-    slidesPerView,
-    spaceBetween,
-    textBookPadding,
-    titleSize,
-    titleAlign,
-    subTitleSize,
-    sectionPadding,
-  } = getDeviceClasses(deviceType);
+const Header = () => (
+  <SectionUp className={`space-y-2 ${STYLES.titleAlign}`}>
+    <h1 className={`font-MaruBuri-Light text-gray-600 ${STYLES.subTitleSize}`}>
+      선생님과 직원들의 노하우로 만들어진,
+    </h1>
+    <h2 className={`font-MaruBuri-Bold text-gray-900 ${STYLES.titleSize}`}>
+      꽃필날 연구소 <br className="smalltablet:hidden" /> 자체 교재
+    </h2>
+  </SectionUp>
+);
+
+const BookSwiper = () => (
+  <article className="max-w-7xl mx-auto px-[5vw] desktop:px-0">
+    <Swiper
+      modules={[Autoplay, Navigation]}
+      spaceBetween={10}
+      slidesPerView={2}
+      breakpoints={{
+        601: { slidesPerView: 3 },
+        991: { slidesPerView: 3 },
+        1201: { slidesPerView: 4 },
+      }}
+      loop={true}
+      navigation={false}
+      autoplay={{
+        delay: 1800,
+        disableOnInteraction: false,
+      }}
+    >
+      {bookList.map((book, index) => (
+        <SwiperSlide key={index}>
+          <BookCard book={book} />
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  </article>
+);
+
+const BookCard = ({ book }: { book: string }) => {
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <motion.section
-      {...DESIGN_SYSTEM.animations.fadeInUp}
-      className={`relative ${sectionPadding}`}
-    >
-      <BackgroundGrayShape />
-
-      <div className="relative m-auto space-y-12 max-w-7xl">
-        {/* 기존 내용 */}
-        <motion.div
-          {...DESIGN_SYSTEM.animations.fadeInUp}
-          className={`space-y-2 ${titleAlign}`}
-        >
-          <h2 className={`font-MaruBuri-Light text-gray-600 ${subTitleSize}`}>
-            선생님과 연구소 직원들의 노하우로 만들어진,{" "}
-            <span className={` ${deviceType === 0 ? "hidden" : ""}`}>
-              그리고 만들어지는
-            </span>
-          </h2>
-          <h3 className={`font-MaruBuri-Bold text-gray-900 ${titleSize}`}>
-            주혜연 연구소{" "}
-            <br className={`${deviceType === 0 ? "" : "hidden"}`} /> 자체 교재
-          </h3>
-        </motion.div>
-
-        <Swiper
-          modules={[Autoplay, Navigation]}
-          spaceBetween={spaceBetween}
-          slidesPerView={slidesPerView}
-          loop={true}
-          autoplay={{
-            delay: 1800,
-            disableOnInteraction: false,
-          }}
-          navigation={false}
-          className="max-w-7xl mx-auto"
-        >
-          {bookList.map((book, index) => (
-            <SwiperSlide key={index}>
-              <motion.div
-                {...DESIGN_SYSTEM.animations.scaleIn}
-                className={`relative flex items-center justify-center aspect-[1/1.414] shadow-md rounded-3xl overflow-hidden ${textBookPadding}`}
-              >
-                <Image
-                  src={book}
-                  alt="교재"
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                />
-              </motion.div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
-    </motion.section>
+    <figure className={`relative aspect-[1/1.4] border border-gray-200 rounded-lg overflow-hidden ${STYLES.textBookPadding}`}>
+      {isLoading && (
+        <Loading type="hash" size={30} color="#3B82F6" />
+      )}
+      <Image
+        src={book}
+        alt="주혜연 연구소 제작 교재"
+        fill
+        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+        className={`object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        onLoad={() => setIsLoading(false)}
+      />
+    </figure>
   );
 };
+
+const HomePageTextBookDetails = () => (
+  <SectionUp className={`relative ${STYLES.sectionPadding}`}>
+    <BackgroundGrayShape />
+    <main className="relative max-w-7xl mx-auto space-y-8">
+      <Header />
+      <BookSwiper />
+    </main>
+  </SectionUp>
+);
 
 export default HomePageTextBookDetails;

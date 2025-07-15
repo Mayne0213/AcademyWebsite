@@ -1,13 +1,8 @@
-import greetings from "/public/home/subNavbar/greetings.webp";
-import system from "/public/home/subNavbar/system.webp";
-import board from "/public/home/subNavbar/board.webp";
-import reservation from "/public/home/subNavbar/reservation.jpg";
-
 const tabs = [
   {
     label: "학원소개",
     href: "/home/greetings",
-    imageHref: greetings,
+    imageHref: "/public/home/subNavbar/greetings.webp",
     sectionIndex: 0,
     submenu: [
       {
@@ -33,7 +28,7 @@ const tabs = [
   {
     label: "커리큘럼",
     href: "/home/system",
-    imageHref: system,
+    imageHref: "/public/home/subNavbar/system.webp",
     sectionIndex: 1,
     submenu: [
       {
@@ -59,7 +54,7 @@ const tabs = [
   {
     label: "학원소식",
     href: "/home/board",
-    imageHref: board,
+    imageHref: "/public/home/subNavbar/board.webp",
     sectionIndex: 2,
     submenu: [
       {
@@ -83,7 +78,7 @@ const tabs = [
   {
     label: "등록안내",
     href: "/home/reservation",
-    imageHref: reservation,
+    imageHref: "/public/home/subNavbar/reservation.jpg",
     sectionIndex: 3,
     submenu: [
       {
