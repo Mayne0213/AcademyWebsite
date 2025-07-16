@@ -6,6 +6,10 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL("/home", req.url));
+  }
+
   if (pathname.startsWith("/main")) {
     const token = req.cookies.get("token")?.value;
 
@@ -51,6 +55,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/home/signUp",
     "/home/signIn",
     "/main/:path*",
