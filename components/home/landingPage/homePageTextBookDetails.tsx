@@ -47,15 +47,25 @@ const STYLES = {
   ].join(" "),
 };
 
+const HomePageTextBookDetails = () => (
+  <SectionUp className={`relative ${STYLES.sectionPadding}`}>
+    <BackgroundGrayShape />
+    <main className="relative max-w-7xl mx-auto space-y-8">
+      <Header />
+      <BookSwiper />
+    </main>
+  </SectionUp>
+);
+
 const Header = () => (
-  <SectionUp className={`space-y-2 ${STYLES.titleAlign}`}>
+  <section className={`space-y-2 ${STYLES.titleAlign}`}>
     <h1 className={`font-MaruBuri-Light text-gray-600 ${STYLES.subTitleSize}`}>
       선생님과 직원들의 노하우로 만들어진,
     </h1>
     <h2 className={`font-MaruBuri-Bold text-gray-900 ${STYLES.titleSize}`}>
       꽃필날 연구소 <br className="smalltablet:hidden" /> 자체 교재
     </h2>
-  </SectionUp>
+  </section>
 );
 
 const BookSwiper = () => (
@@ -104,15 +114,5 @@ const BookCard = ({ book }: { book: string }) => {
     </figure>
   );
 };
-
-const HomePageTextBookDetails = () => (
-  <SectionUp className={`relative ${STYLES.sectionPadding}`}>
-    <BackgroundGrayShape />
-    <main className="relative max-w-7xl mx-auto space-y-8">
-      <Header />
-      <BookSwiper />
-    </main>
-  </SectionUp>
-);
 
 export default HomePageTextBookDetails;

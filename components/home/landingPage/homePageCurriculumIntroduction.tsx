@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { forwardRef } from "react";
 
-import BackgroundDot from "../backgroundDot";
 import { SectionUp } from "./designSystem";
 import Loading from "@/components/ui/loading";
 
@@ -72,7 +71,6 @@ const STYLES = {
 
 const HomePageCurriculumIntroduction = forwardRef<HTMLElement>((_, ref) => (
     <SectionUp ref={ref} className={`relative ${STYLES.padding}`}>
-      <BackgroundDot />
       <main className={`relative w-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection} ${STYLES.minH}`}>
         <YouTubeVideo />
         <BackgroundImage />
@@ -111,7 +109,7 @@ const BackgroundImage = () => (
 );
 
 const ContentText = () => (
-  <SectionUp className={`${STYLES.textAlign} ${STYLES.textWidth}`}>
+  <section className={`${STYLES.textAlign} ${STYLES.textWidth}`}>
     <section className={`h-full flex flex-col justify-center space-y-4 ${STYLES.textColor}`}>
       <h2 className={`font-MaruBuri-Bold whitespace-pre-line ${STYLES.titleSize}`}>
         {TITLE}
@@ -120,7 +118,7 @@ const ContentText = () => (
         {DESCRIPTION}
       </p>
     </section>
-  </SectionUp>
+  </section>
 );
 
 HomePageCurriculumIntroduction.displayName = "HomePageCurriculumIntroduction";

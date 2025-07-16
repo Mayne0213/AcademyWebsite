@@ -36,13 +36,14 @@ export default function Dashboard() {
     "노력은 절대 배신하지 않아. 다만 때로는 시간이 조금 더 걸릴 뿐이야.",
   ];
 
+  // 컴포넌트 함수 안에서 바로 랜덤 선택
+  const randomSubtitle = subTitles[Math.floor(Math.random() * subTitles.length)];
+
   const [subTitle, setSubTitle] = useState<string>("");
 
   useEffect(() => {
-    const randomSubTitle =
-      subTitles[Math.floor(Math.random() * subTitles.length)];
-    setSubTitle(randomSubTitle);
-  }, []);
+    setSubTitle(randomSubtitle);
+  }, [randomSubtitle]);
 
   useEffect(() => {
     if (!user?.memberId) return;
@@ -54,7 +55,7 @@ export default function Dashboard() {
     } else {
       loadInitialPersonalQna();
     }
-  }, [user?.memberId, user?.role]); // 함수 대신 실제 의존하는 값들만 포함
+  }, [loadInitialAnnouncement, loadInitialAsset, loadInitialQna, loadInitialPersonalQna, user?.memberId, user?.role]);
 
   return (
     <div className="bg-gray-50">
