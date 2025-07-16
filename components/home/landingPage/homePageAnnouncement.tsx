@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-import { SectionLeft } from "./designSystem";
 import { SectionUp } from "./designSystem";
 import IconWithCircle from "@/components/ui/icon-with-circle";
 import Loading from "@/components/ui/loading";
@@ -65,7 +64,7 @@ const HomePageAnnouncement = () => {
   };
 
   return (
-    <SectionUp className={`relative w-full max-w-7xl mx-auto bg-gray-50 space-y-4 ${STYLES.padding} ${STYLES.textAlign}`}>
+    <section className={` w-full max-w-7xl mx-auto space-y-4 ${STYLES.padding} ${STYLES.textAlign}`}>
       <AnnouncementHeader />
       <div className="flex flex-col space-y-8 smalltablet:flex-row smalltablet:space-x-8 smalltablet:space-y-0">
         <main className={`w-full tablet:w-[55%]`}>
@@ -73,7 +72,7 @@ const HomePageAnnouncement = () => {
         </main>
         <ImageSection />
       </div>
-    </SectionUp>
+    </section>
   );
 };
 
@@ -91,37 +90,37 @@ const AnnouncementHeader = () => (
 const AnnouncementSkeleton = () => (
   <ul>
     {Array.from({ length: ANNOUNCEMENT_LIMIT }).map((_, index) => (
-      <div key={index} className={`${STYLES.itemTextSize} py-3 flex justify-between w-full border-y-2`}>
+      <li key={index} className={`${STYLES.itemTextSize} py-3 flex justify-between w-full border-y-2 bg-gray-50`}>
         <div
           className="bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] rounded-full h-4"
           style={{ width: `${Math.random() * 30 + 50}%` }}
         />
         <div className="h-4 w-20 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] rounded-2xl" />
-      </div>
+      </li>
     ))}
   </ul>
 );
 
 const EmptyState = () => (
-  <SectionUp className="flex flex-col items-center justify-center text-center py-12 border-2 border-gray-200 rounded-lg space-y-4 aspect-[16/10]">
+  <article className="flex flex-col items-center justify-center text-center py-12 border-2 border-gray-200 rounded-lg space-y-4 aspect-[16/10] bg-gray-50">
     <IconWithCircle />
-    <h4 className={`font-MaruBuri-SemiBold text-gray-600 ${STYLES.itemTextSize}`}>
+    <h2 className={`font-MaruBuri-SemiBold text-gray-600 ${STYLES.itemTextSize}`}>
       {EMPTY_STATE_TEXT}
-    </h4>
-  </SectionUp>
+    </h2>
+  </article>
 );
 
 const AnnouncementList = ({ announcements }: { announcements: { title: string; updatedAt: string }[] }) => (
   <ul>
     {announcements.slice(0, ANNOUNCEMENT_LIMIT).map((item, index) => (
-      <SectionLeft key={index} className={`w-full flex justify-between py-3 font-MaruBuri-Light hover:font-MaruBuri-SemiBold hover:cursor-pointer ${STYLES.itemTextSize} ${index === 0 ? "border-y-2" : "border-b-2"}`}>
-        <div className="flex justify-between items-center w-full">
-          <div>{item.title}</div>
+      <li key={index} className={`w-full flex justify-between py-3 font-MaruBuri-Light hover:font-MaruBuri-SemiBold hover:cursor-pointer ${STYLES.itemTextSize} ${index === 0 ? "border-y-2" : "border-b-2"}`}>
+        <article className="flex justify-between items-center w-full">
+          <h3 className="font-inherit">{item.title}</h3>
           <time dateTime={item.updatedAt} className="text-gray-500">
             {new Date(item.updatedAt).toLocaleDateString("ko-KR")}
           </time>
-        </div>
-      </SectionLeft>
+        </article>
+      </li>
     ))}
   </ul>
 );
@@ -130,7 +129,7 @@ const ImageSection = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <div className="relative w-[40%] aspect-[16/10] rounded-lg overflow-hidden shadow-lg hidden tablet:block">
+    <aside className="relative w-[40%] aspect-[16/10] rounded-lg overflow-hidden shadow-lg hidden tablet:block">
       {isLoading && (
         <Loading
           type="hash"
@@ -147,7 +146,7 @@ const ImageSection = () => {
         onLoad={() => setIsLoading(false)}
         onError={() => setIsLoading(false)}
       />
-    </div>
+    </aside>
   );
 };
 

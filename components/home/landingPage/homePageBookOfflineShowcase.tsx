@@ -88,8 +88,19 @@ const STYLES = {
   ].join(" "),
 };
 
+const HomePageBookOfflineShowcase = () => (
+  <SectionUp className={`relative ${STYLES.sectionPadding}`}>
+    <BackgroundGrayShape />
+    <main className="relative mx-auto space-y-12 max-w-7xl">
+      <Header />
+      <BookSwiper />
+      <BookCardList />
+    </main>
+  </SectionUp>
+);
+
 const Header = () => (
-  <SectionUp className={`space-y-3 ${STYLES.titleAlign}`}>
+  <section className={`space-y-3 ${STYLES.titleAlign}`}>
     <h1 className={`font-MaruBuri-Light text-gray-600 ${STYLES.subTitleSize}`}>
       현강생들에게만 제공되는 특별한 교재
     </h1>
@@ -97,7 +108,7 @@ const Header = () => (
       현강생 맞춤 <br className="smalltablet:hidden" />
       독점 자료
     </h2>
-  </SectionUp>
+  </section>
 );
 
 const BookCard = ({ book }: { book: typeof BOOKS_DATA[number] }) => {
@@ -105,7 +116,7 @@ const BookCard = ({ book }: { book: typeof BOOKS_DATA[number] }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <SectionUp className={`flex flex-col items-center bg-white rounded-2xl space-y-4 p-4 shadow-lg ${STYLES.cardWidth}`}>
+    <section className={`flex flex-col items-center bg-white rounded-2xl space-y-4 p-4 shadow-lg ${STYLES.cardWidth}`}>
       <figure className="relative w-[85%] aspect-[1/1.414]">
         {isLoading && (
           <Loading type="hash" size={30} color="#3B82F6" />
@@ -134,7 +145,7 @@ const BookCard = ({ book }: { book: typeof BOOKS_DATA[number] }) => {
           </p>
         ))}
       </section>
-    </SectionUp>
+    </section>
   );
 };
 
@@ -167,17 +178,6 @@ const BookCardList = () => (
       <BookCard key={index} book={book} />
     ))}
   </main>
-);
-
-const HomePageBookOfflineShowcase = () => (
-    <SectionUp className={`relative ${STYLES.sectionPadding}`}>
-      <BackgroundGrayShape />
-      <main className="relative mx-auto space-y-12 max-w-7xl">
-        <Header />
-        <BookSwiper />
-        <BookCardList />
-      </main>
-    </SectionUp>
 );
 
 export default HomePageBookOfflineShowcase;

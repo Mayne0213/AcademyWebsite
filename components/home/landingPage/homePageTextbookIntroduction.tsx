@@ -62,7 +62,6 @@ const STYLES = {
 
 const HomePageTextbookIntroduction = forwardRef<HTMLElement>((_,ref) => (
   <SectionUp ref={ref} className={`relative ${STYLES.padding}`}>
-    <BackgroundDot />
     <main className={`relative w-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection}`}>
       <TextbookTextSection />
       <TextbookImageSection />
@@ -90,12 +89,12 @@ const TextbookImageSection = () => {
 };
 
 const TextbookTextSection = () => (
-  <SectionUp className={`${STYLES.textWidth} ${STYLES.textAlign}`}>
+  <section className={`${STYLES.textWidth} ${STYLES.textAlign}`}>
     <section className={`h-full flex flex-col justify-center space-y-4 ${STYLES.textColor}`}>
       <h1 className={`font-MaruBuri-Bold whitespace-pre-line ${STYLES.titleSize}`}>{TITLE}</h1>
       <p className={`leading-relaxed font-MaruBuri-Light ${STYLES.textSize}`}>{DESCRIPTION}</p>
     </section>
-  </SectionUp>
+  </section>
 );
 
 

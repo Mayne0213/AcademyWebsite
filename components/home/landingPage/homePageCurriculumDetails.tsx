@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart3,
   Lightbulb,
@@ -13,7 +12,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import DeviceType, { useDeviceDetect } from "../deviceType";
-import { SectionUp } from "./designSystem";
 
 const roadmapSteps = [
   {
@@ -103,7 +101,7 @@ const HomePageCurriculumDetails = () => {
     <div className="bg-gray-50 px-4 md:px-8 w-full flex justify-center py-12 md:py-20">
       <div className="w-full max-w-7xl flex flex-col items-center">
         {/* Header */}
-        <SectionUp
+        <section
           className="text-center mb-12"
         >
           <h1 className={`text-gray-800 font-MaruBuri-Bold mb-4 ${styles.titleSize}`}>
@@ -114,7 +112,7 @@ const HomePageCurriculumDetails = () => {
             향상시키고, 최종적으로 수능 만점을 달성할 수 있도록 설계된 완벽한
             커리큘럼입니다.
           </p>
-        </SectionUp>
+        </section>
 
         {/* Mobile: 겹쳐진 카드 형태 */}
         {isMobile && (
@@ -127,7 +125,7 @@ const HomePageCurriculumDetails = () => {
                 const Icon = step.icon;
                 const isTopCard = index === 0;
                 return (
-                  <motion.div
+                  <div
                     key={index}
                     className={`absolute inset-0 ${!isExpanded ? 'cursor-pointer' : ''} z-0`}
                     style={{
@@ -137,8 +135,6 @@ const HomePageCurriculumDetails = () => {
                         : 'none',
                     }}
                     onClick={isTopCard ? handleCardClick : undefined}
-                    whileHover={!isExpanded && isTopCard ? { scale: 1.02 } : {}}
-                    transition={{ duration: 0.3 }}
                   >
                     {/* 카드 내용 */}
                     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -146,13 +142,11 @@ const HomePageCurriculumDetails = () => {
                       <div className={`w-full h-12 flex items-center justify-center text-white ${step.bg} relative`}>
                         <span className="text-sm font-MaruBuri-Bold">{step.step}</span>
                         {isTopCard && !isExpanded && (
-                          <motion.div
+                          <div
                             className="absolute right-3"
-                            animate={{ y: [0, 5, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
                           >
                             <ChevronDown className="w-5 h-5 text-white" />
-                          </motion.div>
+                          </div>
                         )}
                       </div>
 
@@ -176,18 +170,14 @@ const HomePageCurriculumDetails = () => {
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
               {/* 펼쳐졌을 때는 첫 번째 카드만 항상 보임 */}
               {isExpanded && (
-                <motion.div
+                <div
                   key="top-card"
                   className="relative z-0"
-                  initial={{ opacity: 1, y: 0 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
                 >
                   {/* 첫 번째 카드 내용 (roadmapSteps[0]) */}
                   <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -216,29 +206,21 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
 
             {/* 펼쳐진 카드: 2~6번만 보임 */}
-            <AnimatePresence>
               {isExpanded && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.5 }}
+                <div
                   className="mt-8 space-y-4"
                 >
                   {roadmapSteps.slice(1).map((step, index) => {
                     const Icon = step.icon;
                     // 모바일에서는 화살표 없음
                     return (
-                      <motion.div
+                      <div
                         key={`expanded-${index + 1}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: (index + 1) * 0.1 }}
                         className="relative"
                       >
                         {/* 카드 내용 */}
@@ -268,12 +250,11 @@ const HomePageCurriculumDetails = () => {
                             </div>
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
           </div>
         )}
 
@@ -325,8 +306,7 @@ const HomePageCurriculumDetails = () => {
 
               return (
                 <div key={index} className="relative flex flex-col">
-                  <SectionUp
-                    transition={{ delay: index * 0.1 }}
+                  <section
                     className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex-1 flex flex-col"
                   >
                     {/* Header */}
@@ -354,7 +334,7 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     </div>
                     {arrow}
-                  </SectionUp>
+                  </section>
                 </div>
               );
             })}
