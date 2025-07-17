@@ -1,13 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { forwardRef } from "react";
+import AUDIENCE_IMAGE_URL from "@/public/homeCopy/lectures/offline/lecture1.jpg";
 
 import { SectionUp } from "./designSystem";
-import Loading from "@/components/ui/loading";
 
 const YOUTUBE_VIDEO_URL = "https://www.youtube.com/embed/h4fybVXAZ0c?autoplay=0&rel=0";
-const AUDIENCE_IMAGE_URL = "/homeCopy/lectures/offline/lecture1.jpg";
 const TITLE = `예비 고3에서 수능까지,\n 함께 달려나가겠습니다.`;
 const DESCRIPTION = `단순 한 철 강의가 아닙니다. 2026년 1년을 아우르는 체계적이고 전문적인 교육 커리를 확인하실 수 있습니다. 수많은 학생을 가르친 경험과 체계적인 커리큘럼으로 학생들의 옆에서 함께 걸어 나가겠습니다.`;
 
@@ -69,23 +67,20 @@ const STYLES = {
   ].join(" "),
 };
 
-const HomePageCurriculumIntroduction = forwardRef<HTMLElement>((_, ref) => (
-    <SectionUp ref={ref} className={`relative ${STYLES.padding}`}>
+const HomePageCurriculumIntroduction = (props: React.HTMLAttributes<HTMLDivElement>) => (
+    <SectionUp {...props} className={`relative ${STYLES.padding}`}>
       <main className={`relative w-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection} ${STYLES.minH}`}>
         <YouTubeVideo />
         <BackgroundImage />
         <ContentText />
       </main>
     </SectionUp>
-));
+);
 
-const YouTubeVideo = () => (
+const YouTubeVideo = () => {
+
+  return (
   <article className={`relative rounded-2xl overflow-hidden shadow-xl aspect-video ${STYLES.videoClasses}`}>
-    <Loading
-      type="hash"
-      size={30}
-      color="#3B82F6"
-    />
     <iframe
       src={YOUTUBE_VIDEO_URL}
       title="주혜연 영어 학원 커리큘럼 소개 영상"
@@ -95,7 +90,8 @@ const YouTubeVideo = () => (
       className="relative w-full h-full aspect-video"
     />
   </article>
-);
+  );
+};
 
 const BackgroundImage = () => (
   <figure className={STYLES.backgroundImage}>
@@ -104,6 +100,7 @@ const BackgroundImage = () => (
       alt="주혜연 선생님 제주도 현장 강의"
       fill
       className="object-cover opacity-60"
+      placeholder="blur"
     />
   </figure>
 );
@@ -121,5 +118,4 @@ const ContentText = () => (
   </section>
 );
 
-HomePageCurriculumIntroduction.displayName = "HomePageCurriculumIntroduction";
 export default HomePageCurriculumIntroduction;

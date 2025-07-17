@@ -1,10 +1,11 @@
-import { forwardRef } from "react";
+"use client";
+
 import { SectionScale } from "./designSystem";
 
-const HomePageActualAdvertising = forwardRef<HTMLDivElement>((_, ref) => {
+const HomePageActualAdvertising = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   return (
-    <SectionScale ref={ref} className="py-20 px-6 z-20 bg-[#fdf1da]">
+    <SectionScale {...props} className="py-20 px-6 z-20 bg-[#fdf1da]">
       <div className="max-w-7xl mx-auto text-center space-y-6 relative">
         <h1
           className={`text-2xl smalltablet:text-3xl tablet:text-4xl font-MaruBuri-Bold`}
@@ -17,7 +18,6 @@ const HomePageActualAdvertising = forwardRef<HTMLDivElement>((_, ref) => {
       </div>
     </SectionScale>
   );
-});
-HomePageActualAdvertising.displayName = "HomePageActualAdvertising";
+};
 
 export default HomePageActualAdvertising;

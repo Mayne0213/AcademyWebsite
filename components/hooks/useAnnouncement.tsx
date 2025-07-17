@@ -52,7 +52,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
       if (!res.ok) throw new Error("Failed to fetch");
 
       const data: Announcement[] = await res.json();
-      console.log("[디버그] 공지사항 목록 fetch 결과:", data.map(a => ({ id: a.announcementId, title: a.title, files: a.files })));
       set({ announcements: data });
     } catch (error) {
       toast.error("공지사항 로딩 중 오류가 발생했습니다.");
@@ -83,7 +82,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
       const data: AnnouncementDetail = await res.json();
       return data;
     } catch (error) {
-      console.error("Failed to fetch announcement detail:", error);
       return null;
     }
   },
@@ -163,7 +161,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
             }
           } catch (error) {
             console.error(`[HOOK] S3 파일 삭제 실패: ${file.url}`, error);
-            // 파일 삭제 실패 시에도 계속 진행 (공지사항은 삭제)
           }
         });
 
@@ -176,7 +173,6 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
       });
       
       if (!res.ok) {
-        const errorText = await res.text();
         throw new Error("공지사항 삭제 실패");
       }
 
