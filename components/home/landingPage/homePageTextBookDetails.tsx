@@ -7,16 +7,14 @@ import { Autoplay, Navigation } from "swiper/modules";
 
 import BackgroundGrayShape from "../backgroundGrayShelf";
 import { SectionUp } from "./designSystem";
-import Loading from "@/components/ui/loading";
 
-import Image from "next/image";
-import { useState } from "react";
+import Image, { type StaticImageData } from "next/image";
 
-const BOOK_IMAGE_URL_1 = "/homeCopy/textbooks/book1.jpg";
-const BOOK_IMAGE_URL_2 = "/homeCopy/textbooks/book2.jpg";
-const BOOK_IMAGE_URL_3 = "/homeCopy/textbooks/book3.jpg";
-const BOOK_IMAGE_URL_4 = "/homeCopy/textbooks/book4.jpg";
-const BOOK_IMAGE_URL_5 = "/homeCopy/textbooks/book5.jpg";
+import BOOK_IMAGE_URL_1 from "@/public/homeCopy/textbooks/book1.jpg";
+import BOOK_IMAGE_URL_2 from "@/public/homeCopy/textbooks/book2.jpg";
+import BOOK_IMAGE_URL_3 from "@/public/homeCopy/textbooks/book3.jpg";
+import BOOK_IMAGE_URL_4 from "@/public/homeCopy/textbooks/book4.jpg";
+import BOOK_IMAGE_URL_5 from "@/public/homeCopy/textbooks/book5.jpg";
 
 const bookList = [BOOK_IMAGE_URL_1, BOOK_IMAGE_URL_2, BOOK_IMAGE_URL_3, BOOK_IMAGE_URL_4, BOOK_IMAGE_URL_5];
 
@@ -95,21 +93,17 @@ const BookSwiper = () => (
   </article>
 );
 
-const BookCard = ({ book }: { book: string }) => {
-  const [isLoading, setIsLoading] = useState(true);
+const BookCard = ({ book }: { book: StaticImageData }) => {
 
   return (
     <figure className={`relative aspect-[1/1.4] border border-gray-200 rounded-lg overflow-hidden ${STYLES.textBookPadding}`}>
-      {isLoading && (
-        <Loading type="hash" size={30} color="#3B82F6" />
-      )}
       <Image
         src={book}
         alt="주혜연 연구소 제작 교재"
         fill
         sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-        className={`object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        onLoad={() => setIsLoading(false)}
+        placeholder="blur"
+        className={`object-cover transition-opacity duration-300`}
       />
     </figure>
   );

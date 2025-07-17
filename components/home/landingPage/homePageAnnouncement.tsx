@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 
 import { SectionUp } from "./designSystem";
 import IconWithCircle from "@/components/ui/icon-with-circle";
-import Loading from "@/components/ui/loading";
 import useAnnouncement from "@/components/hooks/useAnnouncement";
+import IMAGE_SRC from "@/public/homeCopy/homePageBoard/bnImg1.jpg";
 
-const IMAGE_SRC = "/homeCopy/homePageBoard/bnImg1.jpg";
 const ANNOUNCEMENT_LIMIT = 8;
 const HEADER_TITLE = "주혜연 영어 소식";
 const HEADER_SUBTITLE = "주혜연 학원의 최신 소식을 만나보세요";
@@ -64,7 +63,7 @@ const HomePageAnnouncement = () => {
   };
 
   return (
-    <section className={` w-full max-w-7xl mx-auto space-y-4 ${STYLES.padding} ${STYLES.textAlign}`}>
+    <SectionUp className={`z-20 w-full max-w-7xl mx-auto space-y-4 ${STYLES.padding} ${STYLES.textAlign}`}>
       <AnnouncementHeader />
       <div className="flex flex-col space-y-8 smalltablet:flex-row smalltablet:space-x-8 smalltablet:space-y-0">
         <main className={`w-full tablet:w-[55%]`}>
@@ -72,7 +71,7 @@ const HomePageAnnouncement = () => {
         </main>
         <ImageSection />
       </div>
-    </section>
+    </SectionUp>
   );
 };
 
@@ -126,25 +125,15 @@ const AnnouncementList = ({ announcements }: { announcements: { title: string; u
 );
 
 const ImageSection = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
   return (
     <aside className="relative w-[40%] aspect-[16/10] rounded-lg overflow-hidden shadow-lg hidden tablet:block">
-      {isLoading && (
-        <Loading
-          type="hash"
-          size={30}
-          color="#3B82F6"
-        />
-      )}
       <Image
         src={IMAGE_SRC}
         alt="주혜연 영어 학원 공지사항 배너 이미지"
         fill
         sizes="(max-width: 768px) 100vw, 50vw"
         className="object-cover"
-        onLoad={() => setIsLoading(false)}
-        onError={() => setIsLoading(false)}
+        placeholder="blur"
       />
     </aside>
   );

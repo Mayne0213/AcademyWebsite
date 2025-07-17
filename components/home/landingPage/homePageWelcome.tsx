@@ -4,7 +4,7 @@ import { forwardRef, useState, useEffect } from "react";
 import Image from "next/image";
 import JooMain from "@/public/homeCopy/jooMain.png";
 
-const HomePageWelcome = forwardRef<HTMLDivElement>((_, ref) => {
+const HomePageWelcome = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const [viewportHeight, setViewportHeight] = useState<number>(0);
   const [viewportWidth, setViewportWidth] = useState<number>(0);
 
@@ -71,7 +71,7 @@ const HomePageWelcome = forwardRef<HTMLDivElement>((_, ref) => {
   const renderDefaultLayout = () => (
     <section
       className="relative bg-gradient-to-b from-[#cce6ff] to-[#a3d0ff] min-h-[700px] h-screen max-h-[???] flex items-center justify-center"
-      ref={ref}
+      {...props}
     >
       <main className="max-w-7xl w-full h-full flex flex-col items-center justify-center ">
         <section
@@ -129,8 +129,6 @@ const HomePageWelcome = forwardRef<HTMLDivElement>((_, ref) => {
   );
 
   return renderDefaultLayout();
-});
-
-HomePageWelcome.displayName = "HomePageWelcome";
+};
 
 export default HomePageWelcome;

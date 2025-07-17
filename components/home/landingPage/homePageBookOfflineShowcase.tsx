@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import "swiper/css";
@@ -9,23 +8,25 @@ import "swiper/css/pagination";
 
 import BackgroundGrayShape from "../backgroundGrayShelf";
 import { SectionUp } from "./designSystem";
-import Loading from "@/components/ui/loading";
+import book7 from "@/public/homeCopy/textbooks/book7.png";
+import book6 from "@/public/homeCopy/textbooks/book6.png";
+import test1 from "@/public/homeCopy/testPapers/test1.png";
 
 const BOOKS_DATA = [
   {
-    src: "/homeCopy/textbooks/book7.png",
+    src: book7,
     title: "고3 필수 현강 단어장",
     desc: "현강생 독점 자료",
     content: ["EBS 1타 강사가 직접 제작하는", "고교과정 필수 단어장"],
   },
   {
-    src: "/homeCopy/textbooks/book6.png",
+    src: book6,
     title: "개인 맞춤 내신 교재",
     desc: "현강생 독점 자료",
     content: ["개인의 수준과 학교에 맞춘", "맞춤형 내신 대비 교재"],
   },
   {
-    src: "/homeCopy/testPapers/test1.png",
+    src: test1,
     title: "주혜연 시즌 모의고사",
     desc: "현강생 독점 자료",
     content: [
@@ -113,28 +114,22 @@ const Header = () => (
 
 const BookCard = ({ book }: { book: typeof BOOKS_DATA[number] }) => {
   const { src, title, desc, content } = book;
-  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <section className={`flex flex-col items-center bg-white rounded-2xl space-y-4 p-4 shadow-lg ${STYLES.cardWidth}`}>
       <figure className="relative w-[85%] aspect-[1/1.414]">
-        {isLoading && (
-          <Loading type="hash" size={30} color="#3B82F6" />
-        )}
         <Image
           src={src}
           alt={title}
           fill
-          sizes="(max-width: 768px) 90vw, (max-width: 1024px) 280px, 340px"
+          sizes="(max-width: 768px) 80vw, (max-width: 1024px) 280px, 340px"
+          placeholder="blur"
           className={`rounded-xl border border-gray-200 shadow-md object-cover transition-opacity duration-300`}
-          onLoad={() => setIsLoading(false)}
         />
       </figure>
 
       <header className="text-center space-y-1">
-        <h1 className={`font-MaruBuri-Bold text-gray-900 ${STYLES.bookTitleSize}`}>
-          {title}
-        </h1>
+        <h1 className={`font-MaruBuri-Bold text-gray-900 ${STYLES.bookTitleSize}`}>{title}</h1>
         <p className={`text-indigo-600 font-MaruBuri-SemiBold ${STYLES.bookSubTitleSize}`}>{desc}</p>
       </header>
 
@@ -149,28 +144,27 @@ const BookCard = ({ book }: { book: typeof BOOKS_DATA[number] }) => {
   );
 };
 
-const BookSwiper = () => (
-  <div className="block tablet:hidden">
-    <Swiper
-      breakpoints={{
-        1: { slidesPerView: 1 },
-        601: { slidesPerView: 2 },
-      }}
-      spaceBetween={12}
-      loop={true}
-      pagination={{ clickable: true }}
-      modules={[Pagination]}
-    >
-      {BOOKS_DATA.map((book, index) => (
-        <SwiperSlide key={index}>
-          <div className="flex justify-center">
-            <BookCard key={index} book={book} />
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  </div>
-);
+const BookSwiper = () => {
+  return (
+    <div className="block tablet:hidden">
+      <Swiper
+        spaceBetween={12}
+        loop={true}
+        breakpoints={{ 601: { slidesPerView: 2 } }}
+        pagination={{ clickable: true }}
+        modules={[Pagination]}
+      >
+        {BOOKS_DATA.map((book, index) => (
+          <SwiperSlide key={index}>
+            <div className="flex justify-center">
+              <BookCard key={index} book={book} />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+};
 
 const BookCardList = () => (
   <main className={`w-full hidden tablet:flex justify-center ${STYLES.gap}`}>

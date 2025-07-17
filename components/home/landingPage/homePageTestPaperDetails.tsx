@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
-import BackgroundDot from "../backgroundDot";
 import { DESIGN_SYSTEM } from "./designSystem";
 
 import testPaper from "@/public/homeCopy/testPapers/testPaper1Edge.webp";
@@ -12,6 +11,7 @@ import omr from "@/public/homeCopy/omr/omr.webp";
 import videoLecture from "@/public/homeCopy/lectures/online/lecture1.webp";
 import analysis from "@/public/homeCopy/testPapers/textAnalysis1Edge.webp";
 import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
+import { SectionUp } from "./designSystem";
 
 const features = [
   {
@@ -57,12 +57,10 @@ const HomePageTestPaperDetails = () => {
   const deviceType = useDeviceDetect();
   
   return (
-    <section className={`relative bg-white pt-24 px-6 overflow-hidden ${deviceType && deviceType === DeviceType.SMALLTABLET ? "hidden" : ""}`}>
-      <BackgroundDot />
+    <SectionUp className={`relative bg-white pt-24 px-6 overflow-hidden ${deviceType && deviceType === DeviceType.SMALLTABLET ? "hidden" : ""}`}>
       <div className="max-w-7xl mx-auto flex flex-col items-center justify-between gap-12 relative">
         {/* title */}
-        <motion.div
-          {...DESIGN_SYSTEM.animations.fadeInUp}
+        <div
           className="text-center gap-4 flex flex-col mb-4"
         >
           <div className="text-5xl font-MaruBuri-Bold text-gray-900"> 
@@ -71,7 +69,7 @@ const HomePageTestPaperDetails = () => {
           <div className="font-MaruBuri-SemiBold text-gray-600">
             모의고사의 품질을 결정하는 건 결국 실행과 분석입니다.
           </div>
-        </motion.div>
+        </div>
 
         {/* buttons */}
         <div className="flex flex-wrap items-center justify-center gap-3 font-MaruBuri-SemiBold rounded-full bg-gray-200 px-2 py-2">
@@ -91,22 +89,16 @@ const HomePageTestPaperDetails = () => {
         {/* content */}
         <div className="flex items-center gap-6 w-full">
           <div className="space-y-4 text-left w-1/2">
-            <motion.h3
-              key={active.title}
-              {...DESIGN_SYSTEM.animations.fadeInLeft}
-              transition={{ duration: 0.4 }}
+            <h3
               className="text-2xl text-gray-900 font-MaruBuri-Bold"
             >
               {active.title}
-            </motion.h3>
-            <motion.p
-              key={currentTab}
-              {...DESIGN_SYSTEM.animations.fadeInLeft}
-              transition={{ duration: 0.4 }}
+            </h3>
+            <p
               className="text-gray-600 leading-relaxed text-lg font-MaruBuri-Light"
             >
               {active.description}
-            </motion.p>
+            </p>
           </div>
 
           <motion.div
@@ -125,7 +117,7 @@ const HomePageTestPaperDetails = () => {
           </motion.div>
         </div>
       </div>
-    </section>
+    </SectionUp>
   );
 };
 

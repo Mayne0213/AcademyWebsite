@@ -1,5 +1,11 @@
 // next.config.mjs
 
+import createBundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = createBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const nextConfig = {
   images: {
     domains: ["jooeng.s3.ap-northeast-2.amazonaws.com"],
@@ -19,4 +25,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

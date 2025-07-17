@@ -1,7 +1,3 @@
-"use client";
-
-import { useRef } from "react";
-
 import HomePageWelcome from "@/components/home/landingPage/homePageWelcome";
 import HomePageAnnouncement from "@/components/home/landingPage/homePageAnnouncement";
 import HomePageTeacherIntroductionDetails from "@/components/home/landingPage/homepageTeacherIntroductionDetails";
@@ -17,54 +13,36 @@ import HomePageReviews from "@/components/home/landingPage/homePageReviews";
 import HomePageAcademyDepartments from "@/components/home/landingPage/homePageAcademyDepartments";
 import HomePageSNSLinks from "@/components/home/landingPage/homePageSNSLinks";
 import HomePageFloatingChatButton from "@/components/home/landingPage/homePageFloatingChatButton";
-
 import BackgroundDot from "@/components/home/backgroundDot";
 
 const Home = () => {
-  const welcomeRef = useRef<HTMLDivElement>(null);
-  const curriculumRef = useRef<HTMLDivElement>(null);
-  const textbookRef = useRef<HTMLDivElement>(null);
-  const testPaperRef = useRef<HTMLDivElement>(null);
-  const advertisingRef = useRef<HTMLDivElement>(null);
 
   return (
     <main className="relative flex flex-col w-full bg-gray-50 font-MaruBuri-Regular">
 
-      <HomePageFloatingChatButton
-        sectionRefs={{
-          welcomeRef,
-          curriculumRef,
-          textbookRef,
-          testPaperRef,
-          advertisingRef,
-        }}
-      />
+      <HomePageFloatingChatButton />
 
       <BackgroundDot />
 
-        {/* 얘 모바일 버전 만들어야함 */}
-      <HomePageWelcome ref={welcomeRef} />
+      <HomePageWelcome id="welcome-section"/> {/* 얘 모바일 버전 만들어야함 */}
 
       <HomePageAnnouncement />
 
-      <HomePageCurriculumIntroduction ref={curriculumRef} />
+      <HomePageCurriculumIntroduction id="curriculum-section"/>
 
-        {/* 얘 리팩토링 해야함 */}
-      <HomePageCurriculumDetails />
+      <HomePageCurriculumDetails /> {/* 리팩토링 필요 */}
 
-      <HomePageTextbookIntroduction ref={textbookRef} />
+      <HomePageTextbookIntroduction id="textbook-section"/>
 
       <HomePageTextBookDetails />
 
       <HomePageBookOfflineShowcase />
 
-      {/* 이 위까지 리팩토링 완료 (swiper는 안했으니 할 것.)*/}
+      <HomePageTestPaperIntroduction id="testpaper-section"/>
 
-      <HomePageTestPaperIntroduction ref={testPaperRef} />
+      <HomePageTestPaperDetails /> {/* 이 위까지 리팩토링 완료 */}
 
-      <HomePageTestPaperDetails />
-
-      <HomePageActualAdvertising ref={advertisingRef} />
+      <HomePageActualAdvertising id="advertising-section"/>
 
       <HomePageReviews />
 
