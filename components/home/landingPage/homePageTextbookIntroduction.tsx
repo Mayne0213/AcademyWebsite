@@ -39,7 +39,7 @@ const STYLES = {
     "tablet:text-3xl",
     "desktop:text-4xl",
   ].join(" "),
-  textSize: [
+  descriptionSize: [
     "text-sm",
     "smalltablet:text-base smalltablet:px-[80px]",
     "tablet:text-lg tablet:px-0",
@@ -58,7 +58,7 @@ const STYLES = {
 };
 
 const HomePageTextbookIntroduction = (props: React.HTMLAttributes<HTMLDivElement>) => (
-  <SectionUp {...props} className={`relative ${STYLES.padding}`}>
+  <SectionUp {...props} className={`relative tablet:scroll-mt-[70px] desktop:scroll-mt-[90px] ${STYLES.padding}`}>
     <main className={`relative w-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection}`}>
       <TextbookTextSection />
       <TextbookImageSection />
@@ -73,7 +73,8 @@ const TextbookImageSection = () => (
       alt="주혜연 선생님 교재 제작 과정"
       fill
       placeholder="blur"
-      className={`object-cover transition-opacity duration-300`}
+      className="object-cover"
+      sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
     />
   </figure>
 );
@@ -82,7 +83,7 @@ const TextbookTextSection = () => (
   <section className={`${STYLES.textWidth} ${STYLES.textAlign}`}>
     <section className={`h-full flex flex-col justify-center space-y-4 ${STYLES.textColor}`}>
       <h1 className={`font-MaruBuri-Bold whitespace-pre-line ${STYLES.titleSize}`}>{TITLE}</h1>
-      <p className={`leading-relaxed font-MaruBuri-Light ${STYLES.textSize}`}>{DESCRIPTION}</p>
+      <p className={`leading-relaxed font-MaruBuri-Light ${STYLES.descriptionSize}`}>{DESCRIPTION}</p>
     </section>
   </section>
 );

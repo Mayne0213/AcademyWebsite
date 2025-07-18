@@ -3,16 +3,8 @@
 import Image from "next/image";
 import { SectionUp } from "./designSystem";
 import type { HTMLAttributes } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import TEST_PAPER_IMAGE_URL from "@/public/homeCopy/homePageBoard/bnImg2.jpg";
-
-const mockData = [
-  { name: "3월", score: 78 },
-  { name: "4월", score: 82 },
-  { name: "5월", score: 76 },
-  { name: "6월", score: 88 },
-  { name: "7월", score: 92 },
-];
+import GRAPH_IMAGE_URL from "@/public/homeCopy/testPapers/graph.png";
 
 const STYLES = {
   padding: [
@@ -21,7 +13,7 @@ const STYLES = {
     "tablet:py-20 tablet:px-6",
     "desktop:py-24 desktop:px-6",
   ].join(" "),
-  layout: [
+  layoutDirection: [
     "flex-col",
     "smalltablet:flex-row",
     "tablet:flex-row",
@@ -57,11 +49,6 @@ const STYLES = {
     "min-w-[300px] min-h-[200px] max-w-md",
     "tablet:max-w-full",
   ].join(" "),
-  chartPadding: [
-    "py-4 pr-4",
-    "tablet:py-6 tablet:pr-6",
-    "desktop:py-8 desktop:pr-8",
-  ].join(" "),
   textAlign: [
     "text-center flex flex-col",
     "tablet:text-left tablet:items-start",
@@ -79,17 +66,15 @@ const STYLES = {
   ].join(" "),
 };
 
-const TestPaperIntroduction = (props: HTMLAttributes<HTMLDivElement>) => {
-  return (
-    <SectionUp {...props} className={`relative bg-[#deeff0] smalltablet:bg-black tablet:bg-[#deeff0] text-black overflow-hidden ${STYLES.padding}`}>
-      <section className={`w-full max-w-7xl mx-auto flex items-center gap-6 ${STYLES.layout}`}>
+const TestPaperIntroduction = (props: React.HTMLAttributes<HTMLDivElement>) => (
+    <SectionUp {...props} className={`relative tablet:scroll-mt-[70px] desktop:scroll-mt-[90px] bg-[#deeff0] smalltablet:bg-black tablet:bg-[#deeff0] text-black ${STYLES.padding}`}>
+      <section className={`w-full max-w-7xl mx-auto flex items-center gap-6 ${STYLES.layoutDirection}`}>
         <TestPaperText />
         <TestPaperChart />
         <TestPaperImageSection />
       </section>
     </SectionUp>
-  );
-};
+);
 
 const TestPaperText = () => (
   <section className={`z-10 smalltablet:text-white tablet:text-black ${STYLES.textSpacing} ${STYLES.textAlign} ${STYLES.textWidth}`}>
@@ -106,36 +91,20 @@ const TestPaperText = () => (
   </section>
 );
 
-const TestPaperChart = () => {
-  return (
+const TestPaperChart = () => (
     <section
-      className={`bg-white rounded-xl shadow-2xl smalltablet:hidden tablet:block flex items-center justify-center ${STYLES.chartWidth} ${STYLES.chartHeight} ${STYLES.chartContainer} ${STYLES.chartPadding}`}
+      className={`bg-white rounded-xl shadow-2xl smalltablet:hidden tablet:block flex items-center justify-center p-4 ${STYLES.chartWidth} ${STYLES.chartHeight} ${STYLES.chartContainer} `}
     >
-      <ResponsiveContainer >
-        <LineChart data={mockData}>
-          <XAxis
-            dataKey="name"
-            axisLine={{ stroke: "#e5e5e5" }}
-            tickLine={{ stroke: "#e5e5e5" }}
-            tickMargin={5}
-          />
-          <YAxis
-            domain={[60, 100]}
-            axisLine={{ stroke: "#e5e5e5" }}
-            tickLine={{ stroke: "#e5e5e5" }}
-            tickMargin={5}
-          />
-          <Line
-            type="monotone"
-            dataKey="score"
-            stroke="#7b3fe4"
-            strokeWidth={4}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <Image
+        src={GRAPH_IMAGE_URL}
+        alt="주혜연 실전 모의고사 그래프"
+        width={480}
+        height={240}
+        className="object-contain w-full h-full"
+        placeholder="blur"
+      />
     </section>
-  );
-};
+);
 
 const TestPaperImageSection = () => (
   <figure className={`overflow-hidden ${STYLES.imageClasses}`}>

@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="bg-gray-800 text-white p-10 font-sansKR-Regular">
-      <div className={`${deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? "hidden" : "hidden flex"}`}>
+      <div className="hidden tablet:flex">
         {tabs.map((tab, index) => (
           <div
             key={index}
@@ -24,26 +24,26 @@ const Footer: React.FC = () => {
       </div>
 
       <hr
-        className={`${deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? "hidden" : ""} px-1 my-6 border-gray-500`}
+        className="hidden tablet:block px-1 my-6 border-gray-500"
       />
 
       <div className="text-xs ml-[10px]">
         <div
-          className={`${deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? "text-center" : ""} text-gray-200`}
+          className="text-center tablet:text-left text-gray-200 whitespace-pre"
         >
-          {academyInformation.academyName} ㅣ 대표 :{" "}
+          {academyInformation.academyName}   ㅣ   대표 :{" "}
           {academyInformation.chairman}
-          {deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? <br /> : "ㅣ"}
-          학원전화 : {academyInformation.phoneNumber}
-          {deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? <br /> : "ㅣ"}
+          <br className="tablet:hidden" />
+          <p className="hidden tablet:inline">{"   "}|{"   "}</p>
           사업자등록번호 : {academyInformation.residentRegistrationNumber}
           <br />
           주소 : {academyInformation.address}
-          {deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? <br /> : "ㅣ"}
+          <br className="tablet:hidden" />
+          <p className="hidden tablet:inline">{"   "}|{"   "}</p>
           개인정보보호 책임자: 김민조
         </div>
         <div
-          className={`mt-5 text-gray-400 ${deviceCondition && deviceCondition <= DeviceType.SMALLTABLET ? "text-center" : ""}`}
+          className="mt-5 text-gray-400 tablet:text-left text-center"
         >
           COPYRIGHTⓒ {academyInformation.academyName} All rights reserved.
         </div>

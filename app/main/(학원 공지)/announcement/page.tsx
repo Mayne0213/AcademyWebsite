@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import useAnnouncement from "@/components/hooks/useAnnouncement";
 import AddAnnouncement from "@/components/main/announcement/addAnnouncement";
@@ -11,12 +11,7 @@ import Pagination from "@/components/main/student/paginationControls";
 const AnnouncementBoard = () => {
   const [writeNewAnnouncement, setWriteNewAnnouncement] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'announcement' | 'asset'>('announcement');
-  const { loadInitialAnnouncement, loadInitialAsset, addAnnouncement } = useAnnouncement();
-
-  useEffect(() => {
-    loadInitialAnnouncement();
-    loadInitialAsset();
-  }, []);
+  const { addAnnouncement } = useAnnouncement();
 
   return (
     <div className="min-h-[1000px] bg-white rounded-xl p-6 shadow-md flex flex-col">
@@ -60,30 +55,24 @@ const AnnouncementBoard = () => {
 };
 
 const AssetAnnouncementList = () => {
-  const { files, loadInitialAsset } = useAnnouncement();
+  const { assets, assetsTotalCount } = useAnnouncement();
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 8;
-  const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-
-  useEffect(() => {
-    loadInitialAsset();
-  }, []);
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.ceil(assetsTotalCount / ITEMS_PER_PAGE);
 
   return (
     <div className="flex-1 space-y-4 relative">
-      {files.length === 0 ? (
+      {assets.length === 0 ? (
         <div className="absolute inset-0 font-sansKR-SemiBold text-2xl flex items-center justify-center">
           자료실 공지글이 없습니다.
         </div>
       ) : (
         <>
           <ul className="space-y-4">
-            {files.slice(startIndex, endIndex).map((announcement) => (
+            {assets.map((asset) => (
               <AnnouncementItem
-                key={announcement.announcementId}
-                announcement={announcement}
+                key={asset.announcementId}
+                announcement={asset}
               />
             ))}
           </ul>

@@ -16,16 +16,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-
-        {/* LCP 이미지 프리로딩 */}
-        <link
-          rel="preload"
-          href="/homeCopy/jooMain.png"
-          as="image"
-          type="image/png"
-        />
-      </head>
       <body>
         <NextNProgress color={"#1d4ed8"} height={5} shadow={false} />
         <AuthProvider>{children}</AuthProvider>

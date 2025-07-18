@@ -11,9 +11,11 @@ export default function Dashboard() {
   const {
     isLoading,
     announcements,
-    files,
+    assets,
     loadInitialAnnouncement,
     loadInitialAsset,
+    files,
+    isLoadingFiles,
   } = useAnnouncement();
   const { Qnas, loadInitialPersonalQna, loadInitialQna } = useQna();
 
@@ -48,8 +50,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.memberId) return;
 
-    loadInitialAnnouncement();
-    loadInitialAsset();
+    loadInitialAnnouncement(1, 4, false);
+    loadInitialAsset(1, 4);
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
       loadInitialQna();
     } else {
@@ -174,7 +176,7 @@ export default function Dashboard() {
                 전체보기 →
               </a>
             </div>
-            {isLoading ? (
+            {isLoadingFiles ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -196,7 +198,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : files.length === 0 ? (
+            ) : !assets || assets.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -217,7 +219,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {files.slice(0, 4).map((item, index) => (
+                {assets.slice(0, 4).map((item, index) => (
                   <Link
                     key={index}
                     href={`/dashboard/assets`}

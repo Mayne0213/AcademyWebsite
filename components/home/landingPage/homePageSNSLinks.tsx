@@ -68,9 +68,9 @@ const HomePageSNSLinks = () => {
               <div className="w-20 h-20 relative flex-shrink-0 rounded-lg overflow-hidden">
                 <Image
                   src={sns.icon}
-                  alt="preview"
+                  alt="주혜연 선생님 SNS 아이콘"
                   fill
-                  sizes="100vw"
+                  sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
                   className="object-cover"
                 />
               </div>
@@ -105,7 +105,7 @@ const HomePageSNSLinks = () => {
                 {sns.title}
               </div>
               <div className="w-full aspect-video relative">
-                <Image src={sns.bg} alt="background" fill sizes="100vw" />
+                <Image src={sns.bg} alt="background" fill sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw" />
               </div>
               <div className="flex items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-2 text-sm font-MaruBuri-Light">

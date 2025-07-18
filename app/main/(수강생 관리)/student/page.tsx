@@ -32,7 +32,7 @@ const Student = () => {
   useEffect(() => {
     loadInitialStudents();
     loadInitialAcademy();
-  }, []);
+  }, [loadInitialStudents, loadInitialAcademy]);
 
   useEffect(() => {
     setSortKey("name");

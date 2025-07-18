@@ -10,9 +10,9 @@ export default {
   theme: {
     extend: {
       screens: {
-        smalltablet: '601px',
-        tablet: '991px',
-        desktop: '1201px',
+        smalltablet: '600px',
+        tablet: '990px',
+        desktop: '1200px',
       },
 
       fontFamily: {

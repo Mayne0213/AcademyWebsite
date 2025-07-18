@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/authContexts";
 import Link from "next/link";
-import BackgroundDot from "@/components/home/backgroundDot";
 import { UserInfo } from "@/components/type/userInfoType";
+import BackgroundDot from "@/components/home/backgroundDot";
 
 const LoginPage = () => {
   const [userId, setUserId] = useState("");
@@ -41,7 +41,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 relative z-20 ">
-      {/* <BackgroundDot /> */}
+      <BackgroundDot />
 
       <div className="w-full max-w-md relative">
         {/* Header Section */}

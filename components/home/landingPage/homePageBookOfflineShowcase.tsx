@@ -122,7 +122,7 @@ const BookCard = ({ book }: { book: typeof BOOKS_DATA[number] }) => {
           src={src}
           alt={title}
           fill
-          sizes="(max-width: 768px) 80vw, (max-width: 1024px) 280px, 340px"
+          sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
           placeholder="blur"
           className={`rounded-xl border border-gray-200 shadow-md object-cover transition-opacity duration-300`}
         />
@@ -149,7 +149,6 @@ const BookSwiper = () => {
     <div className="block tablet:hidden">
       <Swiper
         spaceBetween={12}
-        loop={true}
         breakpoints={{ 601: { slidesPerView: 2 } }}
         pagination={{ clickable: true }}
         modules={[Pagination]}
