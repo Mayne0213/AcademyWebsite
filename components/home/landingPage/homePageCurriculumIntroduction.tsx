@@ -82,7 +82,6 @@ const YouTubeVideo = () => {
       title="주혜연 영어 학원 커리큘럼 소개 영상"
       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
-      loading="lazy"
       className="relative w-full h-full aspect-video"
     />
   </article>
