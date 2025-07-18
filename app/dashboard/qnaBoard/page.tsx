@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Edit, Trash2 } from "lucide-react";
+import { Calendar, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Header from "@/app/DashboardStructureComponent/header";
 import Pagination from "@/components/main/student/paginationControls";
@@ -194,19 +194,6 @@ const QnaBoard: React.FC = () => {
                             className="flex items-center gap-1 sm:gap-2"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <button
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/qnaBoard/edit/${item.qnaId}`,
-                                )
-                              }
-                              className="p-1 sm:p-2 text-gray-500 hover:text-blue-600"
-                              title="수정"
-                            >
-                              <Edit
-                                className={isCompact ? "w-4 h-4" : "w-5 h-5"}
-                              />
-                            </button>
                             <button
                               onClick={() => handleDelete(item.qnaId)}
                               className="p-1 sm:p-2 text-gray-500 hover:text-red-600"
