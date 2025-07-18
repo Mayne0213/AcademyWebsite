@@ -293,12 +293,16 @@ const Navbar: React.FC = () => {
         <Logo onClick={() => { setIsMenuOpen(false); }} />
 
         <div className={`flex items-center justify-between`}>
+
+          <div className="hidden">
           <MainMenu
             handleSubmenuTab={handleSubmenuTab}
             openSubMenuTab={openSubMenuTab}
             backgroundShouldBeWhite={backgroundShouldBeWhite}
             setIsMenuOpen={setIsMenuOpen}
           />
+          </div>
+
           <Button
             asChild
             className="transition-all duration-300 bg-black mr-6 hidden tablet:block"
@@ -306,6 +310,7 @@ const Navbar: React.FC = () => {
             <Link href="/home/signIn">로그인</Link>
           </Button>
 
+          <div className="hidden">
           <Hamburger
             width={30}
             height={30}
@@ -313,7 +318,7 @@ const Navbar: React.FC = () => {
             className="
             rounded-sm transition-all duration-300 cursor-pointer hover:bg-gray-300 absolute right-[20px] tablet:relative tablet:right-0 tablet:mr-[40px]"
             />
-
+          </div>
         </div>
       </nav>
 
