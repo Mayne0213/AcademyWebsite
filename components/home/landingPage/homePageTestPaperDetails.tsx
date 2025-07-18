@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo, useCallback } from "react";
 import React from "react";
 import { SectionScale, SectionUp } from "./designSystem";
+import { useState, useMemo, useCallback } from "react";
 import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import Loading from "@/components/ui/loading";
 
