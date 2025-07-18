@@ -7,7 +7,7 @@ const AcademyList: React.FC = () => {
 
   useEffect(() => {
     loadInitialAcademy();
-  }, []);
+  }, [loadInitialAcademy]);
 
   return (
     <ul className="grid grid-cols-3 gap-6 relative min-h-[300px]">

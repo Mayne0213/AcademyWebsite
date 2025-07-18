@@ -9,11 +9,13 @@ import Link from "next/link";
 export default function Dashboard() {
   const { user } = useAuth();
   const {
-    loading,
+    isLoading,
     announcements,
-    files,
+    assets,
     loadInitialAnnouncement,
     loadInitialAsset,
+    files,
+    isLoadingFiles,
   } = useAnnouncement();
   const { Qnas, loadInitialPersonalQna, loadInitialQna } = useQna();
 
@@ -36,25 +38,26 @@ export default function Dashboard() {
     "노력은 절대 배신하지 않아. 다만 때로는 시간이 조금 더 걸릴 뿐이야.",
   ];
 
+  // 컴포넌트 함수 안에서 바로 랜덤 선택
+  const randomSubtitle = subTitles[Math.floor(Math.random() * subTitles.length)];
+
   const [subTitle, setSubTitle] = useState<string>("");
 
   useEffect(() => {
-    const randomSubTitle =
-      subTitles[Math.floor(Math.random() * subTitles.length)];
-    setSubTitle(randomSubTitle);
-  }, []);
+    setSubTitle(randomSubtitle);
+  }, [randomSubtitle]);
 
   useEffect(() => {
     if (!user?.memberId) return;
 
-    loadInitialAnnouncement();
-    loadInitialAsset();
+    loadInitialAnnouncement(1, 4, false);
+    loadInitialAsset(1, 4);
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
       loadInitialQna();
     } else {
       loadInitialPersonalQna();
     }
-  }, [user?.memberId, user?.role]); // 함수 대신 실제 의존하는 값들만 포함
+  }, [loadInitialAnnouncement, loadInitialAsset, loadInitialQna, loadInitialPersonalQna, user?.memberId, user?.role]);
 
   return (
     <div className="bg-gray-50">
@@ -95,7 +98,7 @@ export default function Dashboard() {
               </a>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -173,7 +176,7 @@ export default function Dashboard() {
                 전체보기 →
               </a>
             </div>
-            {loading ? (
+            {isLoadingFiles ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -195,7 +198,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : files.length === 0 ? (
+            ) : !assets || assets.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -216,7 +219,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {files.slice(0, 4).map((item, index) => (
+                {assets.slice(0, 4).map((item, index) => (
                   <Link
                     key={index}
                     href={`/dashboard/assets`}
@@ -250,7 +253,7 @@ export default function Dashboard() {
               </a>
             </div>
 
-            {loading ? (
+            {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div

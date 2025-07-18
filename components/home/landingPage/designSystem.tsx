@@ -1,69 +1,129 @@
 // designSystem.ts - 디자인 시스템 상수와 공통 컴포넌트
 
 import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
 export const DESIGN_SYSTEM = {
-  // 통일된 애니메이션
   animations: {
-    fadeInUp: {
-      initial: { opacity: 0, y: 30 },
-      whileInView: { opacity: 1, y: 0 },
-      transition: { duration: 0.6 },
-      viewport: { once: true, amount: 0.3 },
-    },
-    fadeInLeft: {
-      initial: { opacity: 0, x: -30 },
-      whileInView: { opacity: 1, x: 0 },
-      transition: { duration: 0.6 },
-      viewport: { once: true, amount: 0.3 },
-    },
-    fadeInRight: {
-      initial: { opacity: 0, x: 30 },
-      whileInView: { opacity: 1, x: 0 },
-      transition: { duration: 0.6 },
-      viewport: { once: true, amount: 0.3 },
-    },
     scaleIn: {
       initial: { opacity: 0, scale: 0.9 },
       whileInView: { opacity: 1, scale: 1 },
       transition: { duration: 0.5 },
       viewport: { once: true, amount: 0.3 },
     },
-  },
-
-  // 통일된 간격
-  spacing: {
-    section: "py-16 md:py-24",
-    container: "max-w-7xl mx-auto px-4 md:px-6",
-    cardPadding: "p-6 md:p-8",
+    fadeInUp: {
+      initial: { opacity: 0, y: 30 },
+      whileInView: { opacity: 1, y: 0 },
+      transition: { duration: 0.4 },
+      viewport: { once: true, amount: 0.3 },
+    },
+    fadeInDown: {
+      initial: { opacity: 0, y: -30 },
+      whileInView: { opacity: 1, y: 0 },
+      transition: { duration: 0.4 },
+      viewport: { once: true, amount: 0.3 },
+    },
+    fadeInLeft: {
+      initial: { opacity: 0, x: -30 },
+      whileInView: { opacity: 1, x: 0 },
+      transition: { duration: 0.4 },
+      viewport: { once: true, amount: 0.3 },
+    },
+    fadeInRight: {
+      initial: { opacity: 0, x: 30 },
+      whileInView: { opacity: 1, x: 0 },
+      transition: { duration: 0.4 },
+      viewport: { once: true, amount: 0.3 },
+    },
   },
 };
 
-// ============================================
-// 공통 컴포넌트들
-// ============================================
-
-// 섹션 래퍼 컴포넌트
-export const Section = ({
-  children,
-  className = "",
-  background = "bg-white",
-  ...props
-}: {
+// scaleIn 애니메이션 섹션
+export const SectionScale = forwardRef<HTMLElement, {
   children: ReactNode;
   className?: string;
-  background?: string;
   [key: string]: any;
-}) => (
+}>(({ children, className = "", ...props }, ref) => (
   <motion.section
-    initial={{ opacity: 0 }}
-    whileInView={{ opacity: 1 }}
-    transition={{ duration: 0.8 }}
-    viewport={{ once: true }}
-    className={`${background} ${DESIGN_SYSTEM.spacing.section} ${className}`}
+    {...DESIGN_SYSTEM.animations.scaleIn}
+    className={className}
+    ref={ref}
     {...props}
   >
-    <div className={DESIGN_SYSTEM.spacing.container}>{children}</div>
+    {children}
   </motion.section>
-);
+));
+
+SectionScale.displayName = "SectionScale";
+
+// fadeInUp 애니메이션 섹션
+export const SectionUp = forwardRef<HTMLElement, {
+  children: ReactNode;
+  className?: string;
+  [key: string]: any;
+}>(({ children, className = "", ...props }, ref) => (
+  <motion.section
+    {...DESIGN_SYSTEM.animations.fadeInUp}
+    className={className}
+    ref={ref}
+    {...props}
+  >
+    {children}
+  </motion.section>
+));
+
+SectionUp.displayName = "SectionUp";
+
+// fadeInDown 애니메이션 섹션
+export const SectionDown = forwardRef<HTMLElement, {
+  children: ReactNode;
+  className?: string;
+  [key: string]: any;
+}>(({ children, className = "", ...props }, ref) => (
+  <motion.section
+    {...DESIGN_SYSTEM.animations.fadeInDown}
+    className={className}
+    ref={ref}
+    {...props}
+  >
+    {children}
+  </motion.section>
+));
+
+SectionDown.displayName = "SectionDown";
+
+// fadeInLeft 애니메이션 섹션
+export const SectionLeft = forwardRef<HTMLElement, {
+  children: ReactNode;
+  className?: string;
+  [key: string]: any;
+}>(({ children, className = "", ...props }, ref) => (
+  <motion.section
+    {...DESIGN_SYSTEM.animations.fadeInLeft}
+    className={className}
+    ref={ref}
+    {...props}
+  >
+    {children}
+  </motion.section>
+));
+
+SectionLeft.displayName = "SectionLeft";
+
+// fadeInRight 애니메이션 섹션
+export const SectionRight = forwardRef<HTMLElement, {
+  children: ReactNode;
+  className?: string;
+  [key: string]: any;
+}>(({ children, className = "", ...props }, ref) => (
+  <motion.section
+    {...DESIGN_SYSTEM.animations.fadeInRight}
+    className={className}
+    ref={ref}
+    {...props}
+  >
+    {children}
+  </motion.section>
+));
+
+SectionRight.displayName = "SectionRight";

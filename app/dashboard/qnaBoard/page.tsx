@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Edit, Trash2 } from "lucide-react";
+import { Calendar, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Header from "@/app/DashboardStructureComponent/header";
 import Pagination from "@/components/main/student/paginationControls";
 import { useAuth } from "@/contexts/authContexts";
 import { useQna } from "@/components/hooks/useQna";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import AttachedFile from "@/components/attachedFile";
 import { QnaCommentFormInput } from "@/components/type/qnaType";
 
@@ -19,7 +19,7 @@ const QnaBoard: React.FC = () => {
   const ITEMS_PER_PAGE = 10;
   const { user } = useAuth();
   const deviceType = useDeviceDetect();
-  const isCompact = deviceType <= 1;
+  const isCompact = deviceType ? deviceType <= DeviceType.SMALLTABLET : false;
 
   const {
     loading,
@@ -194,19 +194,6 @@ const QnaBoard: React.FC = () => {
                             className="flex items-center gap-1 sm:gap-2"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <button
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/qnaBoard/edit/${item.qnaId}`,
-                                )
-                              }
-                              className="p-1 sm:p-2 text-gray-500 hover:text-blue-600"
-                              title="수정"
-                            >
-                              <Edit
-                                className={isCompact ? "w-4 h-4" : "w-5 h-5"}
-                              />
-                            </button>
                             <button
                               onClick={() => handleDelete(item.qnaId)}
                               className="p-1 sm:p-2 text-gray-500 hover:text-red-600"
