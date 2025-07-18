@@ -2,7 +2,7 @@ const tabs = [
   {
     label: "학원소개",
     href: "/home/greetings",
-    imageHref: "/@/public/homeCopy/subNavbar/greetings.webp",
+    imageHref: "/homeCopy/subNavbar/greetings.webp",
     sectionIndex: 0,
     submenu: [
       {
@@ -28,7 +28,7 @@ const tabs = [
   {
     label: "커리큘럼",
     href: "/home/system",
-    imageHref: "/public/homeCopy/subNavbar/system.webp",
+    imageHref: "/homeCopy/subNavbar/system.webp",
     sectionIndex: 1,
     submenu: [
       {
@@ -54,7 +54,7 @@ const tabs = [
   {
     label: "학원소식",
     href: "/home/board",
-    imageHref: "/public/homeCopy/subNavbar/board.webp",
+    imageHref: "/homeCopy/subNavbar/board.webp",
     sectionIndex: 2,
     submenu: [
       {
@@ -78,7 +78,7 @@ const tabs = [
   {
     label: "등록안내",
     href: "/home/reservation",
-    imageHref: "/public/homeCopy/subNavbar/reservation.jpg",
+    imageHref: "/homeCopy/subNavbar/reservation.jpg",
     sectionIndex: 3,
     submenu: [
       {
