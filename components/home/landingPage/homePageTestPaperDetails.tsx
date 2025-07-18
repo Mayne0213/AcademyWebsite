@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useState, useMemo, useCallback } from "react";
 import React from "react";
 import { SectionScale, SectionUp } from "./designSystem";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
+import Loading from "@/components/ui/loading";
 
 import testPaper from "@/public/homeCopy/testPapers/testPaper1Edge.webp";
 import environment from "@/public/homeCopy/lectures/online/lecture1.webp";
@@ -31,7 +33,7 @@ const features = [
     title: "시간 제한과 마킹 훈련 포함",
     description:
       "실제 시험 시간에 맞춘 제한된 환경에서 문제를 풀며, 시간 관리 능력을 자연스럽게 길러냅니다. OMR 카드 사용을 통해 마킹 실수를 줄이고, 실전에서의 정확성과 속도를 동시에 훈련할 수 있습니다. 이러한 반복 훈련은 실전 감각을 높이고, 불안 요소를 사전에 제거하는 데 효과적입니다.",
-    image: "/homeCopy/omr/omr.webp",
+    image: "/homeCopy/OMR/OMR.webp",
   },
   {
     buttonName: "해설 강의",
@@ -162,22 +164,31 @@ const TestPaperContent = React.memo(({ active }: { active: typeof features[0] })
   </article>
 ));
 
-const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) => (
-  <SectionScale
-    key={active.buttonName}
-    className={`aspect-[16/9] overflow-hidden shadow-xl border relative transform-gpu rounded-t-2xl tablet:rounded-tl-3xl tablet:rounded-tr-none ${STYLES.imageContainerSize}`}
-  >
-    <Image
-      src={active.image}
-      alt="모의고사 이미지"
-      width={800}
-      height={450}
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-      className="object-left-top object-cover"
-      loading="lazy"
-    />
-  </SectionScale>
-));
+const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) => {
+  const deviceCondition = useDeviceDetect();
+  const [isLoading, setIsLoading] = useState(true);
+
+  return (
+    <>
+      {isLoading && <Loading />}
+      <SectionScale
+        key={active.buttonName}
+        className={`aspect-[16/9] overflow-hidden shadow-xl border relative transform-gpu rounded-t-2xl tablet:rounded-tl-3xl tablet:rounded-tr-none ${deviceCondition === DeviceType.TABLET ? STYLES.imageContainerSize : "w-full"}`}
+      >
+        <Image
+          src={active.image}
+          alt="모의고사 이미지"
+          width={800}
+          height={450}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+          className="object-left-top object-cover"
+          loading="lazy"
+          onLoad={() => setIsLoading(false)}
+        />
+      </SectionScale>
+  </>
+  );
+});
 
 TestPaperHeader.displayName = 'TestPaperHeader';
 TestPaperTab.displayName = 'TestPaperTab';
