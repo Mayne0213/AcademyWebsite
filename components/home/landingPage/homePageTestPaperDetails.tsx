@@ -166,7 +166,6 @@ const TestPaperContent = React.memo(({ active }: { active: typeof features[0] })
 
 const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) => {
   const deviceCondition = useDeviceDetect();
-  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <>
@@ -174,7 +173,6 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
         key={active.buttonName}
         className={`aspect-[16/9] overflow-hidden shadow-xl border relative transform-gpu rounded-t-2xl tablet:rounded-tl-3xl tablet:rounded-tr-none ${deviceCondition === DeviceType.TABLET ? STYLES.imageContainerSize : "w-full"}`}
         >
-        {isLoading && <Loading />}
         <Image
           src={active.image}
           alt="모의고사 이미지"
@@ -184,7 +182,6 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
           className="object-left-top object-cover"
           loading="lazy"
           placeholder="blur"
-          onLoad={() => setIsLoading(false)}
         />
       </SectionScale>
   </>
