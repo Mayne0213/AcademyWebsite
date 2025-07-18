@@ -9,31 +9,31 @@ export const DESIGN_SYSTEM = {
       initial: { opacity: 0, scale: 0.9 },
       whileInView: { opacity: 1, scale: 1 },
       transition: { duration: 0.5 },
-      viewport: { once: true, amount: 0.1 },
+      viewport: { once: true, amount: 0.3 },
     },
     fadeInUp: {
       initial: { opacity: 0, y: 30 },
       whileInView: { opacity: 1, y: 0 },
       transition: { duration: 0.4 },
-      viewport: { once: true, amount: 0.1 },
+      viewport: { once: true, amount: 0.3 },
     },
     fadeInDown: {
       initial: { opacity: 0, y: -30 },
       whileInView: { opacity: 1, y: 0 },
       transition: { duration: 0.4 },
-      viewport: { once: true, amount: 0.1 },
+      viewport: { once: true, amount: 0.3 },
     },
     fadeInLeft: {
       initial: { opacity: 0, x: -30 },
       whileInView: { opacity: 1, x: 0 },
       transition: { duration: 0.4 },
-      viewport: { once: true, amount: 0.1 },
+      viewport: { once: true, amount: 0.3 },
     },
     fadeInRight: {
       initial: { opacity: 0, x: 30 },
       whileInView: { opacity: 1, x: 0 },
       transition: { duration: 0.4 },
-      viewport: { once: true, amount: 0.1 },
+      viewport: { once: true, amount: 0.3 },
     },
   },
 };
@@ -60,10 +60,15 @@ SectionScale.displayName = "SectionScale";
 export const SectionUp = forwardRef<HTMLElement, {
   children: ReactNode;
   className?: string;
+  amount?: number; // 추가
   [key: string]: any;
-}>(({ children, className = "", ...props }, ref) => (
+}>(({ children, className = "", amount, ...props }, ref) => (
   <motion.section
     {...DESIGN_SYSTEM.animations.fadeInUp}
+    viewport={{
+      ...DESIGN_SYSTEM.animations.fadeInUp.viewport,
+      ...(amount !== undefined ? { amount } : {}),
+    }}
     className={className}
     ref={ref}
     {...props}

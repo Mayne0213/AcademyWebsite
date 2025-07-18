@@ -45,7 +45,7 @@ const HomePageAcademyDepartments = () => {
   };
 
   return (
-    <SectionUp className={`relative py-16 max-w-7xl mx-auto px-4`}>
+    <SectionUp className="relative py-16 max-w-7xl mx-auto px-4" amount={0.1}>
         <h2 className={STYLES.title}>현강 관별 소개</h2>
         <div className={`flex flex-col max-w-sm smalltablet:max-w-none smalltablet:grid gap-8 ${STYLES.grid}`}>
           {academys.map((academy, index) => (
