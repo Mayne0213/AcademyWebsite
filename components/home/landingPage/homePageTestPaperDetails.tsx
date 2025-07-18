@@ -5,7 +5,6 @@ import React from "react";
 import { SectionScale, SectionUp } from "./designSystem";
 import { useState, useMemo, useCallback } from "react";
 import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
-import Loading from "@/components/ui/loading";
 
 import testPaper from "@/public/homeCopy/testPapers/testPaper1Edge.webp";
 import environment from "@/public/homeCopy/lectures/online/lecture1.webp";
@@ -177,7 +176,7 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
           src={active.image}
           alt="모의고사 이미지"
           width={1000}
-          height={450}
+          height={600}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
           className="object-left-top object-cover"
           loading="lazy"
@@ -187,11 +186,6 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
   </>
   );
 });
-
-TestPaperHeader.displayName = 'TestPaperHeader';
-TestPaperTab.displayName = 'TestPaperTab';
-TestPaperContent.displayName = 'TestPaperContent';
-TestPaperImage.displayName = 'TestPaperImage';
 
 const HomePageTestPaperDetails = () => {
   const [currentTab, setCurrentTab] = useState<number>(0);
@@ -217,5 +211,9 @@ const HomePageTestPaperDetails = () => {
 };
 
 HomePageTestPaperDetails.displayName = 'HomePageTestPaperDetails';
+TestPaperHeader.displayName = 'TestPaperHeader';
+TestPaperTab.displayName = 'TestPaperTab';
+TestPaperContent.displayName = 'TestPaperContent';
+TestPaperImage.displayName = 'TestPaperImage';
 
 export default HomePageTestPaperDetails;

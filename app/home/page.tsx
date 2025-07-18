@@ -14,11 +14,14 @@ import HomePageAcademyDepartments from "@/components/home/landingPage/homePageAc
 import HomePageSNSLinks from "@/components/home/landingPage/homePageSNSLinks";
 import HomePageFloatingChatButton from "@/components/home/landingPage/homePageFloatingChatButton";
 import BackgroundDot from "@/components/home/backgroundDot";
+import Loading from "../loading";
 
 const Home = () => {
 
   return (
     <main className="relative flex flex-col w-full bg-gray-50 font-MaruBuri-Regular">
+
+      <Loading />
 
       <HomePageFloatingChatButton />
 

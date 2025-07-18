@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import tabs from "@/components/home/tabs";
-import { useDeviceDetect } from "@/components/home/deviceType";
-import Loading from "../loading";
 
 import { MenuIcon, X, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -268,7 +266,6 @@ const useScrollEffect = () => {
 };
 
 const Navbar: React.FC = () => {
-  const deviceCondition = useDeviceDetect();
   const isScrolled = useScrollEffect();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSubMenuTab, setOpenSubMenuTab] = useState<number>(-1);
@@ -278,10 +275,6 @@ const Navbar: React.FC = () => {
   const handleSubmenuTab = (index: number) => {
     setOpenSubMenuTab(index);
   };
-
-  if (deviceCondition === null) {
-    return <Loading />;
-  }
 
   return (
     <div className="relative font-MaruBuri-Bold z-50">
