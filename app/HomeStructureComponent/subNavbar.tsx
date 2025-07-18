@@ -2,13 +2,12 @@
 
 import React from "react";
 import Link from "next/link";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 import tabs from "@/components/home/tabs";
 import GetTabsValue from "@/components/home/getTabsValue";
-import DeviceType from "@/components/home/deviceType";
-import { useDeviceDetect } from "@/components/home/deviceType";
+import  DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 
 const SubNavbar: React.FC = () => {
   const pathname = usePathname();
@@ -102,7 +101,7 @@ const SubNavbar: React.FC = () => {
         {/* 이미지 안쪽 중 가장 아래에 있는 탭 바 */}
         {currentTab && (
           <div
-            className={`bg-black bg-opacity-20 absolute inset-0 top-[441px] flex items-center justify-center ${deviceCondition && deviceCondition <= DeviceType.TABLET ? "hidden" : ""}`}
+            className={`bg-black bg-opacity-20 absolute inset-0 top-[441px] items-center justify-center hidden tablet:flex`}
           >
             {currentTab.submenu.map(
               (item: { href: string; label: string }, subIndex: number) => (
