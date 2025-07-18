@@ -1,12 +1,8 @@
-"use client";
-
 import Link from "next/link";
 import tabs from "@/components/home/tabs";
-import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import academyInformation from "@/components/home/academyInformation";
 
 const Footer: React.FC = () => {
-  const deviceCondition = useDeviceDetect();
 
   return (
     <footer className="bg-gray-800 text-white p-10 font-sansKR-Regular">
@@ -15,7 +11,7 @@ const Footer: React.FC = () => {
           <div
             key={index}
             className={`${index === 0 ? "ml-[10px]" : ""}
-                        ${deviceCondition === DeviceType.TABLET ? "text-sm mr-12" : "text-base mr-16"}
+                        tablet:text-sm tablet:mr-12 desktop:text-base desktop:mr-16
                         text-white cursor-pointer hover:font-sansKR-Bold`}
           >
             <Link href={tab.href}>{tab.label}</Link>

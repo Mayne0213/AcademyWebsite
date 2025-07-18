@@ -14,8 +14,7 @@ export default function Dashboard() {
     assets,
     loadInitialAnnouncement,
     loadInitialAsset,
-    files,
-    isLoadingFiles,
+    isLoadingAssets,
   } = useAnnouncement();
   const { Qnas, loadInitialPersonalQna, loadInitialQna } = useQna();
 
@@ -45,7 +44,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setSubTitle(randomSubtitle);
-  }, [randomSubtitle]);
+  }, []);
 
   useEffect(() => {
     if (!user?.memberId) return;
@@ -176,7 +175,7 @@ export default function Dashboard() {
                 전체보기 →
               </a>
             </div>
-            {isLoadingFiles ? (
+            {isLoadingAssets ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
