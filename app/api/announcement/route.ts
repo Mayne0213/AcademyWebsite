@@ -30,27 +30,24 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const isItAssetAnnouncement = searchParams.get("isItAssetAnnouncement");
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
 
     let filter: boolean | undefined = undefined;
     if (isItAssetAnnouncement === "true") filter = true;
     else if (isItAssetAnnouncement === "false") filter = false;
 
-    // 현재 로그인한 사용자 정보 가져오기
     const userPayload = await getUserFromToken(req);
-    
-    // 기본 where 조건: 공지/자료실 구분
+
     let whereCondition: any = { isItAssetAnnouncement: filter };
 
-    // 사용자가 로그인되어 있고 학생인 경우, 해당 학생의 학원에 연결된 공지만 필터링
     if (userPayload && userPayload.role === "STUDENT") {
-      // 학생의 학원 정보 가져오기
       const student = await prisma.student.findUnique({
         where: { memberId: userPayload.memberId },
         select: { academyId: true },
       });
 
       if (student) {
-        // 해당 학원에 연결된 공지만 가져오기 (공지/자료실 구분과 함께)
         whereCondition = {
           AND: [
             { isItAssetAnnouncement: filter },
@@ -65,22 +62,24 @@ export async function GET(req: NextRequest) {
         };
       }
     }
-    // 관리자나 개발자인 경우 모든 공지를 볼 수 있음 (기본 whereCondition 사용)
 
-    const announcements = await prisma.announcement.findMany({
-      where: whereCondition,
-      orderBy: { createdAt: "desc" },
-      select: {
-        announcementId: true,
-        title: true,
-        updatedAt: true,
-        // files: true, // 첨부파일은 상세에서만 불러오기
-        // content: false, // content는 포함하지 않음
-      },
-    });
+    // 페이지네이션 적용
+    const [announcements, totalCount] = await prisma.$transaction([
+      prisma.announcement.findMany({
+        where: whereCondition,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          announcementId: true,
+          title: true,
+          updatedAt: true,
+        },
+      }),
+      prisma.announcement.count({ where: whereCondition }),
+    ]);
 
-    // 파일 데이터 변환 제거 (상세에서만 처리)
-    return NextResponse.json(announcements, { status: 200 });
+    return NextResponse.json({ announcements, totalCount }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] 공지사항 조회 실패:", error);
     return NextResponse.json(

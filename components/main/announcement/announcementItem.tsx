@@ -6,13 +6,10 @@ import {
   Edit,
   Trash2,
   User,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { Announcement, AnnouncementDetail } from "@/components/type/announcementType";
 import EditAnnouncement from "./editAnnouncement";
 import useAnnouncement from "@/components/hooks/useAnnouncement";
-import { useAuth } from "@/contexts/authContexts";
 import AttachedFile from "@/components/attachedFile";
 
 interface Props {
@@ -25,7 +22,6 @@ const AnnouncementItem: React.FC<Props> = ({
   isCompact = false,
 }) => {
   const { updateAnnouncement, removeAnnouncement, getAnnouncementDetail } = useAnnouncement();
-  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [detailData, setDetailData] = useState<AnnouncementDetail | null>(null);

@@ -24,7 +24,7 @@ const Home = () => {
 
       <BackgroundDot />
 
-      <HomePageWelcome id="welcome-section"/> {/* 얘 모바일 버전 만들어야함 */}
+      <HomePageWelcome id="welcome-section"/>
 
       <HomePageAnnouncement />
 
@@ -40,7 +40,7 @@ const Home = () => {
 
       <HomePageTestPaperIntroduction id="testpaper-section"/>
 
-      <HomePageTestPaperDetails /> {/* 이 위까지 리팩토링 완료 */}
+      <HomePageTestPaperDetails />
 
       <HomePageActualAdvertising id="advertising-section"/>
 
@@ -48,7 +48,7 @@ const Home = () => {
 
       <HomePageAcademyDepartments />
 
-      <HomePageSNSLinks />
+      <HomePageSNSLinks /> {/* 리팩토링 필요 */}
     </main>
   );
 };

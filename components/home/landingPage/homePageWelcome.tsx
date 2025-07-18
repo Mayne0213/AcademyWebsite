@@ -1,20 +1,26 @@
 "use client";
 
-import { forwardRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import JooMain from "@/public/homeCopy/jooMain.png";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
+
+const DEFAULT_VIEWPORT_HEIGHT = 900;
+const DEFAULT_VIEWPORT_WIDTH = 1600;
 
 const HomePageWelcome = (props: React.HTMLAttributes<HTMLDivElement>) => {
-  const [viewportHeight, setViewportHeight] = useState<number>(0);
-  const [viewportWidth, setViewportWidth] = useState<number>(0);
+  const [isMounted, setIsMounted] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState<number>(DEFAULT_VIEWPORT_HEIGHT);
+  const [viewportWidth, setViewportWidth] = useState<number>(DEFAULT_VIEWPORT_WIDTH);
+  const deviceCondition = useDeviceDetect();
 
   useEffect(() => {
-    if (viewportHeight === 0) {
+    if (!isMounted) {
       setViewportHeight(window.innerHeight);
       setViewportWidth(window.innerWidth);
+      setIsMounted(true);
     }
 
-    // 브라우저 최대화/복원 감지
     const handleResize = () => {
       setViewportHeight(window.innerHeight);
       setViewportWidth(window.innerWidth);
@@ -23,50 +29,7 @@ const HomePageWelcome = (props: React.HTMLAttributes<HTMLDivElement>) => {
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
-  }, [viewportHeight, viewportWidth]);
-  //   <motion.section
-  //     {...DESIGN_SYSTEM.animations.fadeInUp}
-  //     ref={ref}
-  //     className="h-screen relative bg-gradient-to-b from-[#cce6ff] to-[#a3d0ff] flex flex-col items-center justify-center pb-[clamp(37.5rem,40vw,62.5rem)] px-6"
-  //   >
-  //     {/* 텍스트 영역 */}
-  //     <motion.div
-  //       {...DESIGN_SYSTEM.animations.fadeInUp}
-  //       transition={{
-  //         ...DESIGN_SYSTEM.animations.fadeInUp.transition,
-  //         delay: 0.2,
-  //       }}
-  //       className="text-center z-[2] mt-[70px]"
-  //     >
-  //       <h1 className="text-[48px] leading-tight text-white drop-shadow-lg font-GangwonEdu-Bold">
-  //         <span className="block text-white font-GangwonEdu">확신의</span>
-  //         <span className="text-[#092C4C] font-GangwonEdu">영어</span>{" "}
-  //         <span className="inline-block bg-yellow-300 text-[#092C4C] px-3 py-1 rounded-2xl rotate-[-5deg] shadow-md mt-1 font-GangwonEdu-Bold">
-  //           1등급
-  //         </span>
-  //       </h1>
-  //     </motion.div>
-
-  //     {/* 인물 이미지 - 배너 하단 고정, 가운데 정렬, 반응형 크기 */}
-  //     <motion.div
-  //       {...DESIGN_SYSTEM.animations.scaleIn}
-  //       transition={{
-  //         ...DESIGN_SYSTEM.animations.scaleIn.transition,
-  //         delay: 0.5,
-  //       }}
-  //       className="absolute bottom-0 w-[400px] h-[600px]"
-  //     >
-  //       <Image
-  //         src={JooMain}
-  //         alt="주혜연"
-  //         fill
-  //         priority
-  //         sizes="(max-width: 768px) 400px, (max-width: 1200px) 600px, 800px"
-  //         className="object-contain"
-  //       />
-  //     </motion.div>
-  //   </motion.section>
-  // );
+  }, [viewportHeight, viewportWidth, isMounted]);
 
   const renderDefaultLayout = () => (
     <section
@@ -92,13 +55,17 @@ const HomePageWelcome = (props: React.HTMLAttributes<HTMLDivElement>) => {
               </p>
             </h1>
           </section>
-          <Image
-            src={JooMain}
-            alt="주혜연"
-            sizes="(max-width: 768px) 400px, (max-width: 1200px) 600px, 800px"
-            className="h-full w-auto object-contain"
-            loading="eager"
-          />
+          <div className="h-full aspect-[800/1435] min-h-[600px] flex items-end">
+            <Image
+              src={JooMain}
+              alt="주혜연"
+              height={1435}
+              width={800}
+              sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="h-full w-auto object-contain"
+              priority
+            />
+          </div>
         </section>
 
         <section
@@ -128,7 +95,38 @@ const HomePageWelcome = (props: React.HTMLAttributes<HTMLDivElement>) => {
     </section>
   );
 
-  return renderDefaultLayout();
+  const renderMobileLayout = () => (
+    <section
+      className="relative bg-gradient-to-b from-[#cce6ff] to-[#a3d0ff] min-h-[700px] h-screen flex flex-col justify-end items-center"
+      suppressHydrationWarning
+    >
+      <div className="w-full h-[110px]" />
+      <div className="w-full flex flex-col items-center mb-2 z-10">
+        <h1 className="text-white drop-shadow-lg text-center font-GangwonEdu-Bold text-[clamp(3rem,7vh,3rem)] leading-tight">
+          <span className="block">확신의 </span>
+          <span className="text-[#092C4C]">영어
+            <span className="inline-block bg-yellow-300 text-[#092C4C] px-4 py-1 rounded-3xl rotate-[-5deg] shadow-md ml-2">
+              1등급
+            </span>
+          </span>
+        </h1>
+      </div>
+      <div className="w-full flex justify-center min-h-[200px] aspect-[800/1435]" suppressHydrationWarning>
+        <Image
+          src={JooMain}
+          alt="주혜연"
+          width={800}
+          height={1435}
+          className="object-contain w-full min-h-[200px]"
+          loading="eager"
+          sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
+          priority
+        />
+      </div>
+    </section>
+  );
+
+  return deviceCondition === DeviceType.MOBILE || deviceCondition === DeviceType.SMALLTABLET ? renderMobileLayout() : renderDefaultLayout();
 };
 
 export default HomePageWelcome;

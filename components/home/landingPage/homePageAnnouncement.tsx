@@ -43,8 +43,7 @@ const STYLES = {
   ].join(" "),
   itemTextSize: [
     "text-sm",
-    "smalltablet:text-xs",
-    "tablet:text-base",
+    "smalltablet:text-base",
     "desktop:text-lg",
   ].join(" "),
 };
@@ -53,7 +52,7 @@ const HomePageAnnouncement = () => {
   const { isLoading, announcements, loadInitialAnnouncement } = useAnnouncement();
 
   useEffect(() => {
-    loadInitialAnnouncement();
+    loadInitialAnnouncement(1,ANNOUNCEMENT_LIMIT,false);
   }, [loadInitialAnnouncement]);
 
   const renderContent = () => {
@@ -114,7 +113,7 @@ const AnnouncementList = ({ announcements }: { announcements: { title: string; u
     {announcements.slice(0, ANNOUNCEMENT_LIMIT).map((item, index) => (
       <li key={index} className={`w-full flex justify-between py-3 font-MaruBuri-Light hover:font-MaruBuri-SemiBold hover:cursor-pointer ${STYLES.itemTextSize} ${index === 0 ? "border-y-2" : "border-b-2"}`}>
         <article className="flex justify-between items-center w-full">
-          <h3 className="font-inherit">{item.title}</h3>
+          <h3>{item.title}</h3>
           <time dateTime={item.updatedAt} className="text-gray-500">
             {new Date(item.updatedAt).toLocaleDateString("ko-KR")}
           </time>

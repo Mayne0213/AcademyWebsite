@@ -5,7 +5,7 @@ import AUDIENCE_IMAGE_URL from "@/public/homeCopy/lectures/offline/lecture1.jpg"
 
 import { SectionUp } from "./designSystem";
 
-const YOUTUBE_VIDEO_URL = "https://www.youtube.com/embed/h4fybVXAZ0c?autoplay=0&rel=0";
+const YOUTUBE_VIDEO_URL = "https://www.youtube-nocookie.com/embed/h4fybVXAZ0c?autoplay=0&rel=0";
 const TITLE = `예비 고3에서 수능까지,\n 함께 달려나가겠습니다.`;
 const DESCRIPTION = `단순 한 철 강의가 아닙니다. 2026년 1년을 아우르는 체계적이고 전문적인 교육 커리를 확인하실 수 있습니다. 수많은 학생을 가르친 경험과 체계적인 커리큘럼으로 학생들의 옆에서 함께 걸어 나가겠습니다.`;
 
@@ -56,20 +56,16 @@ const STYLES = {
     "smalltablet:hidden",
     "tablet:w-[50%] tablet:block",
   ].join(" "),
-  minH: [
-    "smalltablet:min-h-[400px]",
-    "tablet:min-h-0",
-  ].join(" "),
   backgroundImage: [
-    "hidden",
+    "hidden relative aspect-video max-h-[400px]",
     "smalltablet:block",
     "tablet:hidden",
   ].join(" "),
 };
 
 const HomePageCurriculumIntroduction = (props: React.HTMLAttributes<HTMLDivElement>) => (
-    <SectionUp {...props} className={`relative ${STYLES.padding}`}>
-      <main className={`relative w-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection} ${STYLES.minH}`}>
+    <SectionUp {...props} className={`relative tablet:scroll-mt-[70px] desktop:scroll-mt-[90px] ${STYLES.padding}`}>
+      <main className={`relative w-full h-full max-w-7xl m-auto flex items-stretch ${STYLES.gap} ${STYLES.layoutDirection}`}>
         <YouTubeVideo />
         <BackgroundImage />
         <ContentText />

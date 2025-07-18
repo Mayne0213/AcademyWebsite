@@ -30,6 +30,7 @@ const Announcements: React.FC = () => {
   const {
     isLoading,
     announcements,
+    totalCount,
     loadInitialAnnouncement,
     removeAnnouncement,
   } = useAnnouncement();
@@ -38,15 +39,12 @@ const Announcements: React.FC = () => {
   const [expandedDetails, setExpandedDetails] = useState<{ [id: number]: { content: string; files: any[] } }>({});
   const [loadingDetails, setLoadingDetails] = useState<{ [id: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(announcements.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
 
   const router = useRouter();
 
   useEffect(() => {
-    loadInitialAnnouncement();
-  }, [loadInitialAnnouncement]);
+    loadInitialAnnouncement(currentPage, ITEMS_PER_PAGE, false);
+  }, [loadInitialAnnouncement, currentPage]);
 
   useEffect(() => {
     console.log("[디버그] 공지사항 상태 변화:", announcements.map(a => ({ id: a.announcementId, title: a.title, files: a.files })));
@@ -70,7 +68,6 @@ const Announcements: React.FC = () => {
       ...prev,
       [globalIndex]: !prev[globalIndex],
     }));
-    // 만약 이미 상세가 로드되어 있거나, 닫는 경우 fetch하지 않음
     if (expandedItems[globalIndex] || expandedDetails[announcementId]) return;
     setLoadingDetails((prev) => ({ ...prev, [announcementId]: true }));
     try {
@@ -86,6 +83,8 @@ const Announcements: React.FC = () => {
       setLoadingDetails((prev) => ({ ...prev, [announcementId]: false }));
     }
   };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
     <div className="min-h-screen bg-gray-50 space-y-6">
@@ -127,7 +126,7 @@ const Announcements: React.FC = () => {
                 </div>
               ))}
             </div>
-          ) : announcements.length === 0 ? (
+          ) : totalCount === 0 ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
               <div className="text-gray-400 mb-4">
                 <Calendar className="w-12 h-12 mx-auto" />
@@ -135,8 +134,8 @@ const Announcements: React.FC = () => {
               <p className="text-gray-500">공지사항이 없습니다.</p>
             </div>
           ) : (
-            announcements.slice(startIndex, endIndex).map((item, index) => {
-              const globalIndex = startIndex + index;
+            announcements.map((item, index) => {
+              const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
               const isExpanded = expandedItems[globalIndex];
               const detail = expandedDetails[item.announcementId];
               const isDetailLoading = loadingDetails[item.announcementId];

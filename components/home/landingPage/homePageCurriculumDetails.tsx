@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart3,
   Lightbulb,
@@ -11,7 +12,8 @@ import {
   ArrowRight,
   ChevronDown,
 } from "lucide-react";
-import DeviceType, { useDeviceDetect } from "../deviceType";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
+import { SectionUp } from "./designSystem";
 
 const roadmapSteps = [
   {
@@ -84,8 +86,8 @@ const HomePageCurriculumDetails = () => {
   };
 
   const styles = {
-    titleSize: isMobile ? "text-2xl" : isSmallTablet ? "text-3xl" : "text-5xl",
-    descSize: isMobile ? "text-xs" : isSmallTablet ? "text-sm" : "text-base",
+    titleSize: isMobile ? "text-2xl" : isSmallTablet ? "text-4xl" : "text-5xl",
+    descSize: isMobile ? "text-sm" : isSmallTablet ? "text-sm" : "text-base",
     iconSize: isMobile ? "w-8 h-8" : "w-10 h-10",
     textSize: isMobile ? "text-sm" : "text-base",
     cardPadding: isMobile ? "p-4 sm:p-6" : "p-8",
@@ -98,10 +100,10 @@ const HomePageCurriculumDetails = () => {
   };
 
   return (
-    <div className="bg-gray-50 px-4 md:px-8 w-full flex justify-center py-12 md:py-20">
+    <SectionUp className="bg-gray-50 px-4 md:px-8 w-full flex justify-center py-12 md:py-20">
       <div className="w-full max-w-7xl flex flex-col items-center">
         {/* Header */}
-        <section
+        <header
           className="text-center mb-12"
         >
           <h1 className={`text-gray-800 font-MaruBuri-Bold mb-4 ${styles.titleSize}`}>
@@ -112,7 +114,7 @@ const HomePageCurriculumDetails = () => {
             향상시키고, 최종적으로 수능 만점을 달성할 수 있도록 설계된 완벽한
             커리큘럼입니다.
           </p>
-        </section>
+        </header>
 
         {/* Mobile: 겹쳐진 카드 형태 */}
         {isMobile && (
@@ -211,8 +213,13 @@ const HomePageCurriculumDetails = () => {
             </div>
 
             {/* 펼쳐진 카드: 2~6번만 보임 */}
+            <AnimatePresence>
               {isExpanded && (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.5 }}
                   className="mt-8 space-y-4"
                 >
                   {roadmapSteps.slice(1).map((step, index) => {
@@ -253,8 +260,9 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     );
                   })}
-                </div>
+                </motion.div>
               )}
+            </AnimatePresence>
           </div>
         )}
 
@@ -306,7 +314,7 @@ const HomePageCurriculumDetails = () => {
 
               return (
                 <div key={index} className="relative flex flex-col">
-                  <section
+                  <div
                     className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex-1 flex flex-col"
                   >
                     {/* Header */}
@@ -334,14 +342,14 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     </div>
                     {arrow}
-                  </section>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
-    </div>
+    </SectionUp>
   );
 };
 

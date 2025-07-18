@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   },[deviceCondition])
 
   return (
-    <div className="bg-gray-200 min-h-screen w-full flex">
+    <div className="bg-gray-200 min-h-screen w-full flex font-sansKR-Regular">
       {(sidebarOpen) && (
         <Sidebar
           deviceCondition={deviceCondition ?? DeviceType.DESKTOP}

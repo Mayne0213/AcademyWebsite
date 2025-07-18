@@ -29,28 +29,20 @@ const Assets: React.FC = () => {
   const deviceType = useDeviceDetect();
   const isCompact = deviceType ? deviceType <= DeviceType.SMALLTABLET : false;
 
-  const { isLoading, files, loadInitialAsset, removeAnnouncement } =
-    useAnnouncement();
+  const { assets, assetsTotalCount, isLoadingAssets, loadInitialAsset, removeAnnouncement } = useAnnouncement();
   const [expandedItems, setExpandedItems] = useState<ExpandedItems>({});
   const [expandedDetails, setExpandedDetails] = useState<{ [id: number]: { content: string; files: any[] } }>({});
   const [loadingDetails, setLoadingDetails] = useState<{ [id: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(files.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const totalPages = Math.ceil(assetsTotalCount / ITEMS_PER_PAGE);
 
   const router = useRouter();
 
   useEffect(() => {
-    loadInitialAsset();
-  }, [loadInitialAsset]);
+    loadInitialAsset(currentPage, ITEMS_PER_PAGE);
+  }, [loadInitialAsset, currentPage]);
 
-  const toggleExpanded = (index: number): void => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
+
 
   const handleDelete = async (id: number) => {
     if (confirm("정말로 이 공지를 삭제하시겠습니까?")) {
@@ -86,7 +78,7 @@ const Assets: React.FC = () => {
 
       <div className="max-w-6xl mx-auto px-4">
         <div className="space-y-4">
-          {isLoading ? (
+          {isLoadingAssets ? (
             <div className="space-y-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
@@ -102,7 +94,6 @@ const Assets: React.FC = () => {
                           }`}
                           style={{ width: `${Math.random() * 30 + 50}%` }}
                         />
-
                         {/* 메타 정보 스켈레톤 */}
                         <div className="flex flex-wrap items-center gap-2">
                           {deviceType && deviceType !== DeviceType.MOBILE && (
@@ -124,16 +115,16 @@ const Assets: React.FC = () => {
             </div>
           ) : (
             <>
-              {files.length === 0 ? (
+              {assets.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
                   <div className="text-gray-400 mb-4">
                     <Calendar className="w-12 h-12 mx-auto" />
                   </div>
-                  <p className="text-gray-500">공지사항이 없습니다.</p>
+                  <p className="text-gray-500">자료가 없습니다.</p>
                 </div>
               ) : (
-                files.slice(startIndex, endIndex).map((item, index) => {
-                  const globalIndex = startIndex + index;
+                assets.map((item, index) => {
+                  const globalIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
                   const isExpanded = expandedItems[globalIndex];
                   const detail = expandedDetails[item.announcementId];
                   const isDetailLoading = loadingDetails[item.announcementId];

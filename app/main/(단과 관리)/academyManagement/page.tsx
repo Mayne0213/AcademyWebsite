@@ -1,7 +1,7 @@
 /* trunk-ignore-all(prettier) */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus } from "lucide-react";
 import useAcademy from "@/components/hooks/useAcademy";
 import AddAcademy from "@/components/main/academy/addAcademy";
@@ -9,17 +9,10 @@ import AcademyList from "@/components/main/academy/academyList";
 
 const AcademyBoard = () => {
   const [writeNewAcademy, setWriteNewAcademy] = useState<boolean>(false);
-  const {
-    loadInitialAcademy,
-    addAcademy,
-  } = useAcademy();
-
-  useEffect(() => {
-    loadInitialAcademy();
-  }, []);
+  const { addAcademy } = useAcademy();
 
   return (
-    <div className="min-h-screen bg-white rounded-xl p-6 shadow-md flex flex-col relative">
+    <div className="min-h-screen bg-white rounded-xl p-6 shadow-md flex flex-col">
       <div className="flex justify-between">
         <h2 className="text-2xl font-sansKR-SemiBold mb-4">단과 관리</h2>
         <Plus

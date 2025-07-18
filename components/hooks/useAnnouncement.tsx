@@ -30,10 +30,17 @@ interface AnnouncementUpdateInput {
 
 interface AnnouncementState {
   announcements: Announcement[];
+  totalCount: number;
   files: Announcement[];
+  filesTotalCount: number;
   isLoading: boolean;
-  loadInitialAnnouncement: () => void;
-  loadInitialAsset: () => void;
+  isLoadingFiles: boolean;
+  // 추가
+  assets: Announcement[];
+  assetsTotalCount: number;
+  isLoadingAssets: boolean;
+  loadInitialAnnouncement: (page: number, pageSize: number, isItAssetAnnouncement?: boolean) => void;
+  loadInitialAsset: (page: number, pageSize: number) => void;
   getAnnouncementDetail: (announcementId: number) => Promise<AnnouncementDetail | null>;
   addAnnouncement: (newAnnouncement: AnnouncementFormInput) => void;
   updateAnnouncement: (updatedAnnouncement: AnnouncementUpdateInput) => void;
@@ -42,17 +49,23 @@ interface AnnouncementState {
 
 export const useAnnouncement = create<AnnouncementState>((set) => ({
   announcements: [],
+  totalCount: 0,
   files: [],
+  filesTotalCount: 0,
   isLoading: false,
+  isLoadingFiles: false,
+  // 추가
+  assets: [],
+  assetsTotalCount: 0,
+  isLoadingAssets: false,
 
-  loadInitialAnnouncement: async () => {
+  loadInitialAnnouncement: async (page, pageSize, isItAssetAnnouncement = false) => {
     set({ isLoading: true });
     try {
-      const res = await fetch(`/api/announcement?isItAssetAnnouncement=false`);
+      const res = await fetch(`/api/announcement?isItAssetAnnouncement=${isItAssetAnnouncement}&page=${page}&pageSize=${pageSize}`);
       if (!res.ok) throw new Error("Failed to fetch");
-
-      const data: Announcement[] = await res.json();
-      set({ announcements: data });
+      const data = await res.json();
+      set({ announcements: data.announcements, totalCount: data.totalCount });
     } catch (error) {
       toast.error("공지사항 로딩 중 오류가 발생했습니다.");
     } finally {
@@ -60,18 +73,17 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
     }
   },
 
-  loadInitialAsset: async () => {
-    set({ isLoading: true });
+  loadInitialAsset: async (page, pageSize) => {
+    set({ isLoadingAssets: true });
     try {
-      const res = await fetch(`/api/announcement?isItAssetAnnouncement=true`);
-      if (!res.ok) throw new Error("Failed to fetch");
-
-      const data: Announcement[] = await res.json();
-      set({ files: data });
+      const res = await fetch(`/api/announcement?isItAssetAnnouncement=true&page=${page}&pageSize=${pageSize}`);
+      if (!res.ok) throw new Error("Failed to fetch assets");
+      const data = await res.json();
+      set({ assets: data.announcements, assetsTotalCount: data.totalCount });
     } catch (error) {
-      toast.error("공지사항 로딩 중 오류가 발생했습니다.");
+      toast.error("자료실 로딩 중 오류가 발생했습니다.");
     } finally {
-      set({ isLoading: false });
+      set({ isLoadingAssets: false });
     }
   },
 
@@ -142,14 +154,13 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
     }
   },
 
-
   removeAnnouncement: async (announcementId) => {
     try {
       // 1. 상세 정보 fetch
       const detail = await useAnnouncement.getState().getAnnouncementDetail(announcementId);
 
       // 2. 첨부파일 삭제
-      if (detail && detail.files.length > 0) {
+      if (detail && Array.isArray(detail.files) && detail.files.length > 0) {
         const deletePromises = detail.files.map(async (file: { url: string; name: string; type: string }) => {
           try {
             const deleteResponse = await fetch(`/api/delete-file?fileUrl=${encodeURIComponent(file.url)}`, {
@@ -182,6 +193,9 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
           (a) => a.announcementId !== announcementId
         ),
         files: state.files.filter(
+          (a) => a.announcementId !== announcementId
+        ),
+        assets: state.assets.filter(
           (a) => a.announcementId !== announcementId
         ),
       }));
