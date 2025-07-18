@@ -30,7 +30,7 @@ export default function AdminQuestionBoard() {
 
   useEffect(() => {
     loadInitialQna();
-  }, []);
+  }, [loadInitialQna]);
 
   // QnA 필터링/정렬
   const filtered = Qnas

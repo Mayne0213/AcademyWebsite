@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import { useDeviceDetect } from "@/components/home/deviceType";
 import DeviceType from "@/components/home/deviceType";
 import BackgroundDot from "../backgroundDot";
 import { DESIGN_SYSTEM } from "./designSystem";
@@ -40,13 +40,13 @@ const snsList = [
 
 const HomePageSNSLinks = () => {
   const deviceType = useDeviceDetect();
-  const isMobile = deviceType === DeviceType.Mobile;
+  const isMobile = deviceType === DeviceType.MOBILE;
 
   return (
     <section className="py-16 px-4 bg-white relative">
       <BackgroundDot />
       <h2
-        className={`text-center font-MaruBuri-Bold mb-10 text-gray-800 ${deviceType <= 1 ? "text-4xl" : "text-5xl"}`}
+        className={`text-center font-MaruBuri-Bold mb-10 text-gray-800 ${deviceType && deviceType <= DeviceType.SMALLTABLET ? "text-4xl" : "text-5xl"}`}
       >
         SNS 바로가기
       </h2>
@@ -68,9 +68,9 @@ const HomePageSNSLinks = () => {
               <div className="w-20 h-20 relative flex-shrink-0 rounded-lg overflow-hidden">
                 <Image
                   src={sns.icon}
-                  alt="preview"
+                  alt="주혜연 선생님 SNS 아이콘"
                   fill
-                  sizes="100vw"
+                  sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
                   className="object-cover"
                 />
               </div>
@@ -105,7 +105,7 @@ const HomePageSNSLinks = () => {
                 {sns.title}
               </div>
               <div className="w-full aspect-video relative">
-                <Image src={sns.bg} alt="background" fill sizes="100vw" />
+                <Image src={sns.bg} alt="background" fill sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw" />
               </div>
               <div className="flex items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-2 text-sm font-MaruBuri-Light">

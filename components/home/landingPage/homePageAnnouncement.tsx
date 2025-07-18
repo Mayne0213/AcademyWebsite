@@ -1,166 +1,140 @@
 "use client";
 
-import useAnnouncement from "@/components/hooks/useAnnouncement";
-import { motion } from "framer-motion";
 import { useEffect } from "react";
 import Image from "next/image";
-import bnImg1 from "@/public/homeCopy/homePageBoard/bnImg1.jpg";
-import DeviceType from "@/components/home/deviceType";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
-import { DESIGN_SYSTEM } from "./designSystem";
 
-import "swiper/css";
-import "swiper/css/autoplay";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
+import { SectionUp } from "./designSystem";
+import IconWithCircle from "@/components/ui/icon-with-circle";
+import useAnnouncement from "@/components/hooks/useAnnouncement";
+import IMAGE_SRC from "@/public/homeCopy/homePageBoard/bnImg1.jpg";
 
-const getDeviceClasses = (deviceType: DeviceType | null) => {
-  if (deviceType === null) {
-    return {
-      titleSize: "",
-      titleMargin: "",
-      subtitleSize: "",
-      padding: "",
-      itemTextSize: "",
-    };
-  }
+const ANNOUNCEMENT_LIMIT = 8;
+const HEADER_TITLE = "주혜연 영어 소식";
+const HEADER_SUBTITLE = "주혜연 학원의 최신 소식을 만나보세요";
+const EMPTY_STATE_TEXT = "아직 공지사항이 없습니다";
 
-  return {
-    [DeviceType.Desktop]: {
-      titleSize: "text-5xl",
-      titleMargin: "mb-4",
-      textAlign: "text-left",
-      subtitleSize: "text-xl",
-      padding: "py-20 px-6",
-      itemTextSize: "text-lg",
-    },
-    [DeviceType.Tablet]: {
-      titleSize: "text-4xl",
-      titleMargin: "mb-6",
-      textAlign: "text-left",
-      subtitleSize: "text-lg",
-      padding: "py-16 px-6",
-      itemTextSize: "text-base",
-    },
-    [DeviceType.SmallTablet]: {
-      titleSize: "text-4xl",
-      titleMargin: "mb-2",
-      textAlign: "text-center",
-      subtitleSize: "text-base",
-      padding: "py-12 px-5",
-      itemTextSize: "text-sm",
-    },
-    [DeviceType.Mobile]: {
-      titleSize: "text-3xl",
-      titleMargin: "mb-2",
-      textAlign: "text-center",
-      subtitleSize: "text-sm",
-      padding: "py-10 px-4",
-      itemTextSize: "text-xs",
-    },
-  }[deviceType];
+const STYLES = {
+  titleSize: [
+    "text-2xl",
+    "smalltablet:text-3xl",
+    "tablet:text-4xl",
+    "desktop:text-5xl",
+  ].join(" "),
+  titleMargin: [
+    "mb-2",
+    "desktop:mb-4",
+  ].join(" "),
+  textAlign: [
+    "text-center",
+    "smalltablet:text-center",
+    "tablet:text-left",
+  ].join(" "),
+  subtitleSize: [
+    "text-base",
+    "smalltablet:text-base",
+    "tablet:text-lg",
+    "desktop:text-xl",
+  ].join(" "),
+  padding: [
+    "py-8 px-4",
+    "smalltablet:py-10 smalltablet:px-4",
+    "tablet:py-16 tablet:px-6",
+    "desktop:py-20 desktop:px-6",
+  ].join(" "),
+  itemTextSize: [
+    "text-sm",
+    "smalltablet:text-base",
+    "desktop:text-lg",
+  ].join(" "),
 };
 
 const HomePageAnnouncement = () => {
-  const { announcements, loadInitialAnnouncement } = useAnnouncement();
-  const deviceType = useDeviceDetect();
-  const {
-    titleSize,
-    titleMargin,
-    textAlign,
-    subtitleSize,
-    padding,
-    itemTextSize,
-  } = getDeviceClasses(deviceType);
+  const { isLoading, announcements, loadInitialAnnouncement } = useAnnouncement();
 
   useEffect(() => {
-    loadInitialAnnouncement();
+    loadInitialAnnouncement(1,ANNOUNCEMENT_LIMIT,false);
   }, [loadInitialAnnouncement]);
 
+  const renderContent = () => {
+    if (isLoading) return <AnnouncementSkeleton />;
+    if (announcements.length > 0) return <AnnouncementList announcements={announcements} />;
+    return <EmptyState />;
+  };
+
   return (
-    <motion.section
-      {...DESIGN_SYSTEM.animations.fadeInUp}
-      className={`bg-gray-50 relative ${padding}`}
-    >
-      <div className={`max-w-7xl mx-auto w-full ${textAlign}`}>
-        <h2 className={`font-MaruBuri-Bold ${titleMargin} ${titleSize}`}>
-          주혜연 영어 소식
-        </h2>
-        <div
-          className={`flex flex-col space-y-8 md:flex-row md:space-y-0 md:space-x-8`}
-        >
-          {/* Left Section */}
-          <div className={`${deviceType <= 1 ? "w-[100%]" : "w-[55%]"} pr-4`}>
-            <h3 className={`font-MaruBuri-Regular mb-6 ${subtitleSize}`}>
-              주혜연 학원의 최신 소식을 만나보세요
-            </h3>
-
-            {announcements.length > 0 ? (
-              <ul>
-                {announcements.slice(0, 8).map((item, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className={`${
-                      index === 0 ? "border-y-2" : "border-b-2"
-                      } ${itemTextSize} py-3 flex justify-between w-full font-MaruBuri-Light hover:font-MaruBuri-SemiBold hover:cursor-pointer`}
-                  >
-                    <div className="text-left">{item.title}</div>
-                    <div className="text-right text-gray-500">2025-06-11</div>
-                  </motion.li>
-                ))}
-              </ul>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex flex-col items-center justify-center py-12 text-center border-2 border-gray-200 rounded-lg"
-              >
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-                  <svg
-                    className="w-8 h-8 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <h4 className={`font-MaruBuri-SemiBold text-gray-600 mb-2 ${itemTextSize}`}>
-                  아직 공지사항이 없습니다
-                </h4>
-                <p className={`font-MaruBuri-Light text-gray-500 ${deviceType === DeviceType.Mobile ? "text-xs" : "text-sm"}`}>
-                  새로운 소식이 업데이트되면 여기에 표시됩니다
-                </p>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Right Section */}
-          <div
-            className={`md:w-[50%] aspect-[16/10] rounded-xl overflow-hidden shadow-lg relative ${deviceType <= 1 ? "hidden" : ""}`}
-          >
-                  <Image
-                    src={bnImg1}
-                    alt="announcementImage"
-                    fill
-                    sizes="100vw"
-                    className="object-cover"
-                  />
-          </div>
-        </div>
+    <SectionUp className={`z-20 w-full max-w-7xl mx-auto space-y-4 ${STYLES.padding} ${STYLES.textAlign}`}>
+      <AnnouncementHeader />
+      <div className="flex flex-col space-y-8 smalltablet:flex-row smalltablet:space-x-8 smalltablet:space-y-0">
+        <main className={`w-full tablet:w-[55%]`}>
+          {renderContent()}
+        </main>
+        <ImageSection />
       </div>
-    </motion.section>
+    </SectionUp>
+  );
+};
+
+const AnnouncementHeader = () => (
+  <header>
+    <h1 className={`font-MaruBuri-Bold ${STYLES.titleMargin} ${STYLES.titleSize}`}>
+      {HEADER_TITLE}
+    </h1>
+    <p className={`font-MaruBuri-Regular ${STYLES.subtitleSize}`}>
+      {HEADER_SUBTITLE}
+    </p>
+  </header>
+);
+
+const AnnouncementSkeleton = () => (
+  <ul>
+    {Array.from({ length: ANNOUNCEMENT_LIMIT }).map((_, index) => (
+      <li key={index} className={`${STYLES.itemTextSize} py-3 flex justify-between w-full border-y-2 bg-gray-50`}>
+        <div
+          className="bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] rounded-full h-4"
+          style={{ width: `${Math.random() * 30 + 50}%` }}
+        />
+        <div className="h-4 w-20 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite] rounded-2xl" />
+      </li>
+    ))}
+  </ul>
+);
+
+const EmptyState = () => (
+  <article className="flex flex-col items-center justify-center text-center py-12 border-2 border-gray-200 rounded-lg space-y-4 aspect-[16/10] bg-gray-50">
+    <IconWithCircle />
+    <h2 className={`font-MaruBuri-SemiBold text-gray-600 ${STYLES.itemTextSize}`}>
+      {EMPTY_STATE_TEXT}
+    </h2>
+  </article>
+);
+
+const AnnouncementList = ({ announcements }: { announcements: { title: string; updatedAt: string }[] }) => (
+  <ul>
+    {announcements.slice(0, ANNOUNCEMENT_LIMIT).map((item, index) => (
+      <li key={index} className={`w-full flex justify-between py-3 font-MaruBuri-Light hover:font-MaruBuri-SemiBold hover:cursor-pointer ${STYLES.itemTextSize} ${index === 0 ? "border-y-2" : "border-b-2"}`}>
+        <article className="flex justify-between items-center w-full">
+          <h3>{item.title}</h3>
+          <time dateTime={item.updatedAt} className="text-gray-500">
+            {new Date(item.updatedAt).toLocaleDateString("ko-KR")}
+          </time>
+        </article>
+      </li>
+    ))}
+  </ul>
+);
+
+const ImageSection = () => {
+  return (
+    <aside className="relative w-[40%] aspect-[16/10] rounded-lg overflow-hidden shadow-lg hidden tablet:block">
+      <Image
+        src={IMAGE_SRC}
+        alt="주혜연 영어 학원 공지사항 배너 이미지"
+        fill
+        sizes="(max-width: 768px) 100vw, 50vw"
+        className="object-cover"
+        placeholder="blur"
+      />
+    </aside>
   );
 };
 

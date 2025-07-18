@@ -2,13 +2,8 @@
 
 import Image from "next/image";
 import useAcademy from "@/components/hooks/useAcademy";
-import BackgroundDot from "../backgroundDot";
 import { useEffect, useState } from "react";
-import examImage from "@/public/homeCopy/home.png";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { DESIGN_SYSTEM } from "./designSystem";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,41 +13,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SectionUp } from "./designSystem";
+
+const STYLES = {
+  container: "py-16 relative",
+  inner: "max-w-7xl mx-auto px-4",
+  title: "text-center font-MaruBuri-Bold mb-10 text-4xl smalltablet:text-5xl",
+  grid: "smalltablet:grid smalltablet:grid-cols-2 smalltablet:gap-8 smalltablet:px-[2vw] tablet:grid-cols-3 tablet:px-[30px] desktop:grid-cols-3 desktop:px-[20px]",
+  card: "flex flex-col bg-white rounded-2xl shadow-md overflow-hidden p-5 gap-4",
+  imageWrapper: "relative h-48 rounded-xl overflow-hidden flex items-center justify-center bg-gray-100",
+  cardTitle: "flex justify-between items-center border-b pb-3 text-xl font-MaruBuri-SemiBold",
+  info: "text-right text-gray-700 font-MaruBuri-Light text-base whitespace-pre-line",
+};
 
 const HomePageAcademyDepartments = () => {
   const { academys, loadInitialAcademy } = useAcademy();
-  const deviceType = useDeviceDetect();
-  const [windowWidth, setWindowWidth] = useState(0);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const getGridCols = () => {
-    if (windowWidth < 700) {
-      return "grid-cols-1";
-    } else if (windowWidth < 800) {
-      return "grid-cols-2";
-    } else if (deviceType === 1) {
-      return "grid-cols-2";
-    } else if (deviceType === 2) {
-      return "grid-cols-3";
-    } else {
-      return "grid-cols-3";
-    }
-  };
-
   const [selectedInfos, setSelectedInfos] = useState<string[]>([]);
 
   useEffect(() => {
     loadInitialAcademy();
-  }, []);
+  }, [loadInitialAcademy]);
 
   useEffect(() => {
     if (academys.length > 0) {
@@ -67,79 +47,76 @@ const HomePageAcademyDepartments = () => {
   };
 
   return (
-    <section className="py-16 bg-gray-50 relative">
-      <BackgroundDot />
-      <div className="container max-w-7xl mx-auto px-4 relative">
-        <h2
-          className={`text-center font-MaruBuri-Bold mb-10 ${deviceType === 0 ? "text-4xl" : "text-5xl"}`}
-        >
-          현강 관별 소개
-        </h2>
-        <div className={`grid gap-8 ${getGridCols()}`}>
+    <SectionUp className={`relative ${STYLES.container} ${STYLES.inner}`}>
+        <h2 className={STYLES.title}>현강 관별 소개</h2>
+        <div className={`flex flex-col max-w-sm smalltablet:max-w-none smalltablet:grid gap-8 ${STYLES.grid}`}>
           {academys.map((academy, index) => (
-            <motion.div
-              key={index}
-              {...DESIGN_SYSTEM.animations.fadeInUp}
-              transition={{
-                ...DESIGN_SYSTEM.animations.fadeInUp.transition,
-                delay: index * 0.1,
-              }}
-              className="flex flex-col bg-white rounded-2xl shadow-md overflow-hidden p-5 gap-4"
-            >
-              {/* 이미지 */}
-              <div className="relative h-48 rounded-xl overflow-hidden flex items-center justify-center bg-gray-100">
-                {academy.mainImageUrl ? (
-                  <Image
-                  src={academy.mainImageUrl}
-                  alt="학원 이미지"
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                />
-                ) : (
-                  <span className="text-gray-500 text-sm">사진 없음</span>
-                )}
-              </div>
-
-              {/* 상단 제목 + 드롭다운 */}
-              <div className="flex justify-between items-center border-b pb-3 text-xl font-MaruBuri-SemiBold">
-                <span>{academy.academyName}</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="text-sm">
-                      {selectedInfos[index]}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-40">
-                    <DropdownMenuLabel>정보 선택</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuRadioGroup
-                      value={selectedInfos[index]}
-                      onValueChange={(value) => handleInfoChange(index, value)}
-                    >
-                      <DropdownMenuRadioItem value="주소">
-                        주소
-                      </DropdownMenuRadioItem>
-                      <DropdownMenuRadioItem value="전화번호">
-                        전화번호
-                      </DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* 선택된 정보 출력 */}
-              <div className="text-right text-gray-700 font-MaruBuri-Light text-base whitespace-pre-line">
-                {selectedInfos[index] === "주소"
-                  ? academy.academyAddress
-                  : academy.academyPhone}
-              </div>
-            </motion.div>
+            <AcademyDepartmentCard
+              key={academy.academyId}
+              academy={academy}
+              selectedInfo={selectedInfos[index]}
+              onInfoChange={handleInfoChange}
+              index={index}
+            />
           ))}
         </div>
-      </div>
-    </section>
+    </SectionUp>
   );
 };
+
+const AcademyDepartmentCard = ({ academy, selectedInfo, onInfoChange, index }: {
+  academy: any;
+  selectedInfo: string;
+  onInfoChange: (index: number, value: string) => void;
+  index: number;
+}) => (
+  <div
+    className={STYLES.card}
+  >
+    <div className={STYLES.imageWrapper}>
+      {academy.mainImageUrl ? (
+        <Image
+          src={academy.mainImageUrl}
+          alt={`${academy.academyName} 이미지`}
+          fill
+          sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
+          className="object-cover"
+        />
+      ) : (
+        <span className="text-gray-500 text-sm">사진 없음</span>
+      )}
+    </div>
+    <div className={STYLES.cardTitle}>
+      <span>{academy.academyName}</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="text-sm">
+            {selectedInfo}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-40">
+          <DropdownMenuLabel>정보 선택</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioGroup
+            value={selectedInfo}
+            onValueChange={(value) => onInfoChange(index, value)}
+          >
+            <DropdownMenuRadioItem value="주소">
+              주소
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="전화번호">
+              전화번호
+            </DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+    <div className={STYLES.info}>
+      {selectedInfo === "주소"
+        ? academy.academyAddress
+        : academy.academyPhone}
+    </div>
+  </div>
+);
 
 export default HomePageAcademyDepartments;

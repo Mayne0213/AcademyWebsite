@@ -31,6 +31,26 @@ export async function middleware(req: NextRequest) {
     }
   }
 
+  // ADMIN only: /dashboard/announcement/add, /dashboard/announcement/edit, /dashboard/announcement/edit/...
+  if (
+    pathname === "/dashboard/announcement/add" ||
+    pathname.startsWith("/dashboard/announcement/edit")
+  ) {
+    const token = req.cookies.get("token")?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/home/signIn", req.url));
+    }
+    try {
+      const { payload } = await jwtVerify(token, JWT_SECRET);
+      if (payload.role !== "ADMIN") {
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    } catch (err: any) {
+      console.error("JWT verify error:", err);
+      return NextResponse.redirect(new URL("/home/signIn", req.url));
+    }
+  }
+
   if (pathname.startsWith("/dashboard")) {
     const token = req.cookies.get("token")?.value;
 

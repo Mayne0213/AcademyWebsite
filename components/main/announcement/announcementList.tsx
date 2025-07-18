@@ -3,18 +3,16 @@ import useAnnouncement from "@/components/hooks/useAnnouncement";
 import AnnouncementItem from "./announcementItem";
 import Pagination from "../student/paginationControls";
 
-const ITEMS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 10;
 
 const AnnouncementList: React.FC = () => {
-  const { announcements, loadInitialAnnouncement } = useAnnouncement();
+  const { announcements, totalCount, loadInitialAnnouncement } = useAnnouncement();
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(announcements.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   useEffect(() => {
-    loadInitialAnnouncement();
-  }, []);
+    loadInitialAnnouncement(currentPage,ITEMS_PER_PAGE,false);
+  }, [loadInitialAnnouncement, currentPage]);
 
   return (
     <div className="flex-1 space-y-4 relative">
@@ -25,7 +23,7 @@ const AnnouncementList: React.FC = () => {
       ) : (
         <>
           <ul className="space-y-4">
-            {announcements.slice(startIndex, endIndex).map((announcement) => (
+            {announcements.map((announcement) => (
               <AnnouncementItem
                 key={announcement.announcementId}
                 announcement={announcement}

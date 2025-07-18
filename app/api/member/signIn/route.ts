@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     };
 
     const tokenCookie = serialize("token", token, cookieOptions);
-    const roleCookie = serialize("role", user.role, cookieOptions);
+    // const roleCookie = serialize("role", user.role, cookieOptions);
 
     const response = NextResponse.json({
       success: true,
@@ -91,9 +91,8 @@ export async function POST(req: Request) {
       },
     });
 
-    // response.headers.set("Set-Cookie", `${tokenCookie}; ${roleCookie}`);
     response.headers.append("Set-Cookie", tokenCookie);
-    response.headers.append("Set-Cookie", roleCookie);
+    // response.headers.append("Set-Cookie", roleCookie);
 
     return response;
   } catch (error) {

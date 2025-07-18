@@ -12,9 +12,8 @@ import {
   ArrowRight,
   ChevronDown,
 } from "lucide-react";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
-import DeviceType from "@/components/home/deviceType";
-import { DESIGN_SYSTEM } from "./designSystem";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
+import { SectionUp } from "./designSystem";
 
 const roadmapSteps = [
   {
@@ -66,8 +65,8 @@ const roadmapSteps = [
 
 const HomePageCurriculumDetails = () => {
   const deviceType = useDeviceDetect();
-  const isMobile = deviceType === DeviceType.Mobile;
-  const isSmallTablet = deviceType === DeviceType.SmallTablet;
+  const isMobile = deviceType === DeviceType.MOBILE;
+  const isSmallTablet = deviceType === DeviceType.SMALLTABLET;
   const [isExpanded, setIsExpanded] = useState(false);
 
   const columns = isMobile ? 1 : isSmallTablet ? 2 : 3;
@@ -87,8 +86,8 @@ const HomePageCurriculumDetails = () => {
   };
 
   const styles = {
-    titleSize: isMobile ? "text-2xl" : "text-5xl",
-    descSize: isMobile ? "text-sm" : "text-base",
+    titleSize: isMobile ? "text-2xl" : isSmallTablet ? "text-4xl" : "text-5xl",
+    descSize: isMobile ? "text-sm" : isSmallTablet ? "text-sm" : "text-base",
     iconSize: isMobile ? "w-8 h-8" : "w-10 h-10",
     textSize: isMobile ? "text-sm" : "text-base",
     cardPadding: isMobile ? "p-4 sm:p-6" : "p-8",
@@ -101,11 +100,10 @@ const HomePageCurriculumDetails = () => {
   };
 
   return (
-    <div className="bg-gray-50 px-4 md:px-8 w-full flex justify-center py-12 md:py-20">
+    <SectionUp className="bg-gray-50 px-4 md:px-8 w-full flex justify-center py-12 md:py-20">
       <div className="w-full max-w-7xl flex flex-col items-center">
         {/* Header */}
-        <motion.header
-          {...DESIGN_SYSTEM.animations.fadeInUp}
+        <header
           className="text-center mb-12"
         >
           <h1 className={`text-gray-800 font-MaruBuri-Bold mb-4 ${styles.titleSize}`}>
@@ -116,7 +114,7 @@ const HomePageCurriculumDetails = () => {
             향상시키고, 최종적으로 수능 만점을 달성할 수 있도록 설계된 완벽한
             커리큘럼입니다.
           </p>
-        </motion.header>
+        </header>
 
         {/* Mobile: 겹쳐진 카드 형태 */}
         {isMobile && (
@@ -129,7 +127,7 @@ const HomePageCurriculumDetails = () => {
                 const Icon = step.icon;
                 const isTopCard = index === 0;
                 return (
-                  <motion.div
+                  <div
                     key={index}
                     className={`absolute inset-0 ${!isExpanded ? 'cursor-pointer' : ''} z-0`}
                     style={{
@@ -139,8 +137,6 @@ const HomePageCurriculumDetails = () => {
                         : 'none',
                     }}
                     onClick={isTopCard ? handleCardClick : undefined}
-                    whileHover={!isExpanded && isTopCard ? { scale: 1.02 } : {}}
-                    transition={{ duration: 0.3 }}
                   >
                     {/* 카드 내용 */}
                     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -148,13 +144,11 @@ const HomePageCurriculumDetails = () => {
                       <div className={`w-full h-12 flex items-center justify-center text-white ${step.bg} relative`}>
                         <span className="text-sm font-MaruBuri-Bold">{step.step}</span>
                         {isTopCard && !isExpanded && (
-                          <motion.div
+                          <div
                             className="absolute right-3"
-                            animate={{ y: [0, 5, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
                           >
                             <ChevronDown className="w-5 h-5 text-white" />
-                          </motion.div>
+                          </div>
                         )}
                       </div>
 
@@ -178,18 +172,14 @@ const HomePageCurriculumDetails = () => {
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
               {/* 펼쳐졌을 때는 첫 번째 카드만 항상 보임 */}
               {isExpanded && (
-                <motion.div
+                <div
                   key="top-card"
                   className="relative z-0"
-                  initial={{ opacity: 1, y: 0 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
                 >
                   {/* 첫 번째 카드 내용 (roadmapSteps[0]) */}
                   <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -218,7 +208,7 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
 
@@ -236,11 +226,8 @@ const HomePageCurriculumDetails = () => {
                     const Icon = step.icon;
                     // 모바일에서는 화살표 없음
                     return (
-                      <motion.div
+                      <div
                         key={`expanded-${index + 1}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: (index + 1) * 0.1 }}
                         className="relative"
                       >
                         {/* 카드 내용 */}
@@ -270,7 +257,7 @@ const HomePageCurriculumDetails = () => {
                             </div>
                           </div>
                         </div>
-                      </motion.div>
+                      </div>
                     );
                   })}
                 </motion.div>
@@ -327,9 +314,7 @@ const HomePageCurriculumDetails = () => {
 
               return (
                 <div key={index} className="relative flex flex-col">
-                  <motion.div
-                    {...DESIGN_SYSTEM.animations.fadeInUp}
-                    transition={{ delay: index * 0.1 }}
+                  <div
                     className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex-1 flex flex-col"
                   >
                     {/* Header */}
@@ -357,14 +342,14 @@ const HomePageCurriculumDetails = () => {
                       </div>
                     </div>
                     {arrow}
-                  </motion.div>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
-    </div>
+    </SectionUp>
   );
 };
 

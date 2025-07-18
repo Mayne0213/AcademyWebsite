@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import BackgroundDot from "@/components/home/backgroundDot";
 import { useRouter } from "next/navigation";
-import useSignUp from "@/components/hooks/useSignUp";
 import useAcademy from "@/components/hooks/useAcademy";
 import { Academy } from "@/components/type/academyType";
 
@@ -49,7 +48,7 @@ const SignUpPage = () => {
   // 학원 목록 불러오기
   useEffect(() => {
     loadInitialAcademy();
-  }, []);
+  }, [loadInitialAcademy]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

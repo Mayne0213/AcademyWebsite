@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import useAttendance from "@/components/hooks/useAttendanceStatusMap";
 
 interface AttendanceItemProps {
   user: any;

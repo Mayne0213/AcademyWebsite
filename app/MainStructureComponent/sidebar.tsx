@@ -3,15 +3,16 @@ import icon from "@/public/OasisNoRectangle.webp";
 import Link from "next/link";
 import tabs from "@/components/main/tabs";
 import { useAuth } from "@/contexts/authContexts";
+import DeviceType from "@/components/home/deviceType";
 
 interface SidebarProps {
-  deviceCondition: number;
+  deviceCondition: DeviceType | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
 const Sidebar = ({ deviceCondition, isOpen, onClose }: SidebarProps) => {
-  const isNotPC = deviceCondition < 3;
+  const isNotPC = deviceCondition !== null && deviceCondition < DeviceType.DESKTOP;
   const { logout } = useAuth();
 
   if (isNotPC && !isOpen) return null;

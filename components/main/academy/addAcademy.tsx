@@ -31,20 +31,6 @@ const AddAcademy: React.FC<AddAcademyProps> = ({ onAdd, onCancel }) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (files: { url: string; name: string; type: string }[]) => {
-    // 이미지 파일만 허용
-    const imageFiles = files.filter(f => f.type.startsWith("image/"));
-    setFiles(imageFiles);
-    // 대표 이미지가 없으면 첫 번째로 자동 지정
-    if (imageFiles.length > 0 && !mainImageUrl) {
-      setMainImageUrl(imageFiles[0].url);
-    }
-    // 대표 이미지가 삭제된 경우 자동 변경
-    if (mainImageUrl && !imageFiles.find(f => f.url === mainImageUrl)) {
-      setMainImageUrl(imageFiles[0]?.url || "");
-    }
-  };
-
   const handleSubmit = () => {
     if (!form.academyName.trim()) {
       alert("단과 이름을 입력해 주세요.");

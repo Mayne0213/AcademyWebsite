@@ -4,24 +4,24 @@ import Sidebar from "../MainStructureComponent/sidebar";
 import Navbar from "../MainStructureComponent/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { ReactNode, useEffect, useState } from "react";
-import useMobileDetect from "@/components/hooks/useMobileDetect";
+import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const deviceCondition = useMobileDetect();
+  const deviceCondition = useDeviceDetect();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if(deviceCondition === 3){
+    if(deviceCondition === DeviceType.DESKTOP){
       setSidebarOpen(true)
     }
 
   },[deviceCondition])
 
   return (
-    <div className="bg-gray-200 min-h-screen w-full flex">
+    <div className="bg-gray-200 min-h-screen w-full flex font-sansKR-Regular">
       {(sidebarOpen) && (
         <Sidebar
-          deviceCondition={deviceCondition}
+          deviceCondition={deviceCondition ?? DeviceType.DESKTOP}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
@@ -29,8 +29,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
       <div className="w-full flex flex-col min-h-screen">
         <Navbar
-          deviceCondition = {deviceCondition}
-          onChange = {()=> setSidebarOpen(!sidebarOpen)}
+          deviceCondition={deviceCondition ?? DeviceType.DESKTOP}
+          onChange={() => setSidebarOpen(!sidebarOpen)}
         />
 
         <div className="p-[20px] w-full flex-1">{children}</div>

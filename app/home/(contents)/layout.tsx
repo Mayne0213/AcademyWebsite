@@ -5,16 +5,17 @@ import { Suspense } from "react";
 import SubNavbar from "@/app/HomeStructureComponent/subNavbar";
 import Loading from "@/app/loading";
 import DeviceType from "@/components/home/deviceType";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
+import { useDeviceDetect } from "@/components/home/deviceType";
 
-const getMarginClasses = (deviceType: DeviceType) =>
-  ({
-    [DeviceType.Desktop]: "m-[30px]",
-    [DeviceType.Tablet]: "m-[30px]",
-    [DeviceType.SmallTablet]: "m-[20px]",
-    [DeviceType.Mobile]: "m-[10px]",
-    null: "",
-  })[deviceType];
+const getMarginClasses = (deviceType: DeviceType | null) => {
+  if (!deviceType) return "";
+  return {
+    [DeviceType.DESKTOP]: "m-[30px]",
+    [DeviceType.TABLET]: "m-[30px]",
+    [DeviceType.SMALLTABLET]: "m-[20px]",
+    [DeviceType.MOBILE]: "m-[10px]",
+  }[deviceType] || "";
+};
 
 export default function RootLayout({
   children,

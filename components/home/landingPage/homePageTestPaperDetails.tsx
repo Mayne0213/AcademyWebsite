@@ -1,17 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState } from "react";
 import Image from "next/image";
-import BackgroundDot from "../backgroundDot";
-import { DESIGN_SYSTEM } from "./designSystem";
+import { useState, useMemo, useCallback } from "react";
+import React from "react";
+import { SectionScale, SectionUp } from "./designSystem";
 
 import testPaper from "@/public/homeCopy/testPapers/testPaper1Edge.webp";
 import environment from "@/public/homeCopy/lectures/online/lecture1.webp";
-import OMR from "@/public/homeCopy/OMR/OMR.webp";
+import omr from "@/public/homeCopy/omr/omr.webp";
 import videoLecture from "@/public/homeCopy/lectures/online/lecture1.webp";
 import analysis from "@/public/homeCopy/testPapers/textAnalysis1Edge.webp";
-import useDeviceDetect from "@/components/hooks/useMobileDetect";
 
 const features = [
   {
@@ -33,7 +31,7 @@ const features = [
     title: "시간 제한과 마킹 훈련 포함",
     description:
       "실제 시험 시간에 맞춘 제한된 환경에서 문제를 풀며, 시간 관리 능력을 자연스럽게 길러냅니다. OMR 카드 사용을 통해 마킹 실수를 줄이고, 실전에서의 정확성과 속도를 동시에 훈련할 수 있습니다. 이러한 반복 훈련은 실전 감각을 높이고, 불안 요소를 사전에 제거하는 데 효과적입니다.",
-    image: OMR,
+    image: omr,
   },
   {
     buttonName: "해설 강의",
@@ -51,82 +49,165 @@ const features = [
   },
 ];
 
+const STYLES = {
+  container: [
+    "pt-8 px-4",
+    "smalltablet:pt-10 smalltablet:px-6",
+    "tablet:pt-12 tablet:px-6",
+    "desktop:pt-24 desktop:px-6",
+  ].join(" "),
+  mainContent: [
+    "gap-2",
+    "desktop:gap-12",
+  ].join(" "),
+  titleSection: [
+    "gap-3",
+    "smalltablet:gap-4",
+  ].join(" "),
+  titleSize: [
+    "text-2xl",
+    "smalltablet:text-3xl",
+    "tablet:text-4xl",
+    "desktop:text-5xl",
+  ].join(" "),
+  subtitleSize: [
+    "text-sm",
+    "smalltablet:text-base",
+    "tablet:text-lg",
+  ].join(" "),
+  buttonContainer: [
+    "gap-2",
+    "smalltablet:gap-3",
+    "w-full",
+    "smalltablet:w-auto",
+  ].join(" "),
+  buttonPadding: [
+    "px-3 text-xs",
+    "smalltablet:px-4",
+    "smalltablet:text-sm",
+    "tablet:px-5",
+    "text-sm",
+  ].join(" "),
+  contentSection: [
+    "flex-col",
+    "smalltablet:flex-col",
+    "tablet:flex-row",
+    "gap-4",
+    "smalltablet:gap-6",
+    "tablet:gap-6",
+  ].join(" "),
+  textSection: [
+    "space-y-3",
+    "smalltablet:space-y-4",
+    "text-center",
+    "tablet:text-left",
+    "w-full",
+    "tablet:w-1/2",
+  ].join(" "),
+  contentTitleSize: [
+    "text-lg",
+    "smalltablet:text-xl",
+    "tablet:text-2xl",
+  ].join(" "),
+  contentDescriptionSize: [
+    "text-sm",
+    "smalltablet:text-base",
+    "tablet:text-lg",
+  ].join(" "),
+  imageContainerSize: [
+    "w-full",
+    "smalltablet:w-full",
+    "tablet:w-3/4",
+  ].join(" "),
+};
+
+const TestPaperHeader = React.memo(() => (
+  <header className={`text-center flex flex-col mb-4 ${STYLES.titleSection}`}>
+    <h2 className={`font-MaruBuri-Bold text-gray-900 ${STYLES.titleSize}`}>
+      모의고사, 그 이상의 정밀함.
+    </h2>
+    <p className={`font-MaruBuri-SemiBold text-gray-600 ${STYLES.subtitleSize}`}>
+      모의고사의 품질을 결정하는 건 결국 실행과 분석입니다.
+    </p>
+  </header>
+));
+
+const TestPaperTab = React.memo(({ currentTab, setCurrentTab }: {
+  currentTab: number;
+  setCurrentTab: (index: number) => void
+}) => (
+  <nav className={`flex flex-wrap items-center justify-center font-MaruBuri-SemiBold rounded-md smalltablet:rounded-full bg-gray-200 px-2 py-2 ${STYLES.buttonContainer}`}>
+    {features.map((item, index) => (
+      <button
+        key={item.buttonName}
+        className={`rounded-full py-2 transition-all duration-300 cursor-pointer hover:bg-white ${STYLES.buttonPadding} ${
+          currentTab === index ? "bg-white shadow-md" : ""
+        }`}
+        onClick={() => setCurrentTab(index)}
+      >
+        {item.buttonName}
+      </button>
+    ))}
+  </nav>
+));
+
+const TestPaperContent = React.memo(({ active }: { active: typeof features[0] }) => (
+  <article className={`text-gray-600 leading-relaxed font-MaruBuri-Light ${STYLES.textSection}`}>
+    <h3 className={`text-gray-900 hidden tablet:block font-MaruBuri-Bold ${STYLES.contentTitleSize}`}>
+      {active.title}
+    </h3>
+    <p className={STYLES.contentDescriptionSize}>
+      {active.description}
+    </p>
+  </article>
+));
+
+const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) => (
+  <SectionScale
+    key={active.buttonName}
+    className={`aspect-[16/9] overflow-hidden shadow-xl border relative transform-gpu rounded-t-2xl tablet:rounded-tl-3xl tablet:rounded-tr-none ${STYLES.imageContainerSize}`}
+  >
+    <Image
+      src={active.image}
+      alt="모의고사 이미지"
+      width={800}
+      height={450}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
+      className="object-left-top object-cover"
+      placeholder="blur"
+      loading="lazy"
+    />
+  </SectionScale>
+));
+
+TestPaperHeader.displayName = 'TestPaperHeader';
+TestPaperTab.displayName = 'TestPaperTab';
+TestPaperContent.displayName = 'TestPaperContent';
+TestPaperImage.displayName = 'TestPaperImage';
+
 const HomePageTestPaperDetails = () => {
   const [currentTab, setCurrentTab] = useState<number>(0);
-  const active = features[currentTab];
-  const deviceType = useDeviceDetect();
-  
+
+  const active = useMemo(() => features[currentTab], [currentTab]);
+
+  const handleTabChange = useCallback((index: number) => {
+    setCurrentTab(index);
+  }, []);
+
   return (
-    <section className={`relative bg-white pt-24 px-6 overflow-hidden ${deviceType <= 1 ? "hidden" : ""}`}>
-      <BackgroundDot />
-      <div className="max-w-7xl mx-auto flex flex-col items-center justify-between gap-12 relative">
-        {/* title */}
-        <motion.div
-          {...DESIGN_SYSTEM.animations.fadeInUp}
-          className="text-center gap-4 flex flex-col mb-4"
-        >
-          <div className="text-5xl font-MaruBuri-Bold text-gray-900"> 
-            모의고사, 그 이상의 정밀함.
-          </div>
-          <div className="font-MaruBuri-SemiBold text-gray-600">
-            모의고사의 품질을 결정하는 건 결국 실행과 분석입니다.
-          </div>
-        </motion.div>
-
-        {/* buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3 font-MaruBuri-SemiBold rounded-full bg-gray-200 px-2 py-2">
-          {features.map((item, index) => (
-            <div
-              key={index}
-              className={`rounded-full px-5 py-2 transition-all duration-300 cursor-pointer hover:bg-white ${
-                currentTab === index ? "bg-white shadow-md" : ""
-              }`}
-              onClick={() => setCurrentTab(index)}
-            >
-              {item.buttonName}
-            </div>
-          ))}
-        </div>
-
-        {/* content */}
-        <div className="flex items-center gap-6 w-full">
-          <div className="space-y-4 text-left w-1/2">
-            <motion.h3
-              key={active.title}
-              {...DESIGN_SYSTEM.animations.fadeInLeft}
-              transition={{ duration: 0.4 }}
-              className="text-2xl text-gray-900 font-MaruBuri-Bold"
-            >
-              {active.title}
-            </motion.h3>
-            <motion.p
-              key={currentTab}
-              {...DESIGN_SYSTEM.animations.fadeInLeft}
-              transition={{ duration: 0.4 }}
-              className="text-gray-600 leading-relaxed text-lg font-MaruBuri-Light"
-            >
-              {active.description}
-            </motion.p>
-          </div>
-
-          <motion.div
-            key={active.image.src}
-            {...DESIGN_SYSTEM.animations.scaleIn}
-            transition={{ duration: 0.4 }}
-            className="w-3/4 aspect-[16/9] rounded-tl-3xl overflow-hidden shadow-xl border relative"
-          >
-            <Image
-              src={active.image}
-              alt="모의고사 이미지"
-              fill
-              sizes="100vw"
-              className="object-left-top object-cover"
-            />
-          </motion.div>
-        </div>
-      </div>
-    </section>
+    <SectionUp className={`bg-white overflow-hidden ${STYLES.container}`}>
+      <main className={`max-w-7xl mx-auto flex flex-col items-center justify-between relative ${STYLES.mainContent}`}>
+        <TestPaperHeader />
+        <TestPaperTab currentTab={currentTab} setCurrentTab={handleTabChange} />
+        <section className={`flex items-center w-full max-w-2xl tablet:max-w-full ${STYLES.contentSection}`}>
+          <TestPaperContent active={active} />
+          <TestPaperImage active={active} />
+        </section>
+      </main>
+    </SectionUp>
   );
 };
+
+HomePageTestPaperDetails.displayName = 'HomePageTestPaperDetails';
 
 export default HomePageTestPaperDetails;

@@ -56,8 +56,8 @@ model Academy {
   academyPhone   String?   @unique
   academyAddress String
   createdAt      DateTime  @default(now())
-  academyMainImage String?   // 대표 이미지
-  images           AcademyImage[] // 학원 이미지들
+  academyMainImage String?
+  images           AcademyImage[]
 
   students        Student[]      @relation("AcademyToStudents")
   admins          Admin[]        @relation("AdminToAcademy")
@@ -66,8 +66,8 @@ model Academy {
 
 model AcademyImage {
   academyImageId        Int      @id @default(autoincrement())
-  academyImageUrl       String   // 이미지 URL
-  academyImageName      String?   // 파일명 (nullable)
+  academyImageUrl       String
+  academyImageName      String?
   academyId Int
 
   academy   Academy  @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
