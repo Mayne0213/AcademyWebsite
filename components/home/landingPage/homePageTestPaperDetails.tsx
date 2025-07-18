@@ -9,7 +9,7 @@ import Loading from "@/components/ui/loading";
 
 import testPaper from "@/public/homeCopy/testPapers/testPaper1Edge.webp";
 import environment from "@/public/homeCopy/lectures/online/lecture1.webp";
-import omr from "@/public/homeCopy/omr/omr.webp";
+import omr from "@/public/homeCopy/OMR/OMR.webp";
 import videoLecture from "@/public/homeCopy/lectures/online/lecture1.webp";
 import analysis from "@/public/homeCopy/testPapers/textAnalysis1Edge.webp";
 
@@ -19,35 +19,35 @@ const features = [
     title: "연구소에서 직접 제작한 모의고사",
     description:
       "전문 연구진이 직접 출제한 문항으로, 실제 출제 경향을 반영한 고난도 문제를 제공합니다. 수능 및 모의고사 데이터를 기반으로 한 세밀한 분석을 통해, 학생들이 실력을 점검하고 약점을 파악할 수 있도록 구성했습니다. 모든 문항은 학습 효과를 극대화할 수 있도록 체계적으로 검토됩니다.",
-    image: "/homeCopy/testPapers/testPaper1Edge.webp",
+    image: testPaper,
   },
   {
     buttonName: "실전 환경",
     title: "실전 환경과 유사한 고사장 분위기 조성",
     description:
       "학생들이 최고의 집중력과 실력을 발휘할 수 있도록 실제 시험과 유사한 환경을 제공합니다. 정해진 시간, 감독관의 배치, 조용한 시험실을 통해 실제 시험과 같은 분위기를 조성합니다. 이러한 환경은 학생들이 긴장을 관리하고, 시험 체력을 기르며, 실전 감각을 익히는 데 큰 도움이 됩니다.",
-    image: "/homeCopy/lectures/online/lecture1.webp",
+    image: environment,
   },
   {
     buttonName: "OMR훈련",
     title: "시간 제한과 마킹 훈련 포함",
     description:
       "실제 시험 시간에 맞춘 제한된 환경에서 문제를 풀며, 시간 관리 능력을 자연스럽게 길러냅니다. OMR 카드 사용을 통해 마킹 실수를 줄이고, 실전에서의 정확성과 속도를 동시에 훈련할 수 있습니다. 이러한 반복 훈련은 실전 감각을 높이고, 불안 요소를 사전에 제거하는 데 효과적입니다.",
-    image: "/homeCopy/OMR/OMR.webp",
+    image: omr,
   },
   {
     buttonName: "해설 강의",
     title: "시험 직후 해설 강의 및 문제지 제공",
     description:
       "시험이 끝난 직후, 전문 강사가 출제 의도와 정답 전략을 짚어주는 해설 강의를 제공합니다. 학생들은 자신의 풀이 과정을 점검하며 이해 부족 부분을 즉시 보완할 수 있습니다. 함께 제공되는 문제지와 해설 자료를 통해 복습 효과를 극대화할 수 있습니다.",
-    image: "/homeCopy/lectures/online/lecture1.webp",
+    image: videoLecture,
   },
   {
     buttonName: "개인 분석지",
     title: "개인별 오답 분석 리포트 제공",
     description:
       "학생 한 명 한 명의 정답률과 오답 유형을 정밀하게 분석한 리포트를 제공합니다. 과목별 취약 문항, 실수 패턴 등을 시각화하여 학습 방향을 구체적으로 제시합니다. 데이터 기반의 분석을 통해 효율적인 보완 학습이 가능하도록 지원합니다.",
-    image: "/homeCopy/testPapers/textAnalysis1Edge.webp",
+    image: analysis
   },
 ];
 
@@ -183,6 +183,7 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
           className="object-left-top object-cover"
           loading="lazy"
+          placeholder="blur"
           onLoad={() => setIsLoading(false)}
         />
       </SectionScale>
