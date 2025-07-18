@@ -16,8 +16,6 @@ import {
 import { SectionUp } from "./designSystem";
 
 const STYLES = {
-  container: "py-16 relative",
-  inner: "max-w-7xl mx-auto px-4",
   title: "text-center font-MaruBuri-Bold mb-10 text-4xl smalltablet:text-5xl",
   grid: "smalltablet:grid smalltablet:grid-cols-2 smalltablet:gap-8 smalltablet:px-[2vw] tablet:grid-cols-3 tablet:px-[30px] desktop:grid-cols-3 desktop:px-[20px]",
   card: "flex flex-col bg-white rounded-2xl shadow-md overflow-hidden p-5 gap-4",
@@ -47,7 +45,7 @@ const HomePageAcademyDepartments = () => {
   };
 
   return (
-    <SectionUp className={`relative ${STYLES.container} ${STYLES.inner}`}>
+    <SectionUp className={`relative py-16 max-w-7xl mx-auto px-4`}>
         <h2 className={STYLES.title}>현강 관별 소개</h2>
         <div className={`flex flex-col max-w-sm smalltablet:max-w-none smalltablet:grid gap-8 ${STYLES.grid}`}>
           {academys.map((academy, index) => (
