@@ -305,7 +305,7 @@ const Navbar: React.FC = () => {
 
           <Button
             asChild
-            className="transition-all duration-300 bg-black mr-6 hidden tablet:block"
+            className="transition-all duration-300 bg-black mr-6 #hidden tablet:block"
           >
             <Link href="/home/signIn">로그인</Link>
           </Button>

@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="bg-gray-800 text-white p-10 font-sansKR-Regular">
-      <div className="hidden tablet:flex">
+      <div className="hidden #tablet:flex">
         {tabs.map((tab, index) => (
           <div
             key={index}

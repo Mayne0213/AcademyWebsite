@@ -170,15 +170,15 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
 
   return (
     <>
-      {isLoading && <Loading />}
       <SectionScale
         key={active.buttonName}
         className={`aspect-[16/9] overflow-hidden shadow-xl border relative transform-gpu rounded-t-2xl tablet:rounded-tl-3xl tablet:rounded-tr-none ${deviceCondition === DeviceType.TABLET ? STYLES.imageContainerSize : "w-full"}`}
-      >
+        >
+        {isLoading && <Loading />}
         <Image
           src={active.image}
           alt="모의고사 이미지"
-          width={800}
+          width={1000}
           height={450}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
           className="object-left-top object-cover"
