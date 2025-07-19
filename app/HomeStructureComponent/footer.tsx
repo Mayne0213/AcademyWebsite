@@ -27,19 +27,10 @@ const Footer: React.FC = () => {
         <div
           className="text-center tablet:text-left text-gray-200 whitespace-pre"
         >
-          {academyInformation.academyName}   ㅣ   대표 :{" "}
-          {academyInformation.chairman}
-          <br className="tablet:hidden" />
-          <p className="hidden tablet:inline">{"   "}|{"   "}</p>
-          사업자등록번호 : {academyInformation.residentRegistrationNumber}
-          <br />
-          주소 : {academyInformation.address}
-          <br className="tablet:hidden" />
-          <p className="hidden tablet:inline">{"   "}|{"   "}</p>
-          개인정보보호 책임자: 김민조
+
         </div>
         <div
-          className="mt-5 text-gray-400 tablet:text-left text-center"
+          className="mt-2 text-gray-400 tablet:text-left tablet:mt-5 text-center"
         >
           COPYRIGHTⓒ {academyInformation.academyName} All rights reserved.
         </div>
