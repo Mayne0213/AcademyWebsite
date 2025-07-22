@@ -21,6 +21,7 @@ interface AnnouncementFormInput {
   content: string;
   authorId: number;
   isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
   files?: FileItem[];
   academyIds?: number[];
 }
@@ -39,6 +40,7 @@ const AddAnnouncementPage = () => {
     title: "",
     content: "",
     isItAssetAnnouncement: false,
+    isItImportantAnnouncement: false,
   });
 
   useEffect(() => {
@@ -89,6 +91,7 @@ const AddAnnouncementPage = () => {
         content: form.content,
         authorId: user?.memberId as number,
         isItAssetAnnouncement: form.isItAssetAnnouncement,
+        isItImportantAnnouncement: form.isItImportantAnnouncement,
         files,
         academyIds: selectedAcademyIds.length > 0 ? selectedAcademyIds : undefined,
       };

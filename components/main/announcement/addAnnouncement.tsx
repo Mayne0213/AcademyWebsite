@@ -15,6 +15,7 @@ interface AnnouncementFormInput {
   content: string;
   authorId: number;
   isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
   files?: FileItem[];
 }
 
@@ -33,6 +34,7 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
     content: "",
     authorId: user?.memberId as number,
     isItAssetAnnouncement: false,
+    isItImportantAnnouncement: false,
     files: [],
   });
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -66,6 +68,7 @@ const AddAnnouncement: React.FC<AddAnnouncementProps> = ({
       content: "",
       authorId: user?.memberId as number,
       isItAssetAnnouncement: false,
+      isItImportantAnnouncement: false,
       files: [],
     });
     setFiles([]);
