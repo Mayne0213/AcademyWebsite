@@ -46,6 +46,7 @@ const AnnouncementItem: React.FC<Props> = ({
       content: updated.content || "",
       authorId: updated.authorId,
       isItAssetAnnouncement: updated.isItAssetAnnouncement,
+      isItImportantAnnouncement: updated.isItImportantAnnouncement,
       files: updated.files,
     };
     updateAnnouncement(updateInput);
