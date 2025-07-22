@@ -77,47 +77,60 @@ export async function PUT(
     const id = Number(params.id);
     const body = await req.json();
 
-    const {
-      title,
-      content,
-      authorId,
-      isItAssetAnnouncement,
-      files, // 첨부파일 배열 [{ url, name, type }]
-      academyIds, // [1, 2, 3] - 선택된 학원 ID 배열
-    } = body;
-
-    // 기존 첨부파일 모두 삭제
-    await prisma.announcementFile.deleteMany({
+    // 기존 데이터 조회
+    const existing = await prisma.announcement.findUnique({
       where: { announcementId: id },
+      include: { files: true, academies: true },
     });
 
-    // 공지사항 업데이트 및 첨부파일 새로 생성
+    if (!existing) {
+      return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 });
+    }
+
+    // 부분 업데이트를 위한 데이터 객체 생성
+    const updateData: any = {};
+
+    // 각 필드가 body에 포함되어 있을 때만 업데이트
+    if (body.title !== undefined) updateData.title = body.title;
+    if (body.content !== undefined) updateData.content = body.content;
+    if (body.authorId !== undefined) updateData.authorId = body.authorId;
+    if (body.isItAssetAnnouncement !== undefined) updateData.isItAssetAnnouncement = body.isItAssetAnnouncement;
+    if (body.isItImportantAnnouncement !== undefined) updateData.isItImportantAnnouncement = body.isItImportantAnnouncement;
+
+    // 파일 처리
+    if (body.files !== undefined) {
+      // 기존 첨부파일 모두 삭제
+      await prisma.announcementFile.deleteMany({
+        where: { announcementId: id },
+      });
+
+      if (body.files && body.files.length > 0) {
+        updateData.files = {
+          create: body.files.map((file: any) => ({
+            key: file.url,
+            originalName: file.name,
+            fileType: file.type,
+          })),
+        };
+      }
+    }
+
+    // 학원 연결 처리
+    if (body.academyIds !== undefined) {
+      updateData.academies = {
+        set: [], // 기존 연결 해제
+        ...(body.academyIds && body.academyIds.length > 0
+          ? {
+              connect: body.academyIds.map((academyId: number) => ({ academyId })),
+            }
+          : {}),
+      };
+    }
+
+    // 공지사항 업데이트
     const updated = await prisma.announcement.update({
       where: { announcementId: id },
-      data: {
-        title,
-        content,
-        authorId,
-        isItAssetAnnouncement: isItAssetAnnouncement || false,
-        files:
-          files && files.length > 0
-            ? {
-                create: files.map((file: any) => ({
-                  key: file.url,
-                  originalName: file.name,
-                  fileType: file.type,
-                })),
-              }
-            : undefined,
-        academies: {
-          set: [], // 기존 연결 해제
-          ...(academyIds && academyIds.length > 0
-            ? {
-                connect: academyIds.map((academyId: number) => ({ academyId })),
-              }
-            : {}),
-        },
-      },
+      data: updateData,
       include: { 
         files: true,
         academies: {

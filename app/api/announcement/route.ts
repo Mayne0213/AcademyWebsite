@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const isItAssetAnnouncement = searchParams.get("isItAssetAnnouncement");
+    const isItImportantAnnouncement = searchParams.get("isItImportantAnnouncement");
     const page = parseInt(searchParams.get("page") || "1", 10);
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
 
@@ -67,13 +68,17 @@ export async function GET(req: NextRequest) {
     const [announcements, totalCount] = await prisma.$transaction([
       prisma.announcement.findMany({
         where: whereCondition,
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          { isItImportantAnnouncement: 'desc' }, // 중요 공지 먼저
+          { createdAt: 'desc' }                  // 그 다음 최신순
+        ],
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: {
           announcementId: true,
           title: true,
           updatedAt: true,
+          isItImportantAnnouncement: true,
         },
       }),
       prisma.announcement.count({ where: whereCondition }),

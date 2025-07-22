@@ -7,6 +7,7 @@ import {
   User,
   Edit,
   Trash2,
+  Pin,
 } from "lucide-react";
 import useAnnouncement from "@/components/hooks/useAnnouncement";
 import Link from "next/link";
@@ -16,11 +17,59 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContexts";
 import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import AttachedFile from "@/components/attachedFile";
+import { toast } from "sonner";
+import { Announcement } from "@/components/type/announcementType";
 
 interface ExpandedItems {
   [key: number]: boolean;
 }
 
+// 유튜브 URL을 감지하고 임베드 코드로 변환하는 함수
+const extractYouTubeEmbed = (content: string) => {
+  const youtubePatterns = [
+    // 긴 URL: https://www.youtube.com/watch?v=FFdHMm9dHbQ
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/g,
+    // 짧은 URL: https://youtu.be/FFdHMm9dHbQ
+    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)/g,
+    // 영상 재생 시점을 지정한 URL: https://youtu.be/FFdHMm9dHbQ?t=2
+    /(?:https?:\/\/)?(?:www\.)?youtu\.be\/([a-zA-Z0-9_-]+)\?t=\d+/g,
+    // 재생 목록에 있는 영상 URL: https://www.youtube.com/watch?v=ds-FowwO9Lg&list=PLUud9rWUXUuWLmZy_ykyuaqrkfTymPjpP
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)&list=([a-zA-Z0-9_-]+)/g,
+    // 쇼츠 URL: https://www.youtube.com/shorts/n2DcpqDK8C0?feature=share
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)\??[a-zA-Z0-9_=&-]*/g,
+    // 쇼츠 우클릭 후 복사한 URL: https://www.youtube.com/shorts/n2DcpqDK8C0
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/g,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]+)/g,
+  ];
+
+  let videoId = null;
+
+  // 모든 패턴을 순회하면서 매치되는 첫 번째 비디오 ID를 찾음
+  for (const pattern of youtubePatterns) {
+    const matches = [...content.matchAll(pattern)];
+    if (matches.length > 0) {
+      videoId = matches[0][1]; // 첫 번째 그룹이 비디오 ID
+      break;
+    }
+  }
+
+  if (videoId) {
+    return (
+      <div className="my-4">
+        <iframe
+          width="100%"
+          height="auto"
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title="YouTube asset video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="rounded-lg aspect-video"
+        ></iframe>
+      </div>
+    );
+  }
+  return null;
+};
 const Announcements: React.FC = () => {
   const ITEMS_PER_PAGE = 10;
   const { user } = useAuth();
@@ -41,9 +90,33 @@ const Announcements: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const router = useRouter();
+  const onSubmit = async (e: React.FormEvent, announcement: Announcement) => {
+    e.preventDefault();
 
+    try {
+      const updatedAnnouncement = {
+        announcementId: announcement.announcementId,
+        isItImportantAnnouncement: !announcement.isItImportantAnnouncement,
+      };
+
+      const res = await fetch(`/api/announcement/${announcement.announcementId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedAnnouncement),
+      });
+
+      if (res.ok) {
+        toast.success("공지사항이 수정되었습니다.");
+        await loadInitialAnnouncement(currentPage, ITEMS_PER_PAGE);
+      } else {
+        toast.error("수정 중 오류가 발생했습니다.");
+      }
+    } catch (err) {
+      toast.error("수정 중 오류가 발생했습니다.");
+    }
+  };
   useEffect(() => {
-    loadInitialAnnouncement(currentPage, ITEMS_PER_PAGE, false);
+    loadInitialAnnouncement(currentPage, ITEMS_PER_PAGE);
   }, [loadInitialAnnouncement, currentPage]);
 
   useEffect(() => {
@@ -143,7 +216,7 @@ const Announcements: React.FC = () => {
               return (
                 <div
                   key={globalIndex}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                  className={`${item.isItImportantAnnouncement ? "border-gray-500" : "border-gray-100"} bg-white rounded-xl shadow-sm border overflow-hidden`}
                 >
                   {/* Header */}
                   <div
@@ -190,6 +263,15 @@ const Announcements: React.FC = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
+                            onClick={(e) => onSubmit(e, item)}
+                            className="p-1 sm:p-2 text-gray-500 hover:text-blue-600"
+                            title="고정"
+                          >
+                            <Pin
+                              className={item.isItImportantAnnouncement ? "text-red-500 w-5 h-5" : "w-5 h-5"}
+                            />
+                          </button>
+                          <button
                             onClick={() =>
                               router.push(
                                 `/dashboard/announcement/edit/${item.announcementId}`,
@@ -199,7 +281,7 @@ const Announcements: React.FC = () => {
                             title="수정"
                           >
                             <Edit
-                              className={isCompact ? "w-4 h-4" : "w-5 h-5"}
+                              className={isCompact ? "w-5 h-5" : "w-5 h-5"}
                             />
                           </button>
                           <button
@@ -208,7 +290,7 @@ const Announcements: React.FC = () => {
                             title="삭제"
                           >
                             <Trash2
-                              className={isCompact ? "w-4 h-4" : "w-5 h-5"}
+                              className={isCompact ? "w-5 h-5" : "w-5 h-5"}
                             />
                           </button>
                         </div>
@@ -228,6 +310,7 @@ const Announcements: React.FC = () => {
                           <div className="text-gray-400">불러오는 중...</div>
                         ) : detail ? (
                           <>
+                            {extractYouTubeEmbed(detail.content)}
                             <AttachedFile files={detail.files} isCompact={isCompact} />
                             <p className={`text-gray-700 leading-relaxed whitespace-pre-wrap ${isCompact ? "text-base" : "text-lg"}`}>
                               {detail.content || "공지사항 내용이 없습니다."}
