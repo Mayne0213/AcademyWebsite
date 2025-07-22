@@ -3,6 +3,7 @@ import "./font.css";
 import { Metadata } from "next";
 import { AuthProvider } from "@/contexts/authContexts";
 import NextNProgress from "nextjs-toploader";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "확신의 1등급! 주혜연T",
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body>
         <NextNProgress color={"#1d4ed8"} height={5} shadow={false} />
         <AuthProvider>{children}</AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

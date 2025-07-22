@@ -4,6 +4,7 @@ export interface Announcement {
   content?: string; // 목록에서는 선택적
   authorId: number;
   isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
   files?: {  // 목록에서는 선택적
     url: string; // S3 링크
     name: string; // 파일명

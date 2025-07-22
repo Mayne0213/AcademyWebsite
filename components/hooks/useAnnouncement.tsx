@@ -7,6 +7,7 @@ interface AnnouncementFormInput {
   content: string;
   authorId: number;
   isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
   files?: {
     url: string;
     name: string;
@@ -20,6 +21,7 @@ interface AnnouncementUpdateInput {
   content: string;
   authorId: number;
   isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
   files?: {
     url: string;
     name: string;
@@ -59,10 +61,10 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
   assetsTotalCount: 0,
   isLoadingAssets: false,
 
-  loadInitialAnnouncement: async (page, pageSize, isItAssetAnnouncement = false) => {
+  loadInitialAnnouncement: async (page, pageSize, isItAssetAnnouncement = false, isItImportantAnnouncement = false) => {
     set({ isLoading: true });
     try {
-      const res = await fetch(`/api/announcement?isItAssetAnnouncement=${isItAssetAnnouncement}&page=${page}&pageSize=${pageSize}`);
+      const res = await fetch(`/api/announcement?isItAssetAnnouncement=${isItAssetAnnouncement}&isItImportantAnnouncement=${isItImportantAnnouncement}&page=${page}&pageSize=${pageSize}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       set({ announcements: data.announcements, totalCount: data.totalCount });

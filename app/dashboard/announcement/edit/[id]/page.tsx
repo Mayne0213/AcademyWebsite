@@ -20,6 +20,7 @@ interface AnnouncementDetail {
   title: string;
   content: string;
   isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
   authorId: number;
   files: FileItem[];
   academies: { academyId: number; academyName: string }[];
@@ -71,6 +72,7 @@ const EditAnnouncementPage = () => {
     title: "",
     content: "",
     isItAssetAnnouncement: false,
+    isItImportantAnnouncement: false,
   });
 
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -82,6 +84,7 @@ const EditAnnouncementPage = () => {
         title: announcement.title,
         content: announcement.content,
         isItAssetAnnouncement: announcement.isItAssetAnnouncement,
+        isItImportantAnnouncement: announcement.isItImportantAnnouncement,
       });
       setFiles(announcement.files || []);
     }
@@ -132,6 +135,7 @@ const EditAnnouncementPage = () => {
         content: form.content,
         authorId: announcement.authorId,
         isItAssetAnnouncement: form.isItAssetAnnouncement,
+        isItImportantAnnouncement: form.isItImportantAnnouncement,
         files,
         academyIds: selectedAcademyIds,
       };
