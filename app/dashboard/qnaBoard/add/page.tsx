@@ -115,7 +115,7 @@ const AddQnAPage = () => {
               required
               maxLength={100}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="예) 이 문제에서 왜 that이 문법적으로 잘못 쓰였는지 모르겠습니다."
+              placeholder="예) 주간지 / 8주차 / Day3 5번"
             />
             <p className="text-xs text-gray-500 mt-1">
               {form.qnaTitle.length}/100자
@@ -133,7 +133,7 @@ const AddQnAPage = () => {
               rows={8}
               required
               maxLength={1000}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+              className="w-full border whitespace-preline border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
               placeholder="예) 앞에 선행사가 있으니 관계대명사로 적절히 사용된거 아닌가요??"
             />
             <p className="text-xs text-gray-500 mt-1">

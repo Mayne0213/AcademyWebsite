@@ -141,7 +141,7 @@ const QnaBoard: React.FC = () => {
                   <div className="text-gray-400 mb-4">
                     <Calendar className="w-12 h-12 mx-auto" />
                   </div>
-                  <p className="text-gray-500">등록된 질문이 없습니다.</p>
+                  <p className="text-gray-500">자신이 올린 질문만 표시됩니다.</p>
                 </div>
               ) : (
                 Qnas.slice(startIndex, endIndex).map((item, index) => {

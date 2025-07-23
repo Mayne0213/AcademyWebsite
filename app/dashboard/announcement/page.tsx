@@ -119,17 +119,6 @@ const Announcements: React.FC = () => {
     loadInitialAnnouncement(currentPage, ITEMS_PER_PAGE);
   }, [loadInitialAnnouncement, currentPage]);
 
-  useEffect(() => {
-    console.log("[디버그] 공지사항 상태 변화:", announcements.map(a => ({ id: a.announcementId, title: a.title, files: a.files })));
-  }, [announcements]);
-
-  const toggleExpanded = (index: number): void => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
-
   const handleDelete = async (id: number) => {
     if (confirm("정말로 이 공지를 삭제하시겠습니까?")) {
       removeAnnouncement(id);
