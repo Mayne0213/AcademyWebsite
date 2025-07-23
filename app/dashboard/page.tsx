@@ -291,7 +291,7 @@ export default function Dashboard() {
                     />
                   </svg>
                 </div>
-                <p className="text-gray-400 text-sm">등록된 질문이 없습니다.</p>
+                <p className="text-gray-400 text-sm">자신이 올린 질문만 표시됩니다.</p>
               </div>
             ) : (
               <div className="space-y-3">

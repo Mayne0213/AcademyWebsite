@@ -54,12 +54,12 @@ export const useAnnouncement = create<AnnouncementState>((set) => ({
   totalCount: 0,
   files: [],
   filesTotalCount: 0,
-  isLoading: false,
-  isLoadingFiles: false,
+  isLoading: true,
+  isLoadingFiles: true,
   // 추가
   assets: [],
   assetsTotalCount: 0,
-  isLoadingAssets: false,
+  isLoadingAssets: true,
 
   loadInitialAnnouncement: async (page, pageSize, isItAssetAnnouncement = false, isItImportantAnnouncement = false) => {
     set({ isLoading: true });
