@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { Student } from "../type/studentType";
 import { Academy } from "../type/academyType";
 
@@ -21,19 +21,16 @@ const useFilteredSortedPaginatedUsers = ({
 }: Options) => {
   const itemsPerPage = 20;
 
-  const compareAcademyName = (
-    userAcademyId: number,
-    selectedAcademy: string,
-  ) => {
-    {
-      // Converting Id to Name
+  const compareAcademyName = useCallback(
+    (userAcademyId: number, selectedAcademy: string) => {
       const userAcademy = academys.find((a) => a.academyId === userAcademyId);
       if (!userAcademy) {
         return;
       }
       return userAcademy.academyName === selectedAcademy;
-    }
-  };
+    },
+    [academys]
+  );
 
   const filteredUsers = useMemo(() => {
     const x = students.filter((user) => {
@@ -45,7 +42,7 @@ const useFilteredSortedPaginatedUsers = ({
     });
 
     return x;
-  }, [students, searchTerm, selectedAcademy]);
+  }, [students, searchTerm, selectedAcademy, compareAcademyName]);
 
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a, b) => {
@@ -57,16 +54,17 @@ const useFilteredSortedPaginatedUsers = ({
       }
       return 0;
     });
-  }, [students, filteredUsers, sortKey]);
+  }, [filteredUsers, sortKey]);
 
   const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
+  const totalUsers = sortedUsers.length;
 
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return sortedUsers.slice(start, start + itemsPerPage);
   }, [sortedUsers, currentPage, itemsPerPage]);
 
-  return { paginatedUsers, totalPages };
+  return { totalPages, totalUsers, paginatedUsers };
 };
 
 export default useFilteredSortedPaginatedUsers;

@@ -4,14 +4,16 @@ import { toast } from "sonner";
 
 interface StudentState {
   students: Student[];
+  isLoading: boolean;
   loadInitialStudents: () => void;
   addStudent: (newStudent: Omit<Student, "studentMemo">) => void;
   updateStudent: (updatedStudent: Student) => void;
   removeStudent: (memberId: number) => void;
 }
 
-const useStudent = create<StudentState>((set, get) => ({
+const useStudent = create<StudentState>((set) => ({
   students: [],
+  isLoading: true,
 
   loadInitialStudents: async () => {
     try {
@@ -20,6 +22,8 @@ const useStudent = create<StudentState>((set, get) => ({
       set({ students: data });
     } catch (error) {
       toast.error("학생 데이터를 불러오는 데 실패했습니다.");
+    } finally {
+      set({ isLoading: false });
     }
   },
 

@@ -4,20 +4,23 @@ import { Button } from "@/components/ui/button";
 import EditAcademy from "./editAcademy";
 import { Phone, MapPin } from "lucide-react";
 import useAcademy from "@/components/hooks/useAcademy";
+import Image from "next/image";
 
 interface Props {
   academy: Academy;
 }
 
 const AcademyItem: React.FC<Props> = ({ academy }) => {
-  const [editAcademy, setEditAcademy] = useState<Academy | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const { updateAcademy, removeAcademy } = useAcademy();
 
   const handleEdit = () => {
     setIsEditing(true);
   };
-  const handleCancel = () => setIsEditing(false);
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
 
   const handleUpdate = (updated: Academy) => {
     updateAcademy(updated);
@@ -30,7 +33,6 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
     );
     if (confirmed) {
       removeAcademy(academy);
-      setEditAcademy(null);
     }
   };
 
@@ -49,12 +51,13 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
       <li className="border p-4 rounded-lg shadow-sm flex flex-col gap-4">
         {/* 학원 사진 영역 */}
         {academy.mainImageUrl ? (
-          <div className="w-full h-52 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-            <img
+          <div className="w-full h-52 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
+            <Image
               src={academy.mainImageUrl}
               alt="학원 대표 이미지"
-              className="object-cover w-full h-full"
-              style={{ minHeight: 120 }}
+              fill
+              sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="object-cover"
             />
           </div>
         ) : (
