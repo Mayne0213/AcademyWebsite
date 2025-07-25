@@ -33,17 +33,25 @@ const AcademyFilter: React.FC<AcademyFilterProps> = ({
     <div className="flex justify-between gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline">{selectedAcademy}</Button>
+          <Button variant="outline" className="font-sansKR-Regular">
+            {selectedAcademy}
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>학원 선택</DropdownMenuLabel>
+          <DropdownMenuLabel className="font-sansKR-Regular">
+            학원 선택
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
             value={selectedAcademy}
             onValueChange={onAcademyChange}
           >
             {academyOptions.map((academy) => (
-              <DropdownMenuRadioItem key={academy} value={academy}>
+              <DropdownMenuRadioItem
+                key={academy}
+                value={academy}
+                className="font-sansKR-Light"
+              >
                 {academy}
               </DropdownMenuRadioItem>
             ))}

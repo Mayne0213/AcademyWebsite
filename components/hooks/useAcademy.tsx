@@ -4,6 +4,7 @@ import { Academy } from "../type/academyType";
 
 interface AcademyState {
   academys: Academy[];
+  isLoading: boolean;
   loadInitialAcademy: () => void;
   addAcademy: (newAcademy: Omit<Academy, "academyId" | "createdAt">) => void;
   updateAcademy: (updatedAcademy: Academy) => void;
@@ -12,6 +13,7 @@ interface AcademyState {
 
 export const useAcademy = create<AcademyState>((set) => ({
   academys: [],
+  isLoading: true,
 
   loadInitialAcademy: async () => {
     try {
@@ -21,6 +23,8 @@ export const useAcademy = create<AcademyState>((set) => ({
       set({ academys: data });
     } catch (error) {
       toast.error("학원 로딩 중 오류가 발생했습니다.");
+    } finally {
+      set({ isLoading: false });
     }
   },
 
