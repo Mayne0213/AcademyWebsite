@@ -3,8 +3,9 @@
 import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { UserCard } from "@/entities/user";
+import { UserInfo } from "@/shared/types/entities";
 
 // 관리자 계정 생성 폼
 const AdminRegister = ({ onSuccess }: { onSuccess?: () => void }) => {
@@ -63,23 +64,23 @@ const AdminRegister = ({ onSuccess }: { onSuccess?: () => void }) => {
       <h2 className="text-2xl font-bold mb-6 text-center">관리자 계정 생성</h2>
       <div className="space-y-4">
         <div>
-          <Label htmlFor="userId">아이디</Label>
+          <label htmlFor="userId">아이디</label>
           <Input id="userId" ref={userIdRef} placeholder="아이디" />
         </div>
         <div>
-          <Label htmlFor="userPassword">비밀번호</Label>
+          <label htmlFor="userPassword">비밀번호</label>
           <Input id="userPassword" type="password" ref={userPasswordRef} placeholder="비밀번호" />
         </div>
         <div>
-          <Label htmlFor="userCheckPassword">비밀번호 확인</Label>
+          <label htmlFor="userCheckPassword">비밀번호 확인</label>
           <Input id="userCheckPassword" type="password" ref={userCheckPasswordRef} placeholder="비밀번호 확인" />
         </div>
         <div>
-          <Label htmlFor="adminName">이름</Label>
+          <label htmlFor="adminName">이름</label>
           <Input id="adminName" ref={adminNameRef} placeholder="이름" />
         </div>
         <div>
-          <Label htmlFor="adminPhone">전화번호</Label>
+          <label htmlFor="adminPhone">전화번호</label>
           <Input id="adminPhone" ref={adminPhoneRef} placeholder="전화번호" />
         </div>
         <Button onClick={handleRegister} disabled={loading} className="w-full mt-4">
@@ -90,7 +91,7 @@ const AdminRegister = ({ onSuccess }: { onSuccess?: () => void }) => {
   );
 };
 
-// 관리자 목록 테이블
+// 관리자 목록 카드 뷰
 const AdminList = ({ onEdit, onDelete }: { onEdit?: (admin: any) => void; onDelete?: (admin: any) => void }) => {
   const [admins, setAdmins] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -162,43 +163,33 @@ const AdminList = ({ onEdit, onDelete }: { onEdit?: (admin: any) => void; onDele
     }
   };
 
+  // API 데이터를 UserInfo 형태로 변환
+  const transformToUserInfo = (admin: any): UserInfo => ({
+    name: admin.adminName,
+    userId: admin.userId,
+    memberId: admin.memberId,
+    role: admin.role || "ADMIN"
+  });
+
   return (
-    <div className="max-w-2xl mx-auto mt-10">
-      <h2 className="text-xl font-bold mb-4">관리자 계정 목록</h2>
+    <div className="max-w-6xl mx-auto mt-10">
+      <h2 className="text-xl font-bold mb-6">관리자 계정 목록</h2>
       {loading ? (
-        <div>불러오는 중...</div>
+        <div className="text-center py-8">불러오는 중...</div>
       ) : (
-        <table className="w-full border text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-2 border">아이디</th>
-              <th className="py-2 px-2 border">이름</th>
-              <th className="py-2 px-2 border">전화번호</th>
-              <th className="py-2 px-2 border">수정</th>
-              <th className="py-2 px-2 border">삭제</th>
-            </tr>
-          </thead>
-          <tbody>
-            {admins.map((admin) => (
-              <tr key={admin.memberId} className="text-center">
-                <td className="border px-2 py-1">{admin.userId}</td>
-                <td className="border px-2 py-1">{admin.adminName}</td>
-                <td className="border px-2 py-1">{admin.adminPhone}</td>
-                <td className="border px-2 py-1">
-                  <Button size="sm" variant="outline" onClick={() => handleEditClick(admin)}>
-                    수정
-                  </Button>
-                </td>
-                <td className="border px-2 py-1">
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(admin)}>
-                    삭제
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {admins.map((admin) => (
+            <UserCard
+              key={admin.memberId}
+              user={transformToUserInfo(admin)}
+              onEdit={() => handleEditClick(admin)}
+              onDelete={() => handleDelete(admin)}
+              showActions={true}
+            />
+          ))}
+        </div>
       )}
+
       {/* 수정 모달/폼 */}
       {editAdmin && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -206,15 +197,15 @@ const AdminList = ({ onEdit, onDelete }: { onEdit?: (admin: any) => void; onDele
             <h3 className="text-lg font-bold mb-4">관리자 정보 수정</h3>
             <div className="space-y-2">
               <div>
-                <Label>이름</Label>
+                <label>이름</label>
                 <Input name="adminName" value={editForm.adminName} onChange={handleEditChange} />
               </div>
               <div>
-                <Label>전화번호</Label>
+                <label>전화번호</label>
                 <Input name="adminPhone" value={editForm.adminPhone} onChange={handleEditChange} />
               </div>
               <div>
-                <Label>비밀번호 변경 (선택)</Label>
+                <label>비밀번호 변경 (선택)</label>
                 <Input name="userPassword" type="password" value={editForm.userPassword} onChange={handleEditChange} placeholder="새 비밀번호(미입력시 변경 없음)" />
               </div>
             </div>
