@@ -78,7 +78,6 @@ const S3ImageUploadMultiple: React.FC<S3ImageUploadMultipleProps> = ({
       }
       toast.success("파일이 성공적으로 삭제되었습니다!");
     } catch (error) {
-      console.error('파일 삭제 오류:', error);
       toast.error(`파일 삭제 실패: ${(error as Error).message}`);
     } finally {
       onUploadComplete(updated);

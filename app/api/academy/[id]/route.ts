@@ -65,7 +65,7 @@ export async function PUT(
     // 3. images 포함해서 반환
     const academyWithImages = await prisma.academy.findUnique({
       where: { academyId: id },
-      include: { images: true },
+      include: { academyImages: true },
     });
 
     const bucketUrl = "https://jooeng.s3.ap-northeast-2.amazonaws.com/";
@@ -76,7 +76,7 @@ export async function PUT(
             ? academyWithImages.academyMainImage
             : bucketUrl + (academyWithImages.academyMainImage.startsWith("/") ? academyWithImages.academyMainImage.slice(1) : academyWithImages.academyMainImage))
         : undefined,
-      images: (academyWithImages?.images || []).map(img => ({
+      images: (academyWithImages?.academyImages || []).map(img => ({
         url: img.academyImageUrl.startsWith("http")
           ? img.academyImageUrl
           : bucketUrl + (img.academyImageUrl.startsWith("/") ? img.academyImageUrl.slice(1) : img.academyImageUrl),

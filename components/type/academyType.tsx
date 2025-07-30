@@ -4,6 +4,6 @@ export interface Academy {
   academyPhone: string;
   academyAddress: string;
   createdAt: string;
-  images: { url: string; name: string; type: string }[];
+  academyImages: { url: string; name: string; type: string }[];
   mainImageUrl?: string;
 }

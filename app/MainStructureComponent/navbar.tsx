@@ -1,7 +1,10 @@
 import { Menu } from "lucide-react";
 import { useAuth } from "@/contexts/authContexts";
+import { FORMATS } from "@/shared/lib/formats";
 
 const Navbar = ({ onChange }: { onChange: () => void }) => {
+
+
   const { user } = useAuth();
   return (
     <div className="w-full h-[60px] bg-white flex items-center justify-between px-8 border-b shadow-sm fixed top-0 left-0 z-30">
@@ -12,7 +15,7 @@ const Navbar = ({ onChange }: { onChange: () => void }) => {
         />
       </div>
       <div className="text-sm text-gray-700">
-        {user?.name}님
+        {FORMATS.formatUserDisplayName(user)}님
       </div>
     </div>
   );

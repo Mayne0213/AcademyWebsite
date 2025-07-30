@@ -3,13 +3,14 @@
 
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
+import { useAcademyFeatureStore } from "@/features/academy/model/store";
 import useAcademy from "@/components/hooks/useAcademy";
 import AddAcademy from "@/components/main/academy/addAcademy";
 import AcademyList from "@/components/main/academy/academyList";
 
 const AcademyBoard = () => {
   const [writeNewAcademy, setWriteNewAcademy] = useState<boolean>(false);
-  const { addAcademy } = useAcademy();
+  const { createAcademy } = useAcademyFeatureStore();
 
   return (
     <div className="min-h-screen bg-white rounded-xl p-6 shadow-md flex flex-col">
@@ -27,7 +28,7 @@ const AcademyBoard = () => {
         <AddAcademy
           onCancel={() => setWriteNewAcademy(false)}
           onAdd={(academy:any) => {
-            addAcademy(academy);
+            createAcademy(academy);
             setWriteNewAcademy(false);
           }}
         />

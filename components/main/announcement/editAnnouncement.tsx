@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Announcement } from "@/components/type/announcementType";
-import S3ImageUploadMultiple from "@/components/s3ImageUploadMultiple";
+import { FileUploadMultiple } from "@/entities/file";
 import AttachedFile from "@/components/attachedFile";
 
 interface FileItem {
@@ -108,7 +108,7 @@ const EditAnnouncement: React.FC<EditAnnouncementProps> = ({
           자료실로 업로드
         </label>
       </div>
-      <S3ImageUploadMultiple 
+      <FileUploadMultiple
         onUploadComplete={setFiles} 
         initialFiles={files} 
       />

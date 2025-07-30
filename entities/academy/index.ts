@@ -1,20 +1,8 @@
-// 공통 타입들 export
-export type { Academy, AcademyImage } from "@/shared/types/entities";
+// Academy API
+export { academyApi } from './api';
 
-// 모델 타입들 export
-export type {
-  CreateAcademyRequest,
-  UpdateAcademyRequest,
-  AcademyFilter,
-  AcademySort,
-  AcademyPagination,
-  AcademyListResponse,
-  AcademyImageUploadRequest,
-  AcademyState
-} from "./model/types";
+// Academy Model
+export * from './model';
 
-// 모델 스토어 export
-export { useAcademyStore } from "./model/store";
-
-// UI 컴포넌트 export
-export { AcademyCard } from "./ui/AcademyCard"; 
+// Academy Types
+export type { Academy, AcademyImage, AcademyState, AcademyBasicActions, UpdateAcademyRequest } from './model/types';

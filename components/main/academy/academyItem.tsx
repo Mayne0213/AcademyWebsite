@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Academy } from "@/components/type/academyType";
+import { Academy } from "@/entities/academy/model/types";
 import { Button } from "@/components/ui/button";
 import EditAcademy from "./editAcademy";
 import { Phone, MapPin } from "lucide-react";
-import useAcademy from "@/components/hooks/useAcademy";
 import Image from "next/image";
+import { useAcademyFeatureStore } from "@/features/academy/model/store";
 
 interface Props {
   academy: Academy;
@@ -12,7 +12,7 @@ interface Props {
 
 const AcademyItem: React.FC<Props> = ({ academy }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { updateAcademy, removeAcademy } = useAcademy();
+  const { updateAcademy, deleteAcademy } = useAcademyFeatureStore();
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -22,8 +22,8 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
     setIsEditing(false);
   };
 
-  const handleUpdate = (updated: Academy) => {
-    updateAcademy(updated);
+  const handleUpdate = (updatedAcademy: Academy) => {
+    updateAcademy(academy.academyId, updatedAcademy);
     setIsEditing(false);
   };
 
@@ -32,7 +32,7 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
       "정말 삭제하시겠습니까?\n삭제된 단과는 복구할 수 없습니다.",
     );
     if (confirmed) {
-      removeAcademy(academy);
+      deleteAcademy(academy.academyId);
     }
   };
 
@@ -50,10 +50,10 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
     return (
       <li className="border p-4 rounded-lg shadow-sm flex flex-col gap-4">
         {/* 학원 사진 영역 */}
-        {academy.mainImageUrl ? (
+        {academy.academyMainImage ? (
           <div className="w-full h-52 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative">
             <Image
-              src={academy.mainImageUrl}
+              src={academy.academyMainImage}
               alt="학원 대표 이미지"
               fill
               sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"

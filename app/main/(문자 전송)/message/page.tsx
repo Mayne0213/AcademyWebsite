@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import useAcademy from "@/components/hooks/useAcademy";
-import useStudent from "@/components/hooks/useStudents";
 import { Button } from "@/components/ui/button";
 import useFilteredSortedPaginatedUsers from "@/components/hooks/useFilteredSortedPaginatedUsers";
-import PaginationControls from "@/components/main/student/paginationControls";
+import { Pagination } from "@/shared/ui";
+import { useStudentFeatureStore } from "@/features/studentCRUD/model/store";
+import { useStudentStore } from "@/entities/student/model/store";
 
 const Message = () => {
   const { academys, loadInitialAcademy } = useAcademy();
-  const { students, loadInitialStudents } = useStudent();
+  const { isLoading: studentsLoading, readStudents } = useStudentFeatureStore();
+  const { students, error } = useStudentStore();
 
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<string>("");
@@ -129,7 +131,8 @@ const handleAddSubItem = (sectionIndex: number | null, itemIndex: number | null,
 
   useEffect(() => {
     loadInitialAcademy();
-    loadInitialStudents();
+    readStudents();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddGroup = () => {
@@ -205,11 +208,11 @@ const handleAddSubItem = (sectionIndex: number | null, itemIndex: number | null,
                     {student.studentName}
                   </div>
                 ))}
-                <PaginationControls
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                />
+                        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
                 </>
               )}
         </div>

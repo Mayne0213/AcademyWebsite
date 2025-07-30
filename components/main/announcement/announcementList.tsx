@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAnnouncement from "@/components/hooks/useAnnouncement";
 import AnnouncementItem from "./announcementItem";
-import Pagination from "../student/paginationControls";
+import { Pagination } from "@/shared/ui";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -36,7 +36,7 @@ const AnnouncementList: React.FC = () => {
             <Pagination
               totalPages={totalPages}
               currentPage={currentPage}
-              onPageChange={(page) => setCurrentPage(page)}
+              onPageChange={(page: number) => setCurrentPage(page)}
             />
           </div>
         </>

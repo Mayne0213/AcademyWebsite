@@ -8,6 +8,7 @@ export async function GET(req: Request) {
   try {
     // 쿠키에서 토큰 가져오기
     const cookieHeader = req.headers.get("cookie");
+
     if (!cookieHeader) {
       return NextResponse.json(
         { success: false, message: "로그인 필요", user: null },
@@ -22,7 +23,9 @@ export async function GET(req: Request) {
         return [name, rest.join("=")];
       }),
     );
+
     const token = cookies["token"];
+
     if (!token) {
       return NextResponse.json(
         { success: false, message: "토큰이 없습니다.", user: null },
@@ -72,12 +75,13 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       success: true,
-      user: {
+      data: {
         name,
         userId: user.userId,
         memberId: user.memberId,
         role: user.role,
         student: user.student ?? null,
+        admin: user.admin ?? null,
       },
     });
   } catch (error) {

@@ -6,7 +6,7 @@ import useAnnouncement from "@/components/hooks/useAnnouncement";
 import AddAnnouncement from "@/components/main/announcement/addAnnouncement";
 import AnnouncementList from "@/components/main/announcement/announcementList";
 import AnnouncementItem from "@/components/main/announcement/announcementItem";
-import Pagination from "@/components/main/student/paginationControls";
+import { Pagination } from "@/shared/ui";
 
 const AnnouncementBoard = () => {
   const [writeNewAnnouncement, setWriteNewAnnouncement] = useState<boolean>(false);

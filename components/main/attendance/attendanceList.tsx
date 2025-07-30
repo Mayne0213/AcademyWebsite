@@ -2,10 +2,10 @@
 
 import React from "react";
 import AcademyFilter from "@/components/main/student/academyFilter";
-import Pagination from "@/components/main/student/paginationControls";
+import { Pagination } from "@/shared/ui";
 import AttendanceItem from "@/components/main/attendance/attendanceItem";
 import AllChangeToAttend from "./allChangeToAttend";
-import SearchBar from "../student/searchBar";
+import { SearchInput } from "@/shared/ui";
 
 interface AttendanceListProps {
   students: any[];
@@ -67,9 +67,10 @@ const AttendanceList = ({
           />
         </div>
         <p className="text-xl mr-1">
-          <SearchBar
+          <SearchInput
             searchTerm={searchTerm}
             onSearchTermChange={onSearchTermChange}
+            placeholder="학생 이름으로 검색..."
           />
         </p>
       </div>

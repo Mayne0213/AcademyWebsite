@@ -4,8 +4,8 @@ import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { UserCard } from "@/entities/user";
-import { UserInfo } from "@/shared/types/entities";
+import { UserInfo } from "@/components/type/userInfoType";
+import { AdminCard } from "@/entities/admin/ui/AdminCard";
 
 // 관리자 계정 생성 폼
 const AdminRegister = ({ onSuccess }: { onSuccess?: () => void }) => {
@@ -179,13 +179,7 @@ const AdminList = ({ onEdit, onDelete }: { onEdit?: (admin: any) => void; onDele
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {admins.map((admin) => (
-            <UserCard
-              key={admin.memberId}
-              user={transformToUserInfo(admin)}
-              onEdit={() => handleEditClick(admin)}
-              onDelete={() => handleDelete(admin)}
-              showActions={true}
-            />
+            <AdminCard key={admin.memberId} admin={admin} />
           ))}
         </div>
       )}
