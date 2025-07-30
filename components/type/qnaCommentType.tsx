@@ -1,5 +1,7 @@
+import { UserInfo } from "@/entities/user/model/types";
+
 export interface QnaComment {
-  user: any;
+  user: UserInfo;
   commentId: number;
   commentContent: string;
   commentMemberId: number;

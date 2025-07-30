@@ -76,10 +76,20 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         },
         comments: {
           include: {
-            student: {
+            user: {
               select: {
                 memberId: true,
-                studentName: true,
+                role: true,
+                student: {
+                  select: {
+                    studentName: true,
+                  },
+                },
+                admin: {
+                  select: {
+                    adminName: true,
+                  },
+                },
               },
             },
           },

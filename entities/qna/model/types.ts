@@ -1,4 +1,5 @@
 import { Student } from "@/entities/student/model/index"; 
+import { UserInfo } from "@/entities/user/model/types";
 
 // 공지 엔티티
 export interface QnABoard  {
@@ -18,7 +19,7 @@ export interface QnABoardComment {
   commentContent: string;
   commentUserId: number;
   qnaId: number;
-  qnaCommentStudent: Student;
+  qnaCommentUser: UserInfo;
   qnaCommentQna: QnABoard;
   createdAt: Date;
   updatedAt: Date;
