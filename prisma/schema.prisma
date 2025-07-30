@@ -18,6 +18,7 @@ model User {
 
   student      Student?          @relation("UserToStudent")
   admin        Admin?            @relation("UserToAdmin")
+  qnaComments  QnABoardComment[] @relation("UserInQnAComment")
 }
 
 model Admin {
@@ -40,7 +41,6 @@ model Student {
   studentBirthYear  Int
   studentMemo       String?
   qnas              QnABoard[]        @relation("StudentToQnA")
-  qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
 
   memberId          Int     @id
   user              User    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
@@ -120,17 +120,30 @@ model QnABoard {
 model QnABoardComment {
   commentId      Int      @id @default(autoincrement())
   commentContent String   @db.Text
-  commentUserId  Int      // 기존 API와의 호환성을 위해 유지
+  commentUserId  Int
   qnaId          Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  student        Student  @relation("StudentToQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  user           User     @relation("UserInQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
   qna            QnABoard @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
 
   @@index([commentUserId], map: "QnABoardComment_commentUserId_fkey")
   @@index([qnaId], map: "QnABoardComment_qnaId_fkey")
 }
+
+// model QnABoardComment {
+//   commentId      Int      @id @default(autoincrement())
+//   commentContent String   @db.Text
+//   commentUserId  Int
+//   qnaId          Int
+//   createdAt      DateTime @default(now())
+//   updatedAt      DateTime @updatedAt
+//   user           User     @relation("UserInQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+//   qna            QnABoard @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
+
+//   @@index([commentUserId], map: "QnABoardComment_commentUserId_fkey")
+//   @@index([qnaId], map: "QnABoardComment_qnaId_fkey")
+// }
 
 enum Role {
   DEVELOPER
