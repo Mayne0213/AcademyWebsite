@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import S3ImageUploadMultiple from "@/components/s3ImageUploadMultiple";
+import { FileUploadMultiple } from "@/entities/file";
 
 interface AcademyFormInput {
   academyName: string;
@@ -79,7 +79,7 @@ const AddAcademy: React.FC<AddAcademyProps> = ({ onAdd, onCancel }) => {
         required
         className="w-full border p-2 mb-2"
       />
-      <S3ImageUploadMultiple 
+      <FileUploadMultiple
         onUploadComplete={setFiles} 
         initialFiles={files} 
       />

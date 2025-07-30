@@ -5,6 +5,7 @@ import useAnnouncement from "@/components/hooks/useAnnouncement";
 import { useQna } from "@/components/hooks/useQna";
 import { useAuth } from "@/contexts/authContexts";
 import Link from "next/link";
+import { FORMATS } from "@/shared/lib/formats";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -44,6 +45,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setSubTitle(randomSubtitle);
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -70,7 +72,9 @@ export default function Dashboard() {
                 <User className="w-16 h-16 text-gray-400" />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                {user?.name}님
+                {FORMATS.formatUserDisplayName(user)
+                  ? `${FORMATS.formatUserDisplayName(user)}님`
+                  : "로딩 중..."}
               </h2>
               <p className="font-MaruBuri-Regular text-lg text-gray-600 mx-auto">
                 {subTitle}

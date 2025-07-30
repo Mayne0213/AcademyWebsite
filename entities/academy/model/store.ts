@@ -1,30 +1,32 @@
-import { create } from "zustand";
-import { Academy } from "@/shared/types/entities";
+import { create } from 'zustand';
+import { Academy, AcademyState, AcademyBasicActions } from './index';
 
-// 학원 기본 상태 관리
-export const useAcademyStore = create<{
-  academies: Academy[];
-  selectedAcademy: Academy | null;
-  setAcademies: (academies: Academy[]) => void;
-  setSelectedAcademy: (academy: Academy | null) => void;
-  reset: () => void;
-}>((set) => ({
+// 순수한 관리자 상태 관리 스토어
+export const useAcademyStore = create<AcademyState & AcademyBasicActions>((set) => ({
   academies: [],
-  selectedAcademy: null,
+  isLoading: false,
+  error: null,
 
-  // 상태 변경
-  setAcademies: (academies: Academy[]) => {
-    set({ academies });
-  },
+  readAcademies: (academies: Academy[]) => set({ academies }),
 
-  setSelectedAcademy: (academy: Academy | null) => {
-    set({ selectedAcademy: academy });
-  },
+  createAcademy: (newAcademy: Academy) => set((state) => ({
+    academies: [newAcademy, ...state.academies]
+  })),
 
-  reset: () => {
-    set({
-      academies: [],
-      selectedAcademy: null
-    });
-  }
+  updateAcademy: (updatedAcademy: Academy) => set((state) => ({
+    academies: state.academies.map(academy =>
+      academy.academyId === updatedAcademy.academyId ? updatedAcademy : academy
+    )
+  })),
+
+  deleteAcademy: (academyId: number) => set((state) => ({
+    academies: state.academies.filter(academy => academy.academyId !== academyId)
+  })),
+
+  setLoading: (isLoading: boolean) => set({ isLoading }),
+
+  setError: (error: string | null) => set({ error }),
+
+  clearError: () => set({ error: null }),
+
 })); 

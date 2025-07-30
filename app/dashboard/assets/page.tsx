@@ -12,7 +12,7 @@ import {
 import useAnnouncement from "@/components/hooks/useAnnouncement";
 import Link from "next/link";
 import Header from "@/app/DashboardStructureComponent/header";
-import Pagination from "@/components/main/student/paginationControls";
+import { Pagination } from "@/shared/ui";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContexts";
 import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";

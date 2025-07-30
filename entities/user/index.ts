@@ -1,21 +1,11 @@
-// 공통 타입들 export
-export type { UserInfo, Student, Admin } from "@/shared/types/entities";
+// User API
+export { userApi } from './api';
 
-// 모델 타입들 export
-export type {
-  CreateUserRequest,
-  UpdateUserRequest,
-  LoginRequest,
-  LoginResponse,
-  UserState,
-  UserFilter,
-  UserSort,
-  UserPagination,
-  UserListResponse,
-} from "./model/types";
+// User Types
+export type { UserInfo, UserRole } from './model/types';
 
-// 모델 스토어 export
-export { useUserStore } from "./model/store";
+// User Validation
+export * from './model/validation';
 
-// UI 컴포넌트 export
-export { UserCard } from "./ui/UserCard"; 
+// User Auth
+export * from './auth';

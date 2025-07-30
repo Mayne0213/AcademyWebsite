@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { create } from "zustand";
-import { Academy } from "../type/academyType";
+import { Academy } from "@/entities/academy/model/types";
 
 interface AcademyState {
   academys: Academy[];

@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
     const academies = await prisma.academy.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        images: true,
+        academyImages: true,
       },
     });
     const bucketUrl = "https://jooeng.s3.ap-northeast-2.amazonaws.com/";
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
             ? a.academyMainImage
             : bucketUrl + (a.academyMainImage.startsWith("/") ? a.academyMainImage.slice(1) : a.academyMainImage))
         : undefined,
-      images: (a.images || []).map(img => ({
+      images: (a.academyImages || []).map(img => ({
         url: img.academyImageUrl.startsWith("http")
           ? img.academyImageUrl
           : bucketUrl + (img.academyImageUrl.startsWith("/") ? img.academyImageUrl.slice(1) : img.academyImageUrl),
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     // 3. images 포함해서 반환
     const academyWithImages = await prisma.academy.findUnique({
       where: { academyId: newAcademy.academyId },
-      include: { images: true },
+      include: { academyImages: true },
     });
     return NextResponse.json({
       ...academyWithImages,

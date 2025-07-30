@@ -7,7 +7,7 @@ import useAcademy from "@/components/hooks/useAcademy";
 import Header from "@/app/DashboardStructureComponent/header";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContexts";
-import S3ImageUploadMultiple from "@/components/s3ImageUploadMultiple";
+import { FileUploadMultiple } from "@/entities/file";
 
 // 파일 타입 정의
 interface FileItem {
@@ -182,7 +182,7 @@ const AddAnnouncementPage = () => {
             </div>
           </div>
 
-          <S3ImageUploadMultiple 
+          <FileUploadMultiple
             onUploadComplete={setFiles} 
             initialFiles={files} 
             folder="dashboard/announcement" 

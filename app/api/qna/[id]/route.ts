@@ -68,38 +68,18 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const qna = await prisma.qnABoard.findUnique({
       where: { qnaId: id },
       include: {
-        user: {
+        student: {
           select: {
             memberId: true,
-            role: true,
-            student: {
-              select: {
-                studentName: true,
-              },
-            },
-            admin: {
-              select: {
-                adminName: true,
-              },
-            },
+            studentName: true,
           },
         },
         comments: {
           include: {
-            user: {
+            student: {
               select: {
                 memberId: true,
-                role: true,
-                student: {
-                  select: {
-                    studentName: true,
-                  },
-                },
-                admin: {
-                  select: {
-                    adminName: true,
-                  },
-                },
+                studentName: true,
               },
             },
           },

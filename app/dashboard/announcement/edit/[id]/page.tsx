@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import useAcademy from "@/components/hooks/useAcademy";
 import Header from "@/app/DashboardStructureComponent/header";
 import { toast } from "sonner";
-import S3ImageUploadMultiple from "@/components/s3ImageUploadMultiple";
+import { FileUploadMultiple } from "@/entities/file";
 
 // 파일 타입 정의
 interface FileItem {
@@ -258,7 +258,7 @@ const EditAnnouncementPage = () => {
           </div>
 
           {/* 파일 업로드 */}
-          <S3ImageUploadMultiple 
+          <FileUploadMultiple
             onUploadComplete={handleFilesUploadComplete} 
             initialFiles={files} 
             folder="dashboard/announcement" 

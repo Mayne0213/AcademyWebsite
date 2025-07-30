@@ -1,13 +1,13 @@
 import { useMemo, useCallback } from "react";
-import { Student } from "../type/studentType";
-import { Academy } from "../type/academyType";
+import { Student } from "@/entities/student/model/types";
+import { Academy } from "@/entities/academy/model/types";
 
 interface Options {
   students: Student[];
   academys: Academy[];
   searchTerm: string;
   selectedAcademy: string;
-  sortKey: "name" | "school" | null;
+  sortKey: string | null;
   currentPage: number;
 }
 

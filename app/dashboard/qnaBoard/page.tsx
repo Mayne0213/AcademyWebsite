@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import { Calendar, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Header from "@/app/DashboardStructureComponent/header";
-import Pagination from "@/components/main/student/paginationControls";
+import { Pagination } from "@/shared/ui";
 import { useAuth } from "@/contexts/authContexts";
 import { useQna } from "@/components/hooks/useQna";
 import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
 import AttachedFile from "@/components/attachedFile";
 import { QnaCommentFormInput } from "@/components/type/qnaType";
+import { FORMATS } from "@/shared/lib/formats";
 
 interface ExpandedItems {
   [key: number]: boolean;
@@ -177,7 +178,7 @@ const QnaBoard: React.FC = () => {
                                 isCompact ? "text-xs" : "text-sm"
                               }`}
                             >
-                              {item.user?.student?.studentName}
+                              {item.student?.studentName || "알 수 없음"}
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
                                 <span>

@@ -10,13 +10,9 @@ export interface Qna {
   updatedAt: string;
   comments?: QnaComment[];
 
-  user?: {
+  student?: {
     memberId: number;
-    userId: string;
-    role: "DEVELOPER" | "ADMIN" | "STUDENT";
-    student?: {
-      studentName: string;
-    };
+    studentName: string;
   };
 }
 

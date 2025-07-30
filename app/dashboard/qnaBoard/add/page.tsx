@@ -6,7 +6,7 @@ import { useQna } from "@/components/hooks/useQna";
 import Header from "@/app/DashboardStructureComponent/header";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContexts";
-import S3ImageUpload from "@/components/s3ImageUpload";
+import { FileUpload } from "@/entities/file";
 
 interface QnaFormInput {
   qnaTitle: string;
@@ -143,7 +143,7 @@ const AddQnAPage = () => {
 
           {/* 이미지 업로드 섹션 */}
           <div>
-            <S3ImageUpload 
+          <FileUpload
               onUploadComplete={handleImageUploadComplete} 
               onLoadingChange={handleImageUploadLoading}
               folder="dashboard/qna" 

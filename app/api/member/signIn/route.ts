@@ -8,14 +8,9 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function POST(req: Request) {
   try {
-    const { userId, userPassword } = await req.json();
+    const body = await req.json();
 
-    if (!userId || !userPassword) {
-      return NextResponse.json(
-        { success: false, message: "아이디와 비밀번호를 모두 입력해주세요." },
-        { status: 400 },
-      );
-    }
+    const { userId, userPassword } = body;
 
     const user = await prisma.user.findUnique({
       where: { userId },
@@ -35,10 +30,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const isPasswordCorrect = await bcrypt.compare(
-      userPassword,
-      user.userPassword,
-    );
+    const isPasswordCorrect = await bcrypt.compare(userPassword, user.userPassword);
+
     if (!isPasswordCorrect) {
       return NextResponse.json(
         {
@@ -81,15 +74,19 @@ export async function POST(req: Request) {
     const tokenCookie = serialize("token", token, cookieOptions);
     // const roleCookie = serialize("role", user.role, cookieOptions);
 
+    console.log("설정할 쿠키:", tokenCookie);
+    console.log("토큰:", token);
+
     const response = NextResponse.json({
       success: true,
-      user: {
+      data: {
         name,
         userId: user.userId,
         memberId: user.memberId,
         role: user.role,
       },
     });
+    console.log("응답 데이터:", userId, name, user.memberId, user.role);
 
     response.headers.append("Set-Cookie", tokenCookie);
     // response.headers.append("Set-Cookie", roleCookie);

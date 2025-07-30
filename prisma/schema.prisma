@@ -9,24 +9,27 @@ datasource db {
 }
 
 model User {
+  memberId     Int               @id @default(autoincrement())
   userId       String            @unique
   userPassword String
-  createdAt    DateTime          @default(now())
   role         Role              @default(STUDENT)
-  memberId     Int               @id @default(autoincrement())
-  admin        Admin?            @relation("UserToAdmin")
-  qna          QnABoard[]        @relation("UserInQnABoard")
-  qnaComments  QnABoardComment[] @relation("UserInQnAComment")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt @default(now())
+
   student      Student?          @relation("UserToStudent")
+  admin        Admin?            @relation("UserToAdmin")
 }
 
 model Admin {
   adminName    String
   adminPhone   String         @unique
-  memberId     Int            @id
-  user         User           @relation("UserToAdmin", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  adminPosition String         @default("조교")
+  adminMemo     String?
   announcement Announcement[] @relation("AdminToAnnouncements")
   academy      Academy[]      @relation("AdminToAcademy")
+
+  memberId     Int            @id
+  user         User           @relation("UserToAdmin", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model Student {
@@ -36,9 +39,12 @@ model Student {
   studentHighschool String?
   studentBirthYear  Int
   studentMemo       String?
+  qnas              QnABoard[]        @relation("StudentToQnA")
+  qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
+
   memberId          Int     @id
-  academy           Academy @relation("AcademyToStudents", fields: [academyId], references: [academyId])
   user              User    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  academy           Academy @relation("AcademyToStudents", fields: [academyId], references: [academyId])
 
   @@index([academyId], map: "Student_academyId_fkey")
 }
@@ -48,20 +54,21 @@ model Academy {
   academyName      String         @unique
   academyPhone     String?        @unique
   academyAddress   String
-  createdAt        DateTime       @default(now())
   academyMainImage String?
-  images           AcademyImage[]
-  students         Student[]      @relation("AcademyToStudents")
-  admins           Admin[]        @relation("AdminToAcademy")
-  announcements    Announcement[] @relation("AnnouncementToAcademy")
+  academyImages    AcademyImage[]
+  academyStudents  Student[]      @relation("AcademyToStudents")
+  academyAdmins    Admin[]        @relation("AdminToAcademy")
+  academyAnnouncements Announcement[] @relation("AnnouncementToAcademy")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt @default(now())
 }
 
 model AcademyImage {
   academyImageId   Int      @id @default(autoincrement())
   academyImageUrl  String
-  academyId        Int
-  createdAt        DateTime @default(now())
   academyImageName String?
+  createdAt        DateTime @default(now())
+  academyId        Int
   academy          Academy  @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
 
   @@index([academyId], map: "AcademyImage_academyId_fkey")
@@ -73,12 +80,12 @@ model Announcement {
   content               String             @db.Text
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
-  authorId              Int?
   isItAssetAnnouncement Boolean            @default(false)
   isItImportantAnnouncement Boolean            @default(false)
-  author                Admin?             @relation("AdminToAnnouncements", fields: [authorId], references: [memberId])
-  files                 AnnouncementFile[]
   academies             Academy[]          @relation("AnnouncementToAcademy")
+  files                 AnnouncementFile[]
+  authorId              Int?
+  author                Admin?             @relation("AdminToAnnouncements", fields: [authorId], references: [memberId])
 
   @@index([authorId], map: "Announcement_authorId_fkey")
 }
@@ -99,12 +106,13 @@ model QnABoard {
   qnaId       Int               @id @default(autoincrement())
   qnaTitle    String
   qnaContent  String            @db.Text
-  qnaUserId   Int
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   qnaImageUrl String?
-  user        User              @relation("UserInQnABoard", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  qnaUserId   Int               // 기존 API와의 호환성을 위해 유지
   comments    QnABoardComment[] @relation("QnAWithComments")
+
+  student     Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([qnaUserId], map: "QnABoard_qnaUserId_fkey")
 }
@@ -112,11 +120,12 @@ model QnABoard {
 model QnABoardComment {
   commentId      Int      @id @default(autoincrement())
   commentContent String   @db.Text
-  commentUserId  Int
+  commentUserId  Int      // 기존 API와의 호환성을 위해 유지
   qnaId          Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  user           User     @relation("UserInQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+
+  student        Student  @relation("StudentToQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
   qna            QnABoard @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
 
   @@index([commentUserId], map: "QnABoardComment_commentUserId_fkey")

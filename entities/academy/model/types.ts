@@ -1,56 +1,55 @@
-import { Academy } from "@/shared/types/entities";
-import { 
-  PaginationParams, 
-  PaginationResponse, 
-  FilterOptions, 
-  SortDirection,
-  FormState
-} from "@/shared/types/common";
+import { Announcement } from "@/components/type/announcementType";
+import { Student } from "@/entities/student/model";
+import { Admin } from "@/entities/admin/model";
 
-// 학원 생성 요청 타입
-export interface CreateAcademyRequest {
+// 학원 엔티티
+export interface Academy  {
+  academyId: number;
   academyName: string;
   academyPhone: string;
   academyAddress: string;
-  academyMainImage?: string;
+  academyMainImage: string;
+  academyImages: AcademyImage[];
+  academyStudents: Student[];
+  academyAdmins: Admin[];
+  academyAnnouncements: Announcement[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AcademyImage {
+  academyImageId: number;
+  academyImageUrl: string;
+  academyImageName?: string;
+  createdAt: Date;
+  academyId: number;
+  academy: Academy;
+}
+
+// 학원 배열
+export interface AcademyState {
+  academies: Academy[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+// 학원 기본 타입
+export interface AcademyBasicActions {
+  readAcademies: (academies: Academy[]) => void;
+  createAcademy: (academy: Academy) => void;
+  updateAcademy: (updatedAcademy: Academy) => void;
+  deleteAcademy: (academyId: number) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
+  clearError: () => void;
 }
 
 // 학원 업데이트 요청 타입
 export interface UpdateAcademyRequest {
-  academyId: number;
   academyName?: string;
   academyPhone?: string;
   academyAddress?: string;
+  academyMemo?: string;
   academyMainImage?: string;
-}
-
-// 학원 필터 타입
-export interface AcademyFilter extends FilterOptions {}
-
-// 학원 정렬 타입
-export interface AcademySort {
-  field: 'academyName' | 'createdAt';
-  direction: SortDirection;
-}
-
-// 학원 페이지네이션 타입
-export interface AcademyPagination extends PaginationParams {}
-
-// 학원 목록 응답 타입 
-export interface AcademyListResponse extends PaginationResponse<Academy> {
-  academies: Academy[];
-  filters: AcademyFilter;
-  sort: AcademySort;
-}
-
-// 학원 이미지 업로드 요청 타입
-export interface AcademyImageUploadRequest {
-  academyId: number;
-  imageFile: File;
-  imageName?: string;
-}
-
-// 학원 상태 타입
-export interface AcademyState extends FormState {
-  selectedAcademy: Academy | null;
+  updatedAt: Date;
 }

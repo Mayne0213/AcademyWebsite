@@ -54,11 +54,10 @@ export async function GET(req: NextRequest) {
         qnaId: true,
         qnaTitle: true,
         updatedAt: true,
-        user: {
+        student: {
           select: {
             memberId: true,
-            userId: true,
-            role: true,
+            studentName: true,
           },
         },
       },

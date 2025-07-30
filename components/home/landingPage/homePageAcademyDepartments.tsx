@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import useAcademy from "@/components/hooks/useAcademy";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SectionUp } from "./designSystem";
+import { Academy } from "@/entities/academy/model/types";
+import { useAcademyStore } from "@/entities/academy/model/store";
+import { useAcademyFeatureStore } from "@/features/academy/model/store";
 
 const STYLES = {
   title: "text-center font-MaruBuri-Bold mb-10 text-4xl smalltablet:text-5xl",
@@ -25,18 +27,18 @@ const STYLES = {
 };
 
 const HomePageAcademyDepartments = () => {
-  const { academys, loadInitialAcademy } = useAcademy();
+  const { academies } = useAcademyStore();
   const [selectedInfos, setSelectedInfos] = useState<string[]>([]);
 
   useEffect(() => {
-    loadInitialAcademy();
-  }, [loadInitialAcademy]);
+    useAcademyFeatureStore.getState().readAcademies();
+  }, []);
 
   useEffect(() => {
-    if (academys.length > 0) {
-      setSelectedInfos(Array(academys.length).fill("주소"));
+    if (academies.length > 0) {
+      setSelectedInfos(Array(academies.length).fill("주소"));
     }
-  }, [academys]);
+  }, [academies]);
 
   const handleInfoChange = (index: number, value: string) => {
     const newSelected = [...selectedInfos];
@@ -48,7 +50,7 @@ const HomePageAcademyDepartments = () => {
     <SectionUp className="relative py-16 max-w-7xl mx-auto px-4" amount={0.1}>
         <h2 className={STYLES.title}>현강 관별 소개</h2>
         <div className={`flex flex-col max-w-sm smalltablet:max-w-none smalltablet:grid gap-8 ${STYLES.grid}`}>
-          {academys.map((academy, index) => (
+          {academies.map((academy, index) => (
             <AcademyDepartmentCard
               key={academy.academyId}
               academy={academy}
@@ -63,7 +65,7 @@ const HomePageAcademyDepartments = () => {
 };
 
 const AcademyDepartmentCard = ({ academy, selectedInfo, onInfoChange, index }: {
-  academy: any;
+  academy: Academy;
   selectedInfo: string;
   onInfoChange: (index: number, value: string) => void;
   index: number;
@@ -72,9 +74,9 @@ const AcademyDepartmentCard = ({ academy, selectedInfo, onInfoChange, index }: {
     className={STYLES.card}
   >
     <div className={STYLES.imageWrapper}>
-      {academy.mainImageUrl ? (
+      {academy.academyMainImage ? (
         <Image
-          src={academy.mainImageUrl}
+          src={academy.academyMainImage}
           alt={`${academy.academyName} 이미지`}
           fill
           sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"
