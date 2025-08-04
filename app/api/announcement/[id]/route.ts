@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
@@ -25,7 +25,19 @@ export async function GET(
             adminName: true,
           },
         },
-        files: true,
+        announcementFiles: {
+          include: {
+            file: {
+              select: {
+                fileId: true,
+                fileName: true,
+                originalName: true,
+                fileUrl: true,
+                fileType: true,
+              },
+            },
+          },
+        },
         academies: {
           select: {
             academyId: true,
@@ -42,23 +54,16 @@ export async function GET(
     // 파일 데이터를 프론트엔드 형식으로 변환
     const result = {
       ...announcement,
-      files: announcement.files.map((file: any) => ({
-        url: file.key,
-        name: file.originalName,
-        type: file.fileType,
+      announcementFiles: announcement.announcementFiles.map((file: any) => ({
+        fileId: file.fileId,
+        key: file.file.fileUrl,
+        originalName: file.file.originalName,
+        fileType: file.file.fileType,
       })),
     };
 
-    console.log("상세 조회 결과:", {
-      announcementId: result.announcementId,
-      title: result.title,
-      filesCount: result.files.length,
-      files: result.files,
-    });
-
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json({ success: true, data: result }, { status: 200 });
   } catch (error) {
-    console.error("[API ERROR] 공지사항 상세 조회 실패:", error);
     return NextResponse.json(
       {
         error: "공지사항 상세 조회 실패",
@@ -80,7 +85,22 @@ export async function PUT(
     // 기존 데이터 조회
     const existing = await prisma.announcement.findUnique({
       where: { announcementId: id },
-      include: { files: true, academies: true },
+      include: {
+        announcementFiles: {
+          include: {
+            file: {
+              select: {
+                fileId: true,
+                fileName: true,
+                originalName: true,
+                fileUrl: true,
+                fileType: true,
+              },
+            },
+          },
+        },
+        academies: true,
+      },
     });
 
     if (!existing) {
@@ -91,8 +111,8 @@ export async function PUT(
     const updateData: any = {};
 
     // 각 필드가 body에 포함되어 있을 때만 업데이트
-    if (body.title !== undefined) updateData.title = body.title;
-    if (body.content !== undefined) updateData.content = body.content;
+    if (body.announcementTitle !== undefined) updateData.announcementTitle = body.announcementTitle;
+    if (body.announcementContent !== undefined) updateData.announcementContent = body.announcementContent;
     if (body.authorId !== undefined) updateData.authorId = body.authorId;
     if (body.isItAssetAnnouncement !== undefined) updateData.isItAssetAnnouncement = body.isItAssetAnnouncement;
     if (body.isItImportantAnnouncement !== undefined) updateData.isItImportantAnnouncement = body.isItImportantAnnouncement;
@@ -105,11 +125,9 @@ export async function PUT(
       });
 
       if (body.files && body.files.length > 0) {
-        updateData.files = {
+        updateData.announcementFiles = {
           create: body.files.map((file: any) => ({
-            key: file.url,
-            originalName: file.name,
-            fileType: file.type,
+            fileId: file.fileId,
           })),
         };
       }
@@ -132,7 +150,25 @@ export async function PUT(
       where: { announcementId: id },
       data: updateData,
       include: { 
-        files: true,
+        author: {
+          select: {
+            memberId: true,
+            adminName: true,
+          },
+        },
+        announcementFiles: {
+          include: {
+            file: {
+              select: {
+                fileId: true,
+                fileName: true,
+                originalName: true,
+                fileUrl: true,
+                fileType: true,
+              },
+            },
+          },
+        },
         academies: {
           select: {
             academyId: true,
@@ -142,21 +178,19 @@ export async function PUT(
       },
     });
 
-    console.log("업데이트 완료:", updated);
-
     // 파일 데이터를 프론트엔드 형식으로 변환
     const result = {
       ...updated,
-      files: updated.files.map((file: any) => ({
-        url: file.key,
-        name: file.originalName,
-        type: file.fileType,
+      announcementFiles: updated.announcementFiles.map((file: any) => ({
+        fileId: file.fileId,
+        key: file.file.fileUrl,
+        originalName: file.file.originalName,
+        fileType: file.file.fileType,
       })),
     };
 
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json({ success: true, data: result }, { status: 200 });
   } catch (error) {
-    console.error("[API ERROR] 공지사항 수정 실패:", error);
     return NextResponse.json(
       {
         error: "공지사항 수정 실패",
@@ -177,26 +211,37 @@ export async function DELETE(
     // 삭제하기 전에 첨부 파일 정보 가져오기
     const announcement = await prisma.announcement.findUnique({
       where: { announcementId: id },
-      include: { files: true },
+      include: {
+        announcementFiles: {
+          include: {
+            file: {
+              select: {
+                fileId: true,
+                fileName: true,
+                originalName: true,
+                fileUrl: true,
+                fileType: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!announcement) {
-      return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 });
+      return NextResponse.json({ error: "공지사항을 찾을 수 없습니다.", message: "공지사항을 찾을 수 없습니다." }, { status: 404 });
     }
 
     // S3에서 첨부 파일들 삭제
-    if (announcement.files && announcement.files.length > 0) {
-      const deletePromises = announcement.files.map(async (file) => {
+    if (announcement.announcementFiles && announcement.announcementFiles.length > 0) {
+      const deletePromises = announcement.announcementFiles.map(async (file: any) => {
         try {
           const command = new DeleteObjectCommand({
             Bucket: "jooeng",
-            Key: file.key,
+            Key: file.file.fileUrl,
           });
           await s3Client.send(command);
-          console.log(`S3 파일 삭제 성공: ${file.key}`);
         } catch (error) {
-          console.error(`S3 파일 삭제 실패: ${file.key}`, error);
-          // 개별 파일 삭제 실패는 로그만 남기고 계속 진행
         }
       });
 
@@ -210,7 +255,6 @@ export async function DELETE(
 
     return NextResponse.json({ message: "삭제 성공" }, { status: 200 });
   } catch (error) {
-    console.error("[API ERROR] 공지사항 삭제 실패:", error);
     return NextResponse.json(
       {
         error: "공지사항 삭제 실패",

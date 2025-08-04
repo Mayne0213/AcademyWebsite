@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     
     if (!userPayload) {
       return NextResponse.json(
-        { error: "로그인이 필요합니다." },
+        { success: false, message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     // 학생만 개인 QnA를 볼 수 있도록 제한
     if (userPayload.role !== "STUDENT") {
       return NextResponse.json(
-        { error: "학생만 개인 QnA를 볼 수 있습니다." },
+        { success: false, message: "학생만 개인 QnA를 볼 수 있습니다." },
         { status: 403 }
       );
     }
@@ -63,14 +63,11 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(qnas, { status: 200 });
+    return NextResponse.json({ success: true, data: qnas }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] QnA 조회 실패:", error);
     return NextResponse.json(
-      {
-        error: "QnA 조회 실패",
-        message: error instanceof Error ? error.message : String(error),
-      },
+      { success: false, message: "QnA 조회에 실패했습니다." },
       { status: 500 }
     );
   }

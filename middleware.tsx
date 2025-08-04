@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
     try {
       const { payload } = await jwtVerify(token, JWT_SECRET);
 
-      if (payload.role !== "DEVELOPER") {
+      if (payload.role !== "ADMIN") {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
@@ -16,9 +16,9 @@ export async function GET(req: NextRequest) {
       adminName: a.adminName,
       adminPhone: a.adminPhone,
     }));
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json({ success: true, data: result }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "관리자 목록 조회 실패" }, { status: 500 });
+    return NextResponse.json({ success: false, message: "관리자 목록 조회에 실패했습니다." }, { status: 500 });
   }
 }
 
@@ -124,12 +124,12 @@ export async function DELETE(req: NextRequest) {
     const url = new URL(req.url);
     const memberId = Number(url.searchParams.get("memberId"));
     if (!memberId) {
-      return NextResponse.json({ error: "memberId 필요" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "memberId가 필요합니다." }, { status: 400 });
     }
     // 먼저 해당 관리자가 존재하는지 확인
     const existingAdmin = await prisma.admin.findUnique({ where: { memberId } });
     if (!existingAdmin) {
-      return NextResponse.json({ error: "관리자를 찾을 수 없습니다." }, { status: 404 });
+      return NextResponse.json({ success: false, message: "관리자를 찾을 수 없습니다." }, { status: 404 });
     }
     // 해당 관리자가 작성한 공지사항의 authorId를 null로 변경
     await prisma.announcement.updateMany({
@@ -138,12 +138,11 @@ export async function DELETE(req: NextRequest) {
     });
     // User 삭제 시 Admin도 cascade로 삭제됨
     await prisma.user.delete({ where: { memberId } });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "관리자가 성공적으로 삭제되었습니다." });
   } catch (error) {
     console.error("[DELETE_ADMIN_ERROR]", error);
     return NextResponse.json({ 
-      error: "관리자 삭제 실패", 
-      details: error instanceof Error ? error.message : String(error) 
+      success: false, message: "관리자 삭제에 실패했습니다."
     }, { status: 500 });
   }
 }
@@ -153,7 +152,7 @@ export async function PUT(req: NextRequest) {
     const url = new URL(req.url);
     const memberId = Number(url.searchParams.get("memberId"));
     if (!memberId) {
-      return NextResponse.json({ error: "memberId 필요" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "memberId가 필요합니다." }, { status: 400 });
     }
     const body = await req.json();
     const { adminName, adminPhone, userPassword } = body;
@@ -161,7 +160,7 @@ export async function PUT(req: NextRequest) {
     if (adminPhone) {
       const existing = await prisma.admin.findFirst({ where: { adminPhone, memberId: { not: memberId } } });
       if (existing) {
-        return NextResponse.json({ error: "이미 등록된 전화번호입니다." }, { status: 409 });
+        return NextResponse.json({ success: false, message: "이미 등록된 전화번호입니다." }, { status: 409 });
       }
     }
     // 비밀번호 변경 시 해시
@@ -179,8 +178,8 @@ export async function PUT(req: NextRequest) {
     if (Object.keys(userUpdate).length > 0) {
       await prisma.user.update({ where: { memberId }, data: userUpdate });
     }
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "관리자 정보가 성공적으로 수정되었습니다." });
   } catch (error) {
-    return NextResponse.json({ error: "관리자 수정 실패" }, { status: 500 });
+    return NextResponse.json({ success: false, message: "관리자 수정에 실패했습니다." }, { status: 500 });
   }
 } 

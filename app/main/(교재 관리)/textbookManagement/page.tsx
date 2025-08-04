@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import useTextbook from "@/components/hooks/useTextbook";
-import { Pagination } from "@/shared/ui";
+import { Pagination } from "@/src/shared/ui";
 import Search from "@/components/main/textbook/search";
 import UploadTextbook from "@/components/main/textbook/uploadTextbook";
 import useFilteredSortedPaginatedTextbook from "@/components/hooks/useFilteredSortedPaginatedTextbook";
@@ -13,7 +13,7 @@ const TextbookManagement = () => {
 
   useEffect(() => {
     loadInitialTextbook();
-  }, []);
+  }, [loadInitialTextbook]);
 
   const {
     searchTerm,

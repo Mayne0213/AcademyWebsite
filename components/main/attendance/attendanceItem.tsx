@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/src/shared/ui/dropdownMenu";
 import { useRouter } from "next/navigation";
 
 interface AttendanceItemProps {

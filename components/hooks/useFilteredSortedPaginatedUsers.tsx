@@ -1,10 +1,10 @@
 import { useMemo, useCallback } from "react";
-import { Student } from "@/entities/student/model/types";
-import { Academy } from "@/entities/academy/model/types";
+import { Student } from "@/src/entities/student/model/types";
+import { Academy } from "@/src/entities/academy/model/types";
 
 interface Options {
   students: Student[];
-  academys: Academy[];
+  academies: Academy[];
   searchTerm: string;
   selectedAcademy: string;
   sortKey: string | null;
@@ -13,7 +13,7 @@ interface Options {
 
 const useFilteredSortedPaginatedUsers = ({
   students,
-  academys,
+  academies,
   searchTerm,
   selectedAcademy,
   sortKey,
@@ -23,13 +23,13 @@ const useFilteredSortedPaginatedUsers = ({
 
   const compareAcademyName = useCallback(
     (userAcademyId: number, selectedAcademy: string) => {
-      const userAcademy = academys.find((a) => a.academyId === userAcademyId);
+      const userAcademy = academies.find((a) => a.academyId === userAcademyId);
       if (!userAcademy) {
         return;
       }
       return userAcademy.academyName === selectedAcademy;
     },
-    [academys]
+    [academies]
   );
 
   const filteredUsers = useMemo(() => {
@@ -50,7 +50,7 @@ const useFilteredSortedPaginatedUsers = ({
         return a.studentName.localeCompare(b.studentName);
       }
       if (sortKey === "school") {
-        return a.studentHighschool.localeCompare(b.studentHighschool);
+        return a.studentHighschool?.localeCompare(b.studentHighschool || "") || 0;
       }
       return 0;
     });

@@ -1,0 +1,1 @@
+export { useFileFeatureStore } from '@/src/features/fileDelete/model'; 

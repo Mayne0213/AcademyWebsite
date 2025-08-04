@@ -1,34 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
-import useAnnouncement from "@/components/hooks/useAnnouncement";
-import AddAnnouncement from "@/components/main/announcement/addAnnouncement";
-import AnnouncementList from "@/components/main/announcement/announcementList";
-import AnnouncementItem from "@/components/main/announcement/announcementItem";
-import { Pagination } from "@/shared/ui";
+import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
+import ReadAnnouncement from "@/src/features/announcementCRUD/ui/ReadAnnouncement";
+import CreateAnnouncement from "@/src/features/announcementCRUD/ui/CreateAnnouncement";
+import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
+import { usePaginationStore, useTotalPages } from "@/src/shared/model/pagination";
+import { Pagination } from "@/src/shared/ui";
 
 const AnnouncementBoard = () => {
   const [writeNewAnnouncement, setWriteNewAnnouncement] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'announcement' | 'asset'>('announcement');
-  const { addAnnouncement } = useAnnouncement();
+
+  const { announcements, isLoading } = useAnnouncementStore();
+  const { readAnnouncements } = useAnnouncementFeatureStore();
+  const { currentPage, setCurrentPage, totalCount } = usePaginationStore();
+  const totalPages = useTotalPages();
+
+  useEffect(() => {
+    readAnnouncements(currentPage, 10, false);
+  }, [readAnnouncements, currentPage]);
 
   return (
     <div className="min-h-[1000px] bg-white rounded-xl p-6 shadow-md flex flex-col">
-      <div className="flex justify-between">
-        <div className="flex gap-4">
-          <button
-            className={`text-2xl font-bold mb-4 ${activeTab === 'announcement' ? 'text-blue-600 underline' : ''}`}
-            onClick={() => setActiveTab('announcement')}
-          >
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <div className="text-2xl font-sansKR-Bold">
             학원 공지사항
-          </button>
-          <button
-            className={`text-2xl font-bold mb-4 ${activeTab === 'asset' ? 'text-blue-600 underline' : ''}`}
-            onClick={() => setActiveTab('asset')}
-          >
-            학원 자료실
-          </button>
+          </div>
+          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            총 {totalCount}개
+          </span>
         </div>
         <Plus
           className="cursor-pointer"
@@ -39,52 +41,27 @@ const AnnouncementBoard = () => {
       </div>
 
       {writeNewAnnouncement && (
-        <AddAnnouncement
-          onCancel={() => setWriteNewAnnouncement(false)}
-          onAdd={(announcement) => {
-            addAnnouncement(announcement);
-            setWriteNewAnnouncement(false);
-          }}
-        />
-      )}
-
-      {activeTab === 'announcement' && <AnnouncementList />}
-      {activeTab === 'asset' && <AssetAnnouncementList />}
-    </div>
-  );
-};
-
-const AssetAnnouncementList = () => {
-  const { assets, assetsTotalCount } = useAnnouncement();
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
-  const totalPages = Math.ceil(assetsTotalCount / ITEMS_PER_PAGE);
-
-  return (
-    <div className="flex-1 space-y-4 relative">
-      {assets.length === 0 ? (
-        <div className="absolute inset-0 font-sansKR-SemiBold text-2xl flex items-center justify-center">
-          자료실 공지글이 없습니다.
+        <div className="mb-4 border rounded-xl border-gray-200 p-4 shadow-md">
+          <CreateAnnouncement
+            onCancel={() => setWriteNewAnnouncement(false)}
+          />
         </div>
-      ) : (
-        <>
-          <ul className="space-y-4">
-            {assets.map((asset) => (
-              <AnnouncementItem
-                key={asset.announcementId}
-                announcement={asset}
-              />
-            ))}
-          </ul>
-          <div className="mt-6 flex justify-center">
-            <Pagination
-              totalPages={totalPages}
-              currentPage={currentPage}
-              onPageChange={(page: any) => setCurrentPage(page)}
-            />
-          </div>
-        </>
       )}
+
+      <div className="flex-grow">
+        <ReadAnnouncement
+          announcements={announcements}
+          isLoading={isLoading}
+        />
+      </div>
+
+      <div className="mt-4">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
     </div>
   );
 };

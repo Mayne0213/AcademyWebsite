@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import Navbar from "../DashboardStructureComponent/navbar";
+import Navbar from "@/src/widgets/navbar/DashboardNavbar";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

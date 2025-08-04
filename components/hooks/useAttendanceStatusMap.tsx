@@ -1,6 +1,13 @@
 import { create } from "zustand";
-import { Attendance } from "../type/attendanceType";
-import AttendanceData from "@/database/studentAttendance.json";
+import AttendanceData from "@/app/main/(출석 관리)/attendance/studentAttendance.json";
+
+interface Attendance {
+  attendanceId: number;
+  studentId: number;
+  academyId: string;
+  attendanceDate: string;
+  attendanceStatus: string;
+}
 
 interface AttendanceState {
   attendances: Attendance[];

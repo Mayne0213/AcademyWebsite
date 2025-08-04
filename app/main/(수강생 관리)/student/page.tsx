@@ -2,20 +2,22 @@
 
 import React, { useState, useEffect } from "react";
 
-import { useStudentFeatureStore } from "@/features/studentCRUD/model/store";
-import { useStudentStore } from "@/entities/student/model/store";
-import { StudentTable } from "@/entities/student/ui";
-import { SearchInput, SortControls, Pagination } from "@/shared/ui";
+import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
+import { useStudentStore } from "@/src/entities/student/model/store";
+import { ReadStudent } from "@/src/features/studentCRUD/ui/ReadStudent";
+import { SearchInput, SortControls, Pagination } from "@/src/shared/ui";
 
-import useAcademy from "@/components/hooks/useAcademy";
-import AcademyFilter from "@/components/main/student/academyFilter";
+import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
+import { useAcademyStore } from "@/src/entities/academy/model/store";
+import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
 import useFilteredSortedPaginatedUsers from "@/components/hooks/useFilteredSortedPaginatedUsers";
 
 const Student = () => {
-  const { isLoading: studentsLoading, readStudents } = useStudentFeatureStore();
-  const { students, error } = useStudentStore();
+  const { readStudents } = useStudentFeatureStore();
+  const { students, isLoading: studentsLoading } = useStudentStore();
 
-  const { academys, isLoading: academysLoading, loadInitialAcademy } = useAcademy();
+  const { readAcademies } = useAcademyFeatureStore();
+  const { academies, isLoading: academiesLoading } = useAcademyStore();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -23,7 +25,7 @@ const Student = () => {
 
   const { paginatedUsers, totalPages, totalUsers } = useFilteredSortedPaginatedUsers({
     students,
-    academys,
+    academies,
     searchTerm,
     selectedAcademy,
     sortKey,
@@ -32,18 +34,10 @@ const Student = () => {
 
   useEffect(() => {
     readStudents();
-    loadInitialAcademy();
+    readAcademies();
     setSortKey("name");
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-
-  // 에러 처리
-  useEffect(() => {
-    if (error) {
-      console.error("학생 데이터 로드 에러:", error);
-    }
-  }, [error]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white rounded-xl p-6 shadow-md">
@@ -74,7 +68,7 @@ const Student = () => {
             setSelectedAcademy(academy);
             setCurrentPage(1);
           }}
-          academys={academys}
+          academies={academies}
         />
 
         <div className="w-1/6">
@@ -90,9 +84,9 @@ const Student = () => {
       </div>
 
       <div className="flex-grow">
-        <StudentTable
+        <ReadStudent
           users={paginatedUsers}
-          isLoading={studentsLoading || academysLoading}
+          isLoading={studentsLoading || academiesLoading}
           totalUsers={totalUsers}
         />
       </div>

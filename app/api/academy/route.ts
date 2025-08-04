@@ -1,83 +1,92 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
     const academies = await prisma.academy.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        academyImages: true,
+        academyFiles: {
+          include: {
+            file: true
+          }
+        },
       },
     });
-    const bucketUrl = "https://jooeng.s3.ap-northeast-2.amazonaws.com/";
-    const result = academies.map(a => ({
-      ...a,
-      mainImageUrl: a.academyMainImage
-        ? (a.academyMainImage.startsWith("http")
-            ? a.academyMainImage
-            : bucketUrl + (a.academyMainImage.startsWith("/") ? a.academyMainImage.slice(1) : a.academyMainImage))
-        : undefined,
-      images: (a.academyImages || []).map(img => ({
-        url: img.academyImageUrl.startsWith("http")
-          ? img.academyImageUrl
-          : bucketUrl + (img.academyImageUrl.startsWith("/") ? img.academyImageUrl.slice(1) : img.academyImageUrl),
-        name: img.academyImageName,
-        type: "image/*",
-      })),
-    }));
-    return NextResponse.json(result, { status: 200 });
+
+    return NextResponse.json({ success: true, data: academies }, { status: 200 });
   } catch (error) {
-    console.error("[API ERROR] 학원 목록 조회 실패:", error);
-    return NextResponse.json(
-      {
-        error: "학원 목록 조회 실패",
-        message: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: false, message: "학원 목록 조회에 실패했습니다." }, { status: 500 },);
   }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { academyName, academyPhone, academyAddress, images, mainImageUrl } = body;
-    // 1. Academy 생성
+    const { academyName, academyPhone, academyAddress, files } = body;
+
+    // 1. 전화번호 중복 체크
+    const existingAcademyPhone = await prisma.academy.findUnique({
+      where: { academyPhone },
+    });
+
+    if (existingAcademyPhone) {
+      return NextResponse.json(
+        { success: false, message: "이미 등록된 전화번호입니다." },
+        { status: 409 },
+      );
+    }
+
+    const existingAcademyName = await prisma.academy.findUnique({
+      where: { academyName },
+    });
+    if (existingAcademyName) {
+      return NextResponse.json(
+        { success: false, message: "이미 등록된 학원명입니다." },
+        { status: 409 },
+      );
+    }
+
+    // 2. Academy 생성
     const newAcademy = await prisma.academy.create({
       data: {
         academyName,
         academyPhone,
         academyAddress,
-        academyMainImage: mainImageUrl || null,
       },
     });
-    // 2. 이미지들 저장 (있으면)
-    if (images && Array.isArray(images) && images.length > 0) {
-      await prisma.academyImage.createMany({
-        data: images.map((img: any) => ({
-          academyId: newAcademy.academyId,
-          academyImageUrl: img.url,
-          academyImageName: img.name || (img.url ? decodeURIComponent(img.url.split('/').pop() || "") : "")
-        })),
+
+    // 3. 파일 연결 (파일이 있는 경우)
+    if (files && files.length > 0) {
+      const academyFileConnections = files.map((file: any) => ({
+        academyId: newAcademy.academyId,
+        fileId: file.fileId,
+      }));
+
+      await prisma.academyFile.createMany({
+        data: academyFileConnections,
       });
     }
-    // 3. images 포함해서 반환
-    const academyWithImages = await prisma.academy.findUnique({
+
+    // 4. 결과 조회 (파일 포함)
+    const resultWithFiles = await prisma.academy.findUnique({
       where: { academyId: newAcademy.academyId },
-      include: { academyImages: true },
-    });
-    return NextResponse.json({
-      ...academyWithImages,
-      mainImageUrl: academyWithImages?.academyMainImage,
-    }, { status: 201 });
-  } catch (error) {
-    console.error("[API ERROR] 학원 생성 실패:", error);
-    return NextResponse.json(
-      {
-        error: "학원 생성 실패",
-        message: error instanceof Error ? error.message : String(error),
+      include: {
+        academyFiles: {
+          include: {
+            file: true
+          }
+        },
       },
-      { status: 500 },
+    });
+
+    return NextResponse.json(
+      { success: true, data: resultWithFiles },
+      { status: 201 },
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "서버 오류가 발생했습니다." },{ status: 500 },
     );
   }
 }

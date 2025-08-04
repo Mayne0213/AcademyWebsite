@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(newComment, { status: 201 });
+    return NextResponse.json({ success: true, data: newComment }, { status: 201 });
   } catch (error) {
     console.error("[API ERROR] QnA 댓글 생성 실패:", error);
     return NextResponse.json(

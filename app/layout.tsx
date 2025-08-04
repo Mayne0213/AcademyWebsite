@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <NextNProgress color={"#1d4ed8"} height={5} shadow={false} />
-        <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         <Toaster />
       </body>
     </html>

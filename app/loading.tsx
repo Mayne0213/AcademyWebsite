@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import favicon from "@/app/favicon.ico";
 import { BarLoader } from "react-spinners";
-import { useDeviceDetect } from "@/components/home/deviceType";
+import { useDeviceDetect } from "@/src/shared/lib/deviceType";
 
 const Loading: React.FC = () => {
   const deviceCondition = useDeviceDetect();

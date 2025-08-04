@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     // 로그인하지 않은 사용자나 학생은 접근 불가
     if (!userPayload || userPayload.role === "STUDENT") {
       return NextResponse.json(
-        { error: "관리자만 모든 QnA를 볼 수 있습니다." },
+        { success: false, message: "관리자만 모든 QnA를 볼 수 있습니다." },
         { status: 403 }
       );
     }
@@ -55,17 +55,14 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(QnAs, { status: 200 });
+    return NextResponse.json({ success: true, data: QnAs }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] QnA 조회 실패:", error);
 
     const errorMessage = error instanceof Error ? error.message : String(error);
 
     return NextResponse.json(
-      {
-        error: "QnA 조회 실패",
-        message: errorMessage,
-      },
+      { success: false, message: "QnA 조회에 실패했습니다." },
       { status: 500 },
     );
   }
@@ -75,10 +72,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { qnaTitle, qnaContent, qnaUserId, qnaImageUrl } = body;
+    const { qnaTitle, qnaContent, qnaUserId, qnaFiles } = body;
 
     if (!qnaTitle || !qnaContent) {
-      return NextResponse.json({ error: "입력 값 누락" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "입력 값이 누락되었습니다." }, { status: 400 });
     }
 
     const newQnA = await prisma.qnABoard.create({
@@ -86,21 +83,20 @@ export async function POST(req: Request) {
         qnaTitle,
         qnaContent,
         qnaUserId,
-        qnaImageUrl,
+        qnaFiles: {
+          connect: qnaFiles.map((file: any) => ({ fileId: file.fileId })),
+        },
       },
     });
 
-    return NextResponse.json(newQnA, { status: 201 });
+    return NextResponse.json({ success: true, data: newQnA }, { status: 201 });
   } catch (error) {
     console.error("[API ERROR] QnA 생성 실패:", error);
 
     const errorMessage = error instanceof Error ? error.message : String(error);
 
     return NextResponse.json(
-      {
-        error: "QnA 생성 실패",
-        message: errorMessage,
-      },
+      { success: false, message: "QnA 생성에 실패했습니다." },
       { status: 500 },
     );
   }

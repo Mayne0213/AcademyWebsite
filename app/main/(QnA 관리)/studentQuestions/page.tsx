@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/src/shared/ui/button';
 import { useEffect, useState } from 'react';
 import { useQna } from "@/components/hooks/useQna";
 import { useAuth } from "@/contexts/authContexts";

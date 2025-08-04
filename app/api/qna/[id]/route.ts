@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
@@ -17,6 +17,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     // 삭제하기 전에 QnA 정보 가져오기
     const qna = await prisma.qnABoard.findUnique({
       where: { qnaId: id },
+      include: { qnaFiles: { include: { file: true } } },
     });
 
     if (!qna) {
@@ -24,10 +25,10 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     // S3에서 이미지 파일 삭제
-    if (qna.qnaImageUrl) {
+    if (qna.qnaFiles && qna.qnaFiles.length > 0) {
       try {
         // S3 URL에서 key 추출
-        const urlParts = qna.qnaImageUrl.split("/");
+        const urlParts = qna.qnaFiles[0].file.fileUrl.split("/");
         const key = urlParts[urlParts.length - 1];
 
         if (key) {
@@ -39,7 +40,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
           console.log(`S3 이미지 삭제 성공: ${key}`);
         }
       } catch (error) {
-        console.error(`S3 이미지 삭제 실패: ${qna.qnaImageUrl}`, error);
+        console.error(`S3 이미지 삭제 실패: ${qna.qnaFiles}`, error);
         // 이미지 삭제 실패는 로그만 남기고 계속 진행
       }
     }
@@ -99,7 +100,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     if (!qna) {
       return NextResponse.json({ error: "QnA를 찾을 수 없습니다." }, { status: 404 });
     }
-    return NextResponse.json(qna, { status: 200 });
+    return NextResponse.json({ success: true, data: qna }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "QnA 상세 조회 실패", message: error instanceof Error ? error.message : String(error) },

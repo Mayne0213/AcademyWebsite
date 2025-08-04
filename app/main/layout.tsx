@@ -1,9 +1,9 @@
 "use client";
 
-import Sidebar from "../MainStructureComponent/sidebar";
-import Navbar from "../MainStructureComponent/navbar";
+import Sidebar from "@/src/widgets/sidebar/MainSidebar";
+import Navbar from "@/src/widgets/navbar/MainNavbar";
 import { ReactNode, useState } from "react";
-import DeviceType from "@/components/home/deviceType";
+import DeviceType from "@/src/shared/lib/deviceType";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -1,4 +1,4 @@
-import { UserInfo } from "@/entities/user/model/types";
+import { UserInfo } from "@/src/entities/user/model/types";
 
 export interface QnaComment {
   user: UserInfo;

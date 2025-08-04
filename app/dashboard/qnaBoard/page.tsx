@@ -1,16 +1,17 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, Trash2 } from "lucide-react";
 import Link from "next/link";
-import Header from "@/app/DashboardStructureComponent/header";
-import { Pagination } from "@/shared/ui";
+import Header from "@/src/widgets/header/DashboardHeader";
+import { Pagination } from "@/src/shared/ui";
 import { useAuth } from "@/contexts/authContexts";
 import { useQna } from "@/components/hooks/useQna";
-import DeviceType, { useDeviceDetect } from "@/components/home/deviceType";
-import AttachedFile from "@/components/attachedFile";
+import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
+
 import { QnaCommentFormInput } from "@/components/type/qnaType";
-import { FORMATS } from "@/shared/lib/formats";
+import { FORMATS } from "@/src/shared/lib/formats";
 
 interface ExpandedItems {
   [key: number]: boolean;
@@ -216,11 +217,7 @@ const QnaBoard: React.FC = () => {
                               <div className="text-gray-400">불러오는 중...</div>
                             ) : detail ? (
                               <>
-                                {/* 첨부된 이미지 표시 */}
-                                <AttachedFile
-                                  fileUrl={detail.qnaImageUrl || undefined}
-                                  isCompact={isCompact}
-                                />
+
                                 <p
                                   className={`text-gray-700 leading-relaxed whitespace-pre-wrap ${isCompact ? "text-base" : "text-lg"}`}
                                 >
