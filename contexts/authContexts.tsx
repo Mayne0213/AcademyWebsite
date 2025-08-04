@@ -7,11 +7,11 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import { UserInfo } from "@/entities/user/model/types";
+import { UserInfo } from "@/src/entities/user/model/types";
 import {
   useAuthFeatureStore,
   useAuthRouting,
-} from "@/features/signIn/api/index";
+} from "@/src/features/signIn/api/index";
 
 // 인증 컨텍스트 타입 정의
 interface AuthContextType {

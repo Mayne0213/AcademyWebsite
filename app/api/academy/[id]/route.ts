@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
-
-const s3Client = new S3Client({
-  region: "ap-northeast-2",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+import { prisma } from "@/prisma/client";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client } from "@/src/shared/config/api";
 
 export async function PUT(
   req: Request,
@@ -17,73 +10,56 @@ export async function PUT(
   try {
     const id = Number(params.id);
     const body = await req.json();
-    
-    const { academyName, academyPhone, academyAddress, images, mainImageUrl } = body;
 
-    // 1. Academy 정보 수정
+    const { academyName, academyPhone, academyAddress, files, deletedFiles } = body;
+
+    // Academy 정보 수정
     const updated = await prisma.academy.update({
       where: { academyId: id },
       data: { 
         academyName, 
         academyPhone, 
         academyAddress,
-        academyMainImage: mainImageUrl || null,
       },
     });
 
-    // 2. 기존 이미지 모두 삭제 전 S3에서도 삭제
-    const prevImages = await prisma.academyImage.findMany({ where: { academyId: id } });
-    for (const img of prevImages) {
-      if (img.academyImageUrl) {
-        try {
-          // S3 URL에서 key 추출
-          const bucketUrl = "https://jooeng.s3.ap-northeast-2.amazonaws.com/";
-          if (img.academyImageUrl.startsWith(bucketUrl)) {
-            const key = img.academyImageUrl.substring(bucketUrl.length);
-            const command = new DeleteObjectCommand({
-              Bucket: "jooeng",
-              Key: key,
-            });
-            await s3Client.send(command);
-          }
-        } catch (e) {
-          console.error("S3 이미지 삭제 실패:", img.academyImageUrl, e);
-        }
-      }
-    }
-    await prisma.academyImage.deleteMany({ where: { academyId: id } });
-    if (images && Array.isArray(images) && images.length > 0) {
-      await prisma.academyImage.createMany({
-        data: images.map((img: any) => ({
+    // 삭제된 파일들 처리
+    if (deletedFiles && deletedFiles.length > 0) {
+      await prisma.academyFile.deleteMany({
+        where: {
           academyId: id,
-          academyImageUrl: img.url,
-          academyImageName: img.name || (img.url ? decodeURIComponent(img.url.split('/').pop() || "") : "")
-        })),
+          fileId: {
+            in: deletedFiles
+          }
+        }
       });
     }
 
-    // 3. images 포함해서 반환
-    const academyWithImages = await prisma.academy.findUnique({
+    // 파일 연결 (파일이 있는 경우)
+    if (files && files.length > 0) {
+      const academyFileConnections = files.map((file: any) => ({
+        academyId: id,
+        fileId: file.fileId,
+      }));
+
+      await prisma.academyFile.createMany({
+        data: academyFileConnections,
+      });
+    }
+
+    // 수정된 Academy 정보 조회 (파일 포함)
+    const resultWithFiles = await prisma.academy.findUnique({
       where: { academyId: id },
-      include: { academyImages: true },
+      include: {
+        academyFiles: {
+          include: {
+            file: true
+          }
+        },
+      },
     });
 
-    const bucketUrl = "https://jooeng.s3.ap-northeast-2.amazonaws.com/";
-    return NextResponse.json({
-      ...academyWithImages,
-      mainImageUrl: academyWithImages?.academyMainImage
-        ? (academyWithImages.academyMainImage.startsWith("http")
-            ? academyWithImages.academyMainImage
-            : bucketUrl + (academyWithImages.academyMainImage.startsWith("/") ? academyWithImages.academyMainImage.slice(1) : academyWithImages.academyMainImage))
-        : undefined,
-      images: (academyWithImages?.academyImages || []).map(img => ({
-        url: img.academyImageUrl.startsWith("http")
-          ? img.academyImageUrl
-          : bucketUrl + (img.academyImageUrl.startsWith("/") ? img.academyImageUrl.slice(1) : img.academyImageUrl),
-        name: img.academyImageName,
-        type: "image/*",
-      })),
-    }, { status: 200 });
+    return NextResponse.json({ success: true, data: resultWithFiles }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] 학원 수정 실패:", error);
     return NextResponse.json(
@@ -103,26 +79,67 @@ export async function DELETE(
   try {
     const id = Number(params.id);
 
-    // 삭제 전 모든 이미지 S3에서 삭제
-    const prevImages = await prisma.academyImage.findMany({ where: { academyId: id } });
-    for (const img of prevImages) {
-      if (img.academyImageUrl) {
+    // 삭제하기 전에 학원 정보와 첨부 파일 정보 가져오기
+    const academyWithFiles = await prisma.academy.findUnique({
+      where: { academyId: id },
+      include: {
+        academyStudents: true,
+        academyAdmins: true,
+        academyFiles: {
+          include: {
+            file: true
+          }
+        }
+      },
+    });
+
+    if (!academyWithFiles) {
+      return NextResponse.json(
+        { success: false, message: "존재하지 않는 학원입니다." },
+        { status: 404 },
+      );
+    }
+
+    if (academyWithFiles.academyStudents.length > 0) {
+      return NextResponse.json(
+        { success: false, message: "소속된 학생이 존재하여 삭제할 수 없습니다." },
+        { status: 409 },
+      );
+    }
+
+    if (academyWithFiles.academyAdmins.length > 0) {
+      return NextResponse.json(
+        { success: false, message: "소속된 관리자가 존재하여 삭제할 수 없습니다." },
+        { status: 409 },
+      );
+    }
+
+    // S3에서 첨부 파일들 삭제
+    if (academyWithFiles.academyFiles && academyWithFiles.academyFiles.length > 0) {
+      const deletePromises = academyWithFiles.academyFiles.map(async (academyFile: any) => {
         try {
-          const bucketUrl = "https://jooeng.s3.ap-northeast-2.amazonaws.com/";
-          if (img.academyImageUrl.startsWith(bucketUrl)) {
-            const key = img.academyImageUrl.substring(bucketUrl.length);
+          // S3 URL에서 key 추출
+          const urlParts = academyFile.file.fileUrl.split("/");
+          const key = urlParts[urlParts.length - 1];
+
+          if (key) {
             const command = new DeleteObjectCommand({
               Bucket: "jooeng",
               Key: key,
             });
             await s3Client.send(command);
+            console.log(`S3 파일 삭제 성공: ${key}`);
           }
-        } catch (e) {
-          console.error("S3 이미지 삭제 실패:", img.academyImageUrl, e);
+        } catch (error) {
+          console.error(`S3 파일 삭제 실패: ${academyFile.file.fileUrl}`, error);
+          // S3 삭제 실패는 로그만 남기고 계속 진행
         }
-      }
+      });
+
+      await Promise.all(deletePromises);
     }
 
+    // Academy 삭제 (AcademyFile은 CASCADE로 자동 삭제됨)
     await prisma.academy.delete({
       where: { academyId: id },
     });

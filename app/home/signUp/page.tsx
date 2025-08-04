@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import BackgroundDot from "@/components/home/backgroundDot";
-import SignUpForm from "@/features/signUp/ui/SignUpForm";
+import BackgroundDot from "@/src/shared/ui/BackgroundDot";
+import SignUpForm from "@/src/features/signUp/ui/SignUpForm";
 
 const SignUpPage = () => {
   return (

@@ -1,7 +1,15 @@
 import { toast } from "sonner";
 import { create }from "zustand";
-import { Textbook } from "../type/textbookType";
-import TextbookData from "@/database/textbook.json";
+import TextbookData from "@/app/main/(교재 관리)/textbookManagement/textbook.json";
+
+interface Textbook{
+    textbookId: number,
+    textbookName: string,
+    createdAt: string,
+    updatedAt: string,
+    category: string,
+    favorite?: boolean,
+}
 
 interface TextbookState {
     textbooks: Textbook[];

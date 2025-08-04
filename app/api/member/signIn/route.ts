@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function POST(req: Request) {
@@ -22,11 +22,7 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "아이디 또는 비밀번호가 일치하지 않습니다.",
-        },
-        { status: 401 },
+        { success: false, message: "아이디 또는 비밀번호가 일치하지 않습니다."}, { status: 401 },
       );
     }
 
@@ -34,11 +30,7 @@ export async function POST(req: Request) {
 
     if (!isPasswordCorrect) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "아이디 또는 비밀번호가 일치하지 않습니다.",
-        },
-        { status: 401 },
+        { success: false, message: "아이디 또는 비밀번호가 일치하지 않습니다."}, { status: 401 },
       );
     }
 
@@ -74,9 +66,6 @@ export async function POST(req: Request) {
     const tokenCookie = serialize("token", token, cookieOptions);
     // const roleCookie = serialize("role", user.role, cookieOptions);
 
-    console.log("설정할 쿠키:", tokenCookie);
-    console.log("토큰:", token);
-
     const response = NextResponse.json({
       success: true,
       data: {
@@ -85,9 +74,7 @@ export async function POST(req: Request) {
         memberId: user.memberId,
         role: user.role,
       },
-    });
-    console.log("응답 데이터:", userId, name, user.memberId, user.role);
-
+    }, { status: 200 });
     response.headers.append("Set-Cookie", tokenCookie);
     // response.headers.append("Set-Cookie", roleCookie);
 

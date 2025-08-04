@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 
 export async function GET(req: Request) {
@@ -85,7 +85,6 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("GET /api/member/me error:", error);
     return NextResponse.json(
       { success: false, message: "서버 오류가 발생했습니다.", user: null },
       { status: 500 },
@@ -174,7 +173,6 @@ export async function PATCH(req: Request) {
     });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("PATCH /api/member/me error:", error);
     return NextResponse.json(
       { success: false, message: "서버 오류가 발생했습니다." },
       { status: 500 },

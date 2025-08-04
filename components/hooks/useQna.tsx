@@ -28,7 +28,8 @@ export const useQna = create<QnaStatement>((set, get) => ({
       const res = await fetch(`/api/qnaPersonal`);
       if (!res.ok) throw new Error("Failed to fetch");
 
-      const data: Qna[] = await res.json();
+      const response = await res.json();
+      const data: Qna[] = response.data;
       set({ Qnas: data });
     } catch (error) {
       toast.error("QnA 로딩 중 오류가 발생했습니다.");
@@ -42,7 +43,8 @@ export const useQna = create<QnaStatement>((set, get) => ({
       const res = await fetch("/api/qna");
       if (!res.ok) throw new Error("Failed to fetch");
 
-      const data: Qna[] = await res.json();
+      const response = await res.json();
+      const data: Qna[] = response.data;
       console.log("[디버그] QnA 목록 fetch 결과:", data.map(q => ({ id: q.qnaId, title: q.qnaTitle, imageUrl: q.qnaImageUrl })));
       set({ Qnas: data });
     } catch (error) {
@@ -63,7 +65,8 @@ export const useQna = create<QnaStatement>((set, get) => ({
 
       if (!res.ok) throw new Error("질문글 추가 실패");
 
-      const created: Qna = await res.json();
+      const response = await res.json();
+      const created: Qna = response.data;
       console.log("[디버그] addQna 결과:", created);
 
       set((state) => ({
@@ -89,7 +92,8 @@ export const useQna = create<QnaStatement>((set, get) => ({
 
       if (!res.ok) throw new Error("댓글 추가 실패");
 
-      const createdComment = await res.json();
+      const response = await res.json();
+      const createdComment = response.data;
       console.log("[디버그] 댓글 추가 결과:", createdComment);
 
       // Zustand 상태 업데이트 - 해당 QnA의 댓글 목록에 새 댓글 추가
@@ -141,7 +145,8 @@ export const useQna = create<QnaStatement>((set, get) => ({
 
       if (!res.ok) throw new Error("질문글 수정 실패");
 
-      const data = await res.json();
+      const response = await res.json();
+      const data = response.data;
 
       set((state) => ({
         Qnas: state.Qnas.map((a) => (a.qnaId === data.qnaId ? data : a)),
@@ -255,7 +260,8 @@ export const useQna = create<QnaStatement>((set, get) => ({
         console.error(`[HOOK] QnA 상세 정보 로딩 실패: ${qnaId}`, res.status);
         return null;
       }
-      const data: Qna = await res.json();
+      const response = await res.json();
+      const data: Qna = response.data;
       console.log(`[디버그] QnA 상세 정보 fetch 결과:`, data);
       return data;
     } catch (error) {

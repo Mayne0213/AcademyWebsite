@@ -1,0 +1,1 @@
+export { useFileUpload } from '@/src/features/fileUpload/model/store'; 

@@ -1,6 +1,6 @@
 // app/api/student/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 
 export async function GET() {
   try {
@@ -9,11 +9,11 @@ export async function GET() {
         academy: true,
       },
     });
-    return NextResponse.json(students);
+    return NextResponse.json({ success: true, data: students });
   } catch (error) {
     console.error("GET /api/student error:", error);
     return NextResponse.json(
-      { message: "Failed to get students" },
+      { success: false, message: "학생 목록 조회에 실패했습니다." },
       { status: 500 },
     );
   }
@@ -59,11 +59,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, student: newStudent });
+    return NextResponse.json({ success: true, data: newStudent });
   } catch (error) {
     console.error("POST /api/student error:", error);
     return NextResponse.json(
-      { success: false, message: "Failed to create student" },
+      { success: false, message: "학생 생성에 실패했습니다." },
       { status: 500 },
     );
   }

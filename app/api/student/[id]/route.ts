@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 
 export async function DELETE(
   request: NextRequest,
@@ -56,7 +56,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(updatedStudent);
+    return NextResponse.json({ success: true, data: updatedStudent });
   } catch (error) {
     console.error("PUT /api/student/[id] error:", error);
     return NextResponse.json(

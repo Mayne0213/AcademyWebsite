@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 export async function PUT(
   req: Request,
   { params }: { params: { id: string; commentId: string } },
@@ -7,18 +7,20 @@ export async function PUT(
   try {
     const id = Number(params.id);
     const body = await req.json();
-    const { qnaTitle, qnaContent, qnaImageUrl } = body;
+    const { qnaTitle, qnaContent, qnaFiles } = body;
 
     const updated = await prisma.qnABoard.update({
       where: { qnaId: id },
       data: {
         qnaTitle,
         qnaContent,
-        qnaImageUrl,
+        qnaFiles: {
+          connect: qnaFiles.map((file: any) => ({ fileId: file.fileId })),
+        },
       },
     });
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json({ success: true, data: updated }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] 질문 수정 실패:", error);
     return NextResponse.json(

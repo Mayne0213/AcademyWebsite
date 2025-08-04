@@ -1,19 +1,21 @@
-import HomePageWelcome from "@/components/home/landingPage/homePageWelcome";
-import HomePageAnnouncement from "@/components/home/landingPage/homePageAnnouncement";
-import HomePageTeacherIntroductionDetails from "@/components/home/landingPage/homepageTeacherIntroductionDetails";
-import HomePageCurriculumIntroduction from "@/components/home/landingPage/homePageCurriculumIntroduction";
-import HomePageCurriculumDetails from "@/components/home/landingPage/homePageCurriculumDetails";
-import HomePageTextbookIntroduction from "@/components/home/landingPage/homePageTextbookIntroduction";
-import HomePageTextBookDetails from "@/components/home/landingPage/homePageTextBookDetails";
-import HomePageBookOfflineShowcase from "@/components/home/landingPage/homePageBookOfflineShowcase";
-import HomePageTestPaperIntroduction from "@/components/home/landingPage/homePageTestPaperIntroduction";
-import HomePageTestPaperDetails from "@/components/home/landingPage/homePageTestPaperDetails";
-import HomePageActualAdvertising from "@/components/home/landingPage/homePageActualAdvertising";
-import HomePageReviews from "@/components/home/landingPage/homePageReviews";
-import HomePageAcademyDepartments from "@/components/home/landingPage/homePageAcademyDepartments";
-import HomePageSNSLinks from "@/components/home/landingPage/homePageSNSLinks";
-import HomePageFloatingChatButton from "@/components/home/landingPage/homePageFloatingChatButton";
-import BackgroundDot from "@/components/home/backgroundDot";
+import {
+  LandingPageWelcome,
+  LandingPageAnnouncement,
+  LandingPageTeacherIntroductionDetails,
+  LandingPageCurriculumIntroduction,
+  LandingPageCurriculumDetails,
+  LandingPageTextbookIntroduction,
+  LandingPageTextBookDetails,
+  LandingPageBookOfflineShowcase,
+  LandingPageTestPaperIntroduction,
+  LandingPageTestPaperDetails,
+  LandingPageActualAdvertising,
+  LandingPageReviews,
+  LandingPageAcademyDepartments,
+  LandingPageSNSLinks,
+  LandingPageFloatingChatButton,
+} from "@/src/widgets/landingPage/ui/index";
+import BackgroundDot from "@/src/shared/ui/BackgroundDot";
 import Loading from "../loading";
 
 const Home = () => {
@@ -23,35 +25,35 @@ const Home = () => {
 
       <Loading />
 
-      <HomePageFloatingChatButton />
+      <LandingPageFloatingChatButton />
 
       <BackgroundDot />
 
-      <HomePageWelcome id="welcome-section"/>
+      <LandingPageWelcome id="welcome-section"/>
 
-      <HomePageAnnouncement />
+      <LandingPageAnnouncement />
 
-      <HomePageCurriculumIntroduction id="curriculum-section"/>
+      <LandingPageCurriculumIntroduction id="curriculum-section"/>
 
-      <HomePageCurriculumDetails /> {/* 리팩토링 필요 */}
+      <LandingPageCurriculumDetails /> {/* 리팩토링 필요 */}
 
-      <HomePageTextbookIntroduction id="textbook-section"/>
+      <LandingPageTextbookIntroduction id="textbook-section"/>
 
-      <HomePageTextBookDetails />
+      <LandingPageTextBookDetails />
 
-      <HomePageBookOfflineShowcase />
+      <LandingPageBookOfflineShowcase />
 
-      <HomePageTestPaperIntroduction id="testpaper-section"/>
+      <LandingPageTestPaperIntroduction id="testpaper-section"/>
 
-      <HomePageTestPaperDetails />
+      <LandingPageTestPaperDetails />
 
-      <HomePageActualAdvertising id="advertising-section"/>
+      <LandingPageActualAdvertising id="advertising-section"/>
 
-      <HomePageReviews />
+      <LandingPageReviews />
 
-      <HomePageAcademyDepartments />
+      <LandingPageAcademyDepartments />
 
-      <HomePageSNSLinks /> {/* 리팩토링 필요 */}
+      <LandingPageSNSLinks /> {/* 리팩토링 필요 */}
     </main>
   );
 };

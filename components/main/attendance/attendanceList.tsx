@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import AcademyFilter from "@/components/main/student/academyFilter";
-import { Pagination } from "@/shared/ui";
+import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
+import { Pagination } from "@/src/shared/ui";
 import AttendanceItem from "@/components/main/attendance/attendanceItem";
 import AllChangeToAttend from "./allChangeToAttend";
-import { SearchInput } from "@/shared/ui";
+import { SearchInput } from "@/src/shared/ui";
 
 interface AttendanceListProps {
   students: any[];
-  academys: any[];
+  academies: any[];
   paginatedUsers: any[];
   attendanceStatusMap: { [studentId: number]: string };
   searchTerm: string;
@@ -30,7 +30,7 @@ interface AttendanceListProps {
 
 const AttendanceList = ({
   students,
-  academys,
+  academies,
   paginatedUsers,
   attendanceStatusMap,
   searchTerm,
@@ -59,7 +59,7 @@ const AttendanceList = ({
             onAcademyChange={(academy) => {
               onAcademyChange(academy);
             }}
-            academys={academys}
+            academies={academies}
           />
           <AllChangeToAttend
             selectedAcademy={selectedAcademy}

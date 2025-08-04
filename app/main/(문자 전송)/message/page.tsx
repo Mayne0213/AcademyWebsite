@@ -1,16 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import useAcademy from "@/components/hooks/useAcademy";
-import { Button } from "@/components/ui/button";
+import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
+import { useAcademyStore } from "@/src/entities/academy/model/store";
+import { Button } from "@/src/shared/ui/button";
 import useFilteredSortedPaginatedUsers from "@/components/hooks/useFilteredSortedPaginatedUsers";
-import { Pagination } from "@/shared/ui";
-import { useStudentFeatureStore } from "@/features/studentCRUD/model/store";
-import { useStudentStore } from "@/entities/student/model/store";
+import { Pagination } from "@/src/shared/ui";
+import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
+import { useStudentStore } from "@/src/entities/student/model/store";
 
 const Message = () => {
-  const { academys, loadInitialAcademy } = useAcademy();
-  const { isLoading: studentsLoading, readStudents } = useStudentFeatureStore();
-  const { students, error } = useStudentStore();
+  const { readAcademies } = useAcademyFeatureStore();
+  const { academies } = useAcademyStore();
+  const { readStudents } = useStudentFeatureStore();
+  const { students } = useStudentStore();
 
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<string>("");
@@ -26,7 +28,7 @@ const Message = () => {
 
   const { paginatedUsers, totalPages } = useFilteredSortedPaginatedUsers({
     students,
-    academys,
+    academies,
     searchTerm,
     selectedAcademy,
     sortKey,
@@ -130,7 +132,7 @@ const handleAddSubItem = (sectionIndex: number | null, itemIndex: number | null,
 
 
   useEffect(() => {
-    loadInitialAcademy();
+    readAcademies();
     readStudents();
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -138,7 +140,7 @@ const handleAddSubItem = (sectionIndex: number | null, itemIndex: number | null,
   const handleAddGroup = () => {
     const trimmed = newGroupName.trim();
     if (trimmed === "") return;
-    if (academys.some((g) => g.academyName === trimmed)) {
+    if (academies.some((g) => g.academyName === trimmed)) {
       alert("이미 존재하는 그룹 이름입니다.");
       return;
     }
@@ -174,7 +176,7 @@ const handleAddSubItem = (sectionIndex: number | null, itemIndex: number | null,
       <div className="w-1/4 min-h-screen border-r bg-white p-6 rounded-l-xl flex flex-col justify-between">
         <div>
           <h2 className="text-lg font-sansKR-SemiBold mb-4">수신 그룹 목록</h2>
-          {academys.map((group) => (
+          {academies.map((group) => (
             <div
               key={group.academyId}
               onClick={() => {

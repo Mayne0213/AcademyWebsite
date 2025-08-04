@@ -2,10 +2,10 @@
 
 import React from "react";
 import { Suspense } from "react";
-import SubNavbar from "@/app/HomeStructureComponent/subNavbar";
+import SubNavbar from "@/src/widgets/navbar/HomeSubNavbar";
 import Loading from "@/app/loading";
-import DeviceType from "@/components/home/deviceType";
-import { useDeviceDetect } from "@/components/home/deviceType";
+import DeviceType from "@/src/shared/lib/deviceType";
+import { useDeviceDetect } from "@/src/shared/lib/deviceType";
 
 const getMarginClasses = (deviceType: DeviceType | null) => {
   if (!deviceType) return "";

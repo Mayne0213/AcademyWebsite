@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/shared/ui/button";
 
 interface AttendanceStatsPanelProps {
   selectedAcademy: string;

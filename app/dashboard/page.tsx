@@ -1,22 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { User } from "lucide-react";
-import useAnnouncement from "@/components/hooks/useAnnouncement";
+import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
+import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { useQna } from "@/components/hooks/useQna";
 import { useAuth } from "@/contexts/authContexts";
 import Link from "next/link";
-import { FORMATS } from "@/shared/lib/formats";
+import { FORMATS } from "@/src/shared/lib/formats";
+import DashboardFooter from "@/src/widgets/footer/DashboardFooter";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const {
-    isLoading,
-    announcements,
-    assets,
-    loadInitialAnnouncement,
-    loadInitialAsset,
-    isLoadingAssets,
-  } = useAnnouncement();
+  const { announcements, isLoading } = useAnnouncementStore();
+  const { readAnnouncements, readAssetAnnouncements } = useAnnouncementFeatureStore();
   const { Qnas, loadInitialPersonalQna, loadInitialQna } = useQna();
 
   const subTitles = [
@@ -27,7 +23,7 @@ export default function Dashboard() {
     "오늘의 힘듦이 내일의 큰 성취로 바뀔 거야. 끝까지 너 자신을 믿고 가자!",
     "너는 그 누구보다 강하고, 지금까지도 잘 해왔어. 조금만 더 힘내면 빛을 볼 날이 올 거야!",
     "실패는 성공의 일부야. 그걸 겪고 있는 너는 이미 성장 중이야.",
-    "완벽하지 않아도 괜찮아. 지금 최선을 다하고 있다는 게 가장 중요해.",
+    "완벽하지 않아도 괜찬아. 지금 최선을 다하고 있다는 게 가장 중요해.",
     "긴 터널 끝엔 반드시 빛이 있어. 너는 그 끝을 향해 잘 가고 있어.",
     "매일 쌓이는 작은 노력들이 결국 너를 원하는 곳으로 데려다줄 거야.",
     "비교하지 마. 너만의 속도로, 너만의 길을 가고 있는 중이야.",
@@ -42,6 +38,8 @@ export default function Dashboard() {
   const randomSubtitle = subTitles[Math.floor(Math.random() * subTitles.length)];
 
   const [subTitle, setSubTitle] = useState<string>("");
+  const [assets, setAssets] = useState<any[]>([]);
+  const [isLoadingAssets, setIsLoadingAssets] = useState(false);
 
   useEffect(() => {
     setSubTitle(randomSubtitle);
@@ -51,14 +49,33 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.memberId) return;
 
-    loadInitialAnnouncement(1, 4, false);
-    loadInitialAsset(1, 4);
+    // 공지사항 로드 (최신 4개만)
+    readAnnouncements(1, 4, false);
+
+    // 자료실 로드
+    const loadAssets = async () => {
+      setIsLoadingAssets(true);
+      try {
+        const result = await fetch('/api/announcement?asset=true&page=1&itemsPerPage=4');
+        if (result.ok) {
+          const data = await result.json();
+          setAssets(data.announcements || []);
+        }
+      } catch (error) {
+        console.error('자료실 로드 실패:', error);
+      } finally {
+        setIsLoadingAssets(false);
+      }
+    };
+
+    loadAssets();
+
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
       loadInitialQna();
     } else {
       loadInitialPersonalQna();
     }
-  }, [loadInitialAnnouncement, loadInitialAsset, loadInitialQna, loadInitialPersonalQna, user?.memberId, user?.role]);
+  }, [readAnnouncements, loadInitialQna, loadInitialPersonalQna, user?.memberId, user?.role]);
 
   return (
     <div className="bg-gray-50">
@@ -123,7 +140,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : announcements.length === 0 ? (
+            ) : !announcements || announcements.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -154,7 +171,7 @@ export default function Dashboard() {
                   >
                     <div className="flex justify-between items-start">
                       <div className="text-sm text-gray-900 flex-1 pr-2 truncate">
-                        {item.title}
+                        {item.announcementTitle}
                       </div>
                       <div className="text-xs text-gray-500 whitespace-nowrap">
                         {new Date(item.updatedAt).toLocaleDateString("ko-KR")}
@@ -230,7 +247,7 @@ export default function Dashboard() {
                   >
                     <div className="flex justify-between items-start">
                       <div className="text-sm text-gray-900 flex-1 pr-2 truncate">
-                        {item.title}
+                        {item.announcementTitle}
                       </div>
                       <div className="text-xs text-gray-500 whitespace-nowrap">
                         {new Date(item.updatedAt).toLocaleDateString("ko-KR")}
@@ -278,7 +295,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : Qnas.length === 0 ? (
+            ) : !Qnas || Qnas.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -320,15 +337,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 mt-16">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="text-center text-sm text-gray-500">
-            © 2025 주혜연 T 현강 알리미. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <DashboardFooter />
     </div>
   );
 }

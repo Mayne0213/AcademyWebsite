@@ -18,10 +18,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/src/shared/ui/dropdownMenu"
 
 import { useParams } from "next/navigation";
-import useStudents from "@/components/hooks/useStudents";
 
 export default function Dummy() {
   return <div>준비 중인 페이지입니다.</div>;

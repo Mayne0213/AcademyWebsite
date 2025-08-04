@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/authContexts";
 import { useRouter } from "next/navigation";
-import Header from "@/app/DashboardStructureComponent/header";
-import useAcademy from "@/components/hooks/useAcademy";
+import Header from "@/src/widgets/header/DashboardHeader";
+import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
+import { useAcademyStore } from "@/src/entities/academy/model/store";
 
 const PersonalInfoPage = () => {
   const { user, isLoading } = useAuth();
@@ -20,7 +21,8 @@ const PersonalInfoPage = () => {
     studentBirthYear: "",
   });
   const [initialForm, setInitialForm] = useState(form);
-  const { academys, loadInitialAcademy } = useAcademy();
+  const { readAcademies } = useAcademyFeatureStore();
+  const { academies } = useAcademyStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -57,8 +59,8 @@ const PersonalInfoPage = () => {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    loadInitialAcademy();
-  }, [loadInitialAcademy]);
+    readAcademies();
+  }, [readAcademies]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -175,7 +177,7 @@ const PersonalInfoPage = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value="">학원을 선택하세요</option>
-                  {academys.map((academy) => (
+                  {academies.map((academy) => (
                     <option key={academy.academyId} value={academy.academyId}>
                       {academy.academyName}
                     </option>

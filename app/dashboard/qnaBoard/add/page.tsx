@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQna } from "@/components/hooks/useQna";
-import Header from "@/app/DashboardStructureComponent/header";
+import Header from "@/src/widgets/header/DashboardHeader";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContexts";
-import { FileUpload } from "@/entities/file";
+
 
 interface QnaFormInput {
   qnaTitle: string;
@@ -141,14 +141,7 @@ const AddQnAPage = () => {
             </p>
           </div>
 
-          {/* 이미지 업로드 섹션 */}
-          <div>
-          <FileUpload
-              onUploadComplete={handleImageUploadComplete} 
-              onLoadingChange={handleImageUploadLoading}
-              folder="dashboard/qna" 
-            />
-          </div>
+
 
           <div className="flex justify-end">
             <button

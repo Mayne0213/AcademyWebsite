@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/prisma/client";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 페이지네이션 적용
+    // 페이지네이션 적용 - 최적화된 쿼리
     const [announcements, totalCount] = await prisma.$transaction([
       prisma.announcement.findMany({
         where: whereCondition,
@@ -76,22 +76,64 @@ export async function GET(req: NextRequest) {
         take: pageSize,
         select: {
           announcementId: true,
-          title: true,
+          announcementTitle: true,
+          announcementContent: true,
+          createdAt: true,
           updatedAt: true,
+          isItAssetAnnouncement: true,
           isItImportantAnnouncement: true,
+          authorId: true,
+          author: {
+            select: {
+              memberId: true,
+              adminName: true,
+            },
+          },
+          // 파일 개수만 가져오기 (상세 정보는 필요시에만)
+          _count: {
+            select: {
+              announcementFiles: true,
+            },
+          },
+          // 학원 정보는 필요한 경우에만
+          academies: {
+            select: {
+              academyId: true,
+              academyName: true,
+            },
+          },
         },
       }),
       prisma.announcement.count({ where: whereCondition }),
     ]);
 
-    return NextResponse.json({ announcements, totalCount }, { status: 200 });
+    // 프론트엔드에서 기대하는 형식으로 데이터 변환 - 최적화
+    const transformedAnnouncements = announcements.map(announcement => ({
+      announcementId: announcement.announcementId,
+      announcementTitle: announcement.announcementTitle,
+      announcementContent: announcement.announcementContent,
+      createdAt: announcement.createdAt,
+      updatedAt: announcement.updatedAt,
+      isItAssetAnnouncement: announcement.isItAssetAnnouncement,
+      isItImportantAnnouncement: announcement.isItImportantAnnouncement,
+      authorId: announcement.authorId,
+      author: announcement.author,
+      // 파일 개수만 포함 (상세 정보는 필요시에만 로드)
+      fileCount: announcement._count.announcementFiles,
+      announcementAcademies: announcement.academies,
+    }));
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        announcements: transformedAnnouncements,
+        totalCount: totalCount
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] 공지사항 조회 실패:", error);
     return NextResponse.json(
-      {
-        error: "공지사항 조회 실패",
-        message: error instanceof Error ? error.message : String(error),
-      },
+      { success: false, message: "공지사항 조회에 실패했습니다." },
       { status: 500 },
     );
   }
@@ -100,38 +142,59 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
     const {
-      title,
-      content,
+      announcementTitle,
+      announcementContent,
       authorId,
       isItAssetAnnouncement,
-      files, // [{ url, name, type }]
+      isItImportantAnnouncement,
+      files, // [{ fileId }]
       academyIds, // [1, 2, 3] - 선택된 학원 ID 배열
     } = body;
 
+    const announcementData = {
+      announcementTitle,
+      announcementContent,
+      authorId,
+      isItAssetAnnouncement,
+      isItImportantAnnouncement: body.isItImportantAnnouncement || false,
+      announcementFiles: files && files.length > 0
+        ? {
+            create: files.map((file: any) => ({
+              fileId: file.fileId,
+            })),
+          }
+        : undefined,
+      academies: academyIds && academyIds.length > 0
+        ? {
+            connect: academyIds.map((academyId: number) => ({ academyId })),
+          }
+        : undefined,
+    };
+
     const newAnnouncement = await prisma.announcement.create({
-      data: {
-        title,
-        content,
-        authorId,
-        isItAssetAnnouncement,
-        files: files && files.length > 0
-          ? {
-              create: files.map((file: any) => ({
-                key: file.url,
-                originalName: file.name,
-                fileType: file.type,
-              })),
-            }
-          : undefined,
-        academies: academyIds && academyIds.length > 0
-          ? {
-              connect: academyIds.map((academyId: number) => ({ academyId })),
-            }
-          : undefined,
-      },
+      data: announcementData,
       include: { 
-        files: true,
+        author: {
+          select: {
+            memberId: true,
+            adminName: true,
+          },
+        },
+        announcementFiles: {
+          include: {
+            file: {
+              select: {
+                fileId: true,
+                fileName: true,
+                originalName: true,
+                fileUrl: true,
+                fileType: true,
+              },
+            },
+          },
+        },
         academies: {
           select: {
             academyId: true,
@@ -141,14 +204,30 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(newAnnouncement, { status: 201 });
+    // 프론트엔드에서 기대하는 형식으로 데이터 변환
+    const transformedAnnouncement = {
+      announcementId: newAnnouncement.announcementId,
+      announcementTitle: newAnnouncement.announcementTitle,
+      announcementContent: newAnnouncement.announcementContent,
+      createdAt: newAnnouncement.createdAt,
+      updatedAt: newAnnouncement.updatedAt,
+      isItAssetAnnouncement: newAnnouncement.isItAssetAnnouncement,
+      isItImportantAnnouncement: newAnnouncement.isItImportantAnnouncement,
+      authorId: newAnnouncement.authorId,
+      author: newAnnouncement.author,
+      announcementFiles: newAnnouncement.announcementFiles.map(af => ({
+        fileId: af.fileId,
+        key: af.file.fileUrl,
+        originalName: af.file.originalName,
+        fileType: af.file.fileType,
+      })),
+      announcementAcademies: newAnnouncement.academies,
+    };
+
+    return NextResponse.json({ success: true, data: transformedAnnouncement }, { status: 201 });
   } catch (error) {
-    console.error("[API ERROR] 공지사항 생성 실패:", error);
     return NextResponse.json(
-      {
-        error: "공지사항 생성 실패",
-        message: error instanceof Error ? error.message : String(error),
-      },
+      { success: false, message: "공지사항 생성에 실패했습니다." },
       { status: 500 },
     );
   }

@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
+  output   = "../node_modules/.prisma/client"
+  binaryTargets = ["native"]
 }
 
 datasource db {
@@ -49,58 +50,77 @@ model Student {
   @@index([academyId], map: "Student_academyId_fkey")
 }
 
+model File {
+  fileId        Int      @id @default(autoincrement())
+  fileName      String
+  originalName  String
+  fileUrl       String
+  fileType      String
+  fileSize      Int?
+  createdAt     DateTime @default(now())
+
+  // 중간 테이블들을 통한 관계
+  academyFiles     AcademyFile[]
+  qnaFiles         QnaFile[]
+  announcementFiles AnnouncementFile[]
+
+  @@index([fileId])
+}
+
 model Academy {
   academyId        Int            @id @default(autoincrement())
   academyName      String         @unique
-  academyPhone     String?        @unique
+  academyPhone     String         @unique
   academyAddress   String
-  academyMainImage String?
-  academyImages    AcademyImage[]
+
   academyStudents  Student[]      @relation("AcademyToStudents")
   academyAdmins    Admin[]        @relation("AdminToAcademy")
   academyAnnouncements Announcement[] @relation("AnnouncementToAcademy")
+  academyFiles     AcademyFile[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt @default(now())
 }
 
-model AcademyImage {
-  academyImageId   Int      @id @default(autoincrement())
-  academyImageUrl  String
-  academyImageName String?
-  createdAt        DateTime @default(now())
-  academyId        Int
-  academy          Academy  @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
+model AcademyFile {
+  academyId Int
+  fileId    Int
 
-  @@index([academyId], map: "AcademyImage_academyId_fkey")
+  academy   Academy @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
+  file      File    @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+
+  @@id([academyId, fileId])
+  @@index([academyId])
+  @@index([fileId])
 }
+
 
 model Announcement {
   announcementId        Int                @id @default(autoincrement())
-  title                 String
-  content               String             @db.Text
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  announcementTitle                 String       @default("")
+  announcementContent               String       @default("")
   isItAssetAnnouncement Boolean            @default(false)
   isItImportantAnnouncement Boolean            @default(false)
+  announcementFiles     AnnouncementFile[]
   academies             Academy[]          @relation("AnnouncementToAcademy")
-  files                 AnnouncementFile[]
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
   authorId              Int?
   author                Admin?             @relation("AdminToAnnouncements", fields: [authorId], references: [memberId])
-
   @@index([authorId], map: "Announcement_authorId_fkey")
 }
 
 model AnnouncementFile {
-  id             Int          @id @default(autoincrement())
-  key            String
-  originalName   String
-  fileType       String
   announcementId Int
-  uploadedAt     DateTime     @default(now())
-  announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
+  fileId        Int
 
-  @@index([announcementId], map: "AnnouncementFile_announcementId_fkey")
+  announcement  Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
+  file          File         @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+
+  @@id([announcementId, fileId])
+  @@index([announcementId])
+  @@index([fileId])
 }
+
 
 model QnABoard {
   qnaId       Int               @id @default(autoincrement())
@@ -108,13 +128,24 @@ model QnABoard {
   qnaContent  String            @db.Text
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  qnaImageUrl String?
   qnaUserId   Int               // 기존 API와의 호환성을 위해 유지
   comments    QnABoardComment[] @relation("QnAWithComments")
-
+  qnaFiles    QnaFile[]
   student     Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([qnaUserId], map: "QnABoard_qnaUserId_fkey")
+}
+
+model QnaFile {
+  qnaId   Int
+  fileId  Int
+
+  qna     QnABoard @relation(fields: [qnaId], references: [qnaId], onDelete: Cascade)
+  file    File     @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+
+  @@id([qnaId, fileId])
+  @@index([qnaId])
+  @@index([fileId])
 }
 
 model QnABoardComment {
@@ -130,20 +161,6 @@ model QnABoardComment {
   @@index([commentUserId], map: "QnABoardComment_commentUserId_fkey")
   @@index([qnaId], map: "QnABoardComment_qnaId_fkey")
 }
-
-// model QnABoardComment {
-//   commentId      Int      @id @default(autoincrement())
-//   commentContent String   @db.Text
-//   commentUserId  Int
-//   qnaId          Int
-//   createdAt      DateTime @default(now())
-//   updatedAt      DateTime @updatedAt
-//   user           User     @relation("UserInQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
-//   qna            QnABoard @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
-
-//   @@index([commentUserId], map: "QnABoardComment_commentUserId_fkey")
-//   @@index([qnaId], map: "QnABoardComment_qnaId_fkey")
-// }
 
 enum Role {
   DEVELOPER

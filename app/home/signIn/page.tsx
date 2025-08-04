@@ -1,6 +1,6 @@
 import React from "react";
-import BackgroundDot from "@/components/home/backgroundDot";
-import LoginForm from "@/features/signIn/ui/LoginForm";
+import BackgroundDot from "@/src/shared/ui/BackgroundDot";
+import LoginForm from "@/src/features/signIn/ui/LoginForm";
 
 const LoginPage = () => {
   return (

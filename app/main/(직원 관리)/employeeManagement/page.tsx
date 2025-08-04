@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/src/shared/ui/button";
+import { Input } from "@/src/shared/ui/input";
 import { toast } from "sonner";
-import { UserInfo } from "@/components/type/userInfoType";
-import { AdminCard } from "@/entities/admin/ui/AdminCard";
+import { UserInfo } from "@/src/entities/user";
+import { AdminCard } from "@/src/entities/admin/ui/AdminCard";
 
 // 관리자 계정 생성 폼
 const AdminRegister = ({ onSuccess }: { onSuccess?: () => void }) => {
