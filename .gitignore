@@ -25,7 +25,7 @@
 *.pem
 
 # development tools
-/.trunk/
+.trunk/
 
 # debug
 npm-debug.log*
