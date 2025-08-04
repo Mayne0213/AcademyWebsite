@@ -1,2 +1,2 @@
 // Widgets - Main Export
-export * from './homePage'; 
+export * from './landingPage';
