@@ -9,6 +9,8 @@ export interface PaginationActions {
   setCurrentPage: (currentPage: number) => void;
   setItemsPerPage: (itemsPerPage: number) => void;
   setTotalCount: (totalCount: number) => void;
+  incrementTotalCount: () => void;
+  decrementTotalCount: () => void;
 }
 
 export interface PaginationStore extends PaginationState, PaginationActions {}

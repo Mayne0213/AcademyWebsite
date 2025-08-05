@@ -81,12 +81,6 @@ const CreateAnnouncement: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      
-      console.log("=== CREATING ANNOUNCEMENT REQUEST ===");
-      console.log("Form:", form);
-      console.log("Files:", files);
-      console.log("SelectedAcademyIds:", selectedAcademyIds);
-      console.log("User:", user);
 
       const newAnnouncement: CreateAnnouncementRequest = {
         announcementTitle: form.announcementTitle,
@@ -100,10 +94,7 @@ const CreateAnnouncement: React.FC = () => {
         academyIds: selectedAcademyIds.length > 0 ? selectedAcademyIds : undefined,
       };
 
-      console.log("=== FINAL REQUEST DATA ===");
-      console.log("Request:", JSON.stringify(newAnnouncement, null, 2));
-
-      await createAnnouncement(newAnnouncement);
+      createAnnouncement(newAnnouncement);
       
       if (form.isItAssetAnnouncement) {
         router.push('/dashboard/assets');

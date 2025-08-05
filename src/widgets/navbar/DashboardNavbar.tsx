@@ -32,7 +32,7 @@ export default function Navbar() {
               공지사항
             </a>
             <a
-              href="/dashboard/assets"
+              href="/dashboard/asset"
               className="text-gray-600 hover:text-gray-900 text-sm transition"
             >
               자료실

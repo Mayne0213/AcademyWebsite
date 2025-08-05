@@ -36,17 +36,13 @@ export const CreateAcademySchema = AcademySchema.pick({
   academyFiles: true,
 })
 
-export const UpdateAcademySchema = AcademySchema.pick({
-  academyName: true,
-  academyPhone: true,
-  academyAddress: true,
-  academyMainImage: true,
-  academyFiles: true,
-}).partial().refine(
-  (data) => Object.keys(data).some(key => data[key as keyof typeof data] !== undefined),
-  { message: '업데이트할 필드가 없습니다.' }
-).extend({
-  academyFiles: z.array(AcademyFileSchema).optional(), // 이미지 배열을 선택적으로 만들고 유연하게 처리
+export const UpdateAcademySchema = z.object({
+  academyId: z.number().positive('유효하지 않은 학원 ID입니다.'),
+  academyName: z.string().min(1, "학원 이름을 입력해 주세요."),
+  academyPhone: z.string().min(1, "전화번호를 입력해 주세요."),
+  academyAddress: z.string().min(1, "주소를 입력해 주세요."),
+  files: z.array(z.any()).optional(),
+  deletedFiles: z.array(z.number()).optional(),
 });
 
 // 타입 안전성을 위한 타입 체크 함수

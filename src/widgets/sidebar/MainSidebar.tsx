@@ -30,8 +30,11 @@ const Sidebar = ({ deviceCondition, isOpen, onClose }: SidebarProps) => {
 
       {/* 사이드바 컨테이너 */}
       <div
-        className="bg-white z-50 w-[250px] fixed top-0 left-0 h-full"
-        style={{ overflowY: "auto" }}
+        className="bg-white z-50 w-[250px] fixed top-0 left-0 h-full overflow-y-scroll scrollbar-hide"
+        style={{
+          scrollbarWidth: 'none', /* Firefox */
+          msOverflowStyle: 'none'  /* Internet Explorer 10+ */
+        }}
       >
         {/* 헤더 */}
         <SidebarHeader isMobile={isMobile} onClose={onClose} />

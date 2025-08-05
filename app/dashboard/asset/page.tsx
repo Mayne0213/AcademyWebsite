@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { useAuth } from "@/contexts/authContexts";
 import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
@@ -64,11 +64,11 @@ const EmptyState = () => (
 
   const { announcements, isLoading } = useAnnouncementStore();
   const { totalCount, currentPage, setCurrentPage } = usePaginationStore();
-  const { readAssetAnnouncements, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
+  const { readAnnouncements, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
 
   useEffect(() => {
-    readAssetAnnouncements(currentPage, ITEMS_PER_PAGE);
-  }, [currentPage, readAssetAnnouncements]);
+    readAnnouncements(currentPage, ITEMS_PER_PAGE, true);
+  }, [currentPage, readAnnouncements]);
 
   const handleToggleImportant = async (announcement: Announcement) => {
     await toggleImportantAnnouncement(announcement.announcementId, !announcement.isItImportantAnnouncement);

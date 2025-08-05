@@ -7,10 +7,12 @@ import { useAnnouncementFeatureStore } from "../model/store";
 
 interface CreateAnnouncementProps {
   onCancel: () => void;
+  isAssetOnly?: boolean;
 }
 
 const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
   onCancel,
+  isAssetOnly = false,
 }) => {
   const { user } = useAuth();
   const { createAnnouncement } = useAnnouncementFeatureStore();
@@ -22,7 +24,7 @@ const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
     announcementTitle: "",
     announcementContent: "",
     authorId: user?.memberId as number,
-    isItAssetAnnouncement: false,
+    isItAssetAnnouncement: isAssetOnly,
     isItImportantAnnouncement: false,
     announcementFiles: [],
     academies: [],

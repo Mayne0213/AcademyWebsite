@@ -9,14 +9,20 @@ export const useStudentFeatureStore = () => {
 
   const readStudents = useCallback(async () => {
     entityStore.setLoading(true);
-    entityStore.readStudents(await studentApi.getStudents());
-    entityStore.setLoading(false);
+    try {
+      entityStore.readStudents(await studentApi.getStudents());
+    } finally {
+      entityStore.setLoading(false);
+    }
   }, [entityStore]);
 
   const updateStudent = useCallback(async (updatedStudent: Student) => {
     entityStore.setLoading(true);
-    entityStore.updateStudent(await studentApi.updateStudent(updatedStudent.memberId, updatedStudent));
-    entityStore.setLoading(false);
+    try {
+      entityStore.updateStudent(await studentApi.updateStudent(updatedStudent.memberId, updatedStudent));
+    } finally {
+      entityStore.setLoading(false);
+    }
   }, [entityStore]);
 
   return {

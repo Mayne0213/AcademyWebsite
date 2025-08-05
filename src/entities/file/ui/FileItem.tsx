@@ -61,10 +61,10 @@ const FileItem = ({ file }: FileItemProps) => {
   }
 
   return (
-    <div className={`flex items-center justify-between p-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors`}>
-      <div className="flex items-center space-x-3 flex-1 min-w-0">
+    <div onClick={handleFileDownload} className={`flex items-center justify-between py-2 px-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer`}>
+      <div className="flex items-center space-x-3 flex-1">
         {getFileIcon(fileType)}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1">
           <p className="text-sm font-medium text-gray-900 truncate">
             {fileName}
           </p>
@@ -81,15 +81,6 @@ const FileItem = ({ file }: FileItemProps) => {
             <Eye className="w-4 h-4" />
           </button>
         )}
-        
-        {/* 다운로드 버튼 */}
-        <button
-          onClick={handleFileDownload}
-          className="p-2 text-gray-500 hover:text-green-600 transition-colors rounded-md hover:bg-green-50"
-          title="다운로드"
-        >
-          <Download className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { Announcement } from "@/src/entities/announcement/model/types";
 interface ReadAnnouncementProps {
   announcements: Announcement[];
   isLoading: boolean;
+  isAssetOnly?: boolean;
 }
 
 const AnnouncementSkeleton = () => {
@@ -47,6 +48,7 @@ const AnnouncementSkeleton = () => {
 const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
   announcements,
   isLoading,
+  isAssetOnly = false,
 }) => {
   if (isLoading) {
     return (
@@ -75,6 +77,7 @@ const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
           <AnnouncementItemWithUD
             key={announcement.announcementId}
             announcement={announcement}
+            isAssetOnly={isAssetOnly}
           />
         ))}
       </ul>

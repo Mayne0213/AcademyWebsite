@@ -9,38 +9,61 @@ import { toast } from "sonner";
 export const userApi = {
   // 현재 사용자 정보 조회
   getCurrentUser: async (): Promise<UserInfo> => {
-    return await apiGet<UserInfo>(API_ENDPOINTS.AUTH.ME);
+    try {
+      return await apiGet<UserInfo>(API_ENDPOINTS.AUTH.ME);
+    } catch (error) {
+      throw error;
+    }
   },
 
   // 사용자 생성은 회원가입 페이지에서 처리
 
   // 사용자 정보 수정 (간단한 validation)
   updateUser: async (updatedUser: Partial<UserInfo>): Promise<UserInfo> => {
-    USER_VALIDATION.validateUserInfoForUpdate(updatedUser);
+    try {
+      USER_VALIDATION.validateUserInfoForUpdate(updatedUser);
 
-    const result = await apiPut<UserInfo>(`${API_ENDPOINTS.AUTH.ME}`, updatedUser);
-    toast.success("사용자 정보가 성공적으로 수정되었습니다.");
+      const result = await apiPut<UserInfo>(`${API_ENDPOINTS.AUTH.ME}`, updatedUser);
+      toast.success("사용자 정보가 성공적으로 수정되었습니다.");
 
-    return result;
+      return result;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("validation")) {
+        toast.error("입력 정보를 확인해주세요.");
+      }
+      throw error;
+    }
   },
 
   // 사용자 삭제
   deleteUser: async (userId: number): Promise<void> => {
-    await apiDelete<void>(`${API_ENDPOINTS.AUTH.ME}`);
-    toast.success("계정이 성공적으로 삭제되었습니다.");
+    try {
+      await apiDelete<void>(`${API_ENDPOINTS.AUTH.ME}`);
+      toast.success("계정이 성공적으로 삭제되었습니다.");
+    } catch (error) {
+      throw error;
+    }
   },
 
   // 로그인
   signIn: async (credentials: { userId: string; userPassword: string }): Promise<UserInfo> => {
-    const result = await apiPost<UserInfo>(API_ENDPOINTS.AUTH.SIGN_IN, credentials);
-    toast.success("로그인이 성공적으로 완료되었습니다.");
+    try {
+      const result = await apiPost<UserInfo>(API_ENDPOINTS.AUTH.SIGN_IN, credentials);
+      toast.success("로그인이 성공적으로 완료되었습니다.");
 
-    return result;
+      return result;
+    } catch (error) {
+      throw error;
+    }
   },
 
   // 로그아웃
   signOut: async (): Promise<void> => {
-    await apiPost<void>(API_ENDPOINTS.AUTH.SIGN_OUT, {});
-    toast.success("로그아웃되었습니다.");
+    try {
+      await apiPost<void>(API_ENDPOINTS.AUTH.SIGN_OUT, {});
+      toast.success("로그아웃되었습니다.");
+    } catch (error) {
+      throw error;
+    }
   },
 };
