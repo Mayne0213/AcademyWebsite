@@ -8,17 +8,25 @@ import { toast } from "sonner";
 // 파일 API 관련 함수들
 export const fileApi = {
   getDownloadUrl: async (fileKey: string): Promise<string> => {
-    const result = await apiPost<{ downloadUrl: string }>(API_ENDPOINTS.FILE.DOWNLOAD_URL, { fileKey });
-    return result.downloadUrl;
+    try {
+      const result = await apiPost<{ downloadUrl: string }>(API_ENDPOINTS.FILE.DOWNLOAD_URL, { fileKey });
+      return result.downloadUrl;
+    } catch (error) {
+      throw error;
+    }
   },
 
   // S3 업로드 URL 생성
   getUploadUrl: async (fileName: string, fileType: string): Promise<{ uploadUrl: string; fileKey: string }> => {
-    const result = await apiPost<{ uploadUrl: string; fileKey: string }>(API_ENDPOINTS.FILE.UPLOAD_URL, {
-      fileName,
-      fileType,
-    });
-    return result;
+    try {
+      const result = await apiPost<{ uploadUrl: string; fileKey: string }>(API_ENDPOINTS.FILE.UPLOAD_URL, {
+        fileName,
+        fileType,
+      });
+      return result;
+    } catch (error) {
+      throw error;
+    }
   },
 
   // S3에 파일 업로드
@@ -47,24 +55,35 @@ export const fileApi = {
 
   // 파일 생성
   createFile: async (fileData: CreateFileRequest): Promise<File> => {
-    const validation = FILE_VALIDATION.validateFileForCreate(fileData);
-    if (!validation.isValid) {
-      const errorMessage = validation.errors[0] || '유효하지 않은 파일 데이터입니다.';
-      toast.error(errorMessage);
-      throw new Error(errorMessage);
+    try {
+      const validation = FILE_VALIDATION.validateFileForCreate(fileData);
+      if (!validation.isValid) {
+        const errorMessage = validation.errors[0] || '유효하지 않은 파일 데이터입니다.';
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      const result = await apiPost<File>(API_ENDPOINTS.FILE.BASE, fileData);
+      toast.success("파일이 성공적으로 생성되었습니다.");
+
+      return result;
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("validation")) {
+        toast.error("입력 정보를 확인해주세요.");
+      }
+      throw error;
     }
-
-    const result = await apiPost<File>(API_ENDPOINTS.FILE.BASE, fileData);
-    toast.success("파일이 성공적으로 생성되었습니다.");
-
-    return result;
   },
 
   // 파일 삭제 (DB + S3)
   deleteFile: async (fileId: number): Promise<number> => {
-    await apiDelete<void>(`${API_ENDPOINTS.FILE.BASE}?fileId=${fileId}`);
-    toast.success("파일이 성공적으로 삭제되었습니다.");
+    try {
+      await apiDelete<void>(`${API_ENDPOINTS.FILE.BASE}?fileId=${fileId}`);
+      toast.success("파일이 성공적으로 삭제되었습니다.");
 
-    return fileId;
+      return fileId;
+    } catch (error) {
+      throw error;
+    }
   },
 };

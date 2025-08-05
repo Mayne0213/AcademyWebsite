@@ -15,7 +15,8 @@ import {
   UserRoundPen,
   Book,
   Building,
-  MessageCircleQuestion
+  MessageCircleQuestion,
+  Paperclip
 } from "lucide-react";
 
 const tabs = [
@@ -46,7 +47,7 @@ const tabs = [
         description: "",
       },
       {
-        label: "학습 과제",
+        label: "과제 관리",
         icon: LucideBookMarked,
         href: "/main/assignments",
         description: "",
@@ -66,6 +67,12 @@ const tabs = [
         label: "학원 공지",
         icon: Megaphone,
         href: "/main/announcement",
+        description: "",
+      },
+      {
+        label: "학원 자료실",
+        icon: Paperclip,
+        href: "/main/asset",
         description: "",
       },
       {

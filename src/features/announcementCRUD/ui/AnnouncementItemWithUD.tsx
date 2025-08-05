@@ -17,10 +17,12 @@ import { FORMATS } from "@/src/shared/lib/formats";
 
 interface Props {
   announcement: Announcement;
+  isAssetOnly?: boolean;
 }
 
 const AnnouncementItemWithUD: React.FC<Props> = ({
   announcement,
+  isAssetOnly = false,
 }) => {
   const { readAnnouncementById, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -33,7 +35,7 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
       "정말 삭제하시겠습니까?\n삭제된 글은 복구될 수 없습니다.",
     );
     if (confirmed) {
-      deleteAnnouncement(announcement.announcementId);
+      deleteAnnouncement(announcement.announcementId, isAssetOnly);
     }
   };
 

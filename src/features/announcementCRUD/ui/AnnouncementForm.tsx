@@ -146,7 +146,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
       />
       
       {/* 자료실 업로드 체크박스 */}
-      <div className="flex items-center space-x-2 mb-2">
+      {/* <div className="flex items-center space-x-2 mb-2">
         <input
           type="checkbox"
           name="isItAssetAnnouncement"
@@ -158,7 +158,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
         <label htmlFor="isItAssetAnnouncement" className="text-sm text-gray-700 select-none">
           자료실로 업로드
         </label>
-      </div>
+      </div> */}
 
       {/* 파일 업로드 섹션 */}
       <div className="mb-4">

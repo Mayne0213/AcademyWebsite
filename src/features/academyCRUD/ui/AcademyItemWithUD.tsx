@@ -12,12 +12,7 @@ interface Props {
 
 const AcademyItemWithUD: React.FC<Props> = ({ academy }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { updateAcademy, deleteAcademy } = useAcademyFeatureStore();
-
-  const handleUpdate = (updateData: { academyId: number; academyName: string; academyPhone: string; academyAddress: string; files?: any[]; deletedFiles?: number[] }) => {
-    updateAcademy(updateData.academyId, updateData);
-    setIsEditing(false);
-  };
+  const { deleteAcademy } = useAcademyFeatureStore();
 
   const handleDelete = () => {
     const confirmed = window.confirm(
@@ -33,7 +28,6 @@ const AcademyItemWithUD: React.FC<Props> = ({ academy }) => {
       <li className="border p-4 rounded-lg shadow-sm">
         <UpdateAcademy
           academy={academy}
-          onUpdate={handleUpdate}
           onCancel={() => setIsEditing(false)}
         />
       </li>

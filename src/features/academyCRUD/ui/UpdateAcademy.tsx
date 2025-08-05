@@ -3,18 +3,19 @@ import { Button } from "@/src/shared/ui/button";
 import { Academy, AcademyFile } from "@/src/entities/academy/model/types";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file";
 import type { File as FileType } from "@/src/entities/file/model/types";
+import { useAcademyFeatureStore } from "../model/store";
+import { ACADEMY_VALIDATION } from "@/src/entities/academy/model/validation";
 
 interface UpdateAcademyProps {
   academy: Academy;
-  onUpdate: (updateData: { academyId: number; academyName: string; academyPhone: string; academyAddress: string; files?: FileType[]; deletedFiles?: number[] }) => void;
   onCancel: () => void;
 }
 
 const UpdateAcademy: React.FC<UpdateAcademyProps> = ({
   academy,
-  onUpdate,
   onCancel,
 }) => {
+  const { updateAcademy } = useAcademyFeatureStore();
   const [form, setForm] = useState({
     academyName: academy.academyName,
     academyPhone: academy.academyPhone,
@@ -44,10 +45,6 @@ const UpdateAcademy: React.FC<UpdateAcademyProps> = ({
     setUploadedFiles(prev => [...prev, file]);
   };
 
-  const handleUploadError = (error: string) => {
-    console.error('Upload error:', error);
-  };
-
   const handleFileDelete = (fileId: number) => {
     // 기존 파일에서 삭제하고 deletedFiles에 추가
     const deletedFile = existingFiles.find(file => file.fileId === fileId);
@@ -60,20 +57,17 @@ const UpdateAcademy: React.FC<UpdateAcademyProps> = ({
     }
   };
 
-
-
-  const handleSubmit = () => {
-    const updateData = {
-      academyId: academy.academyId,
-      academyName: form.academyName,
-      academyPhone: form.academyPhone,
-      academyAddress: form.academyAddress,
-      files: uploadedFiles,
-      deletedFiles: deletedFiles,
-    };
-
-    onUpdate(updateData);
-    onCancel();
+  const handleSubmit = async () => {
+      const updateData = {
+        academyId: academy.academyId,
+        academyName: form.academyName,
+        academyPhone: form.academyPhone,
+        academyAddress: form.academyAddress,
+        files: uploadedFiles,
+        deletedFiles: deletedFiles,
+      };
+      ACADEMY_VALIDATION.validateAcademyForUpdate(updateData);
+      updateAcademy(updateData.academyId, updateData);
   };
 
   return (

@@ -8,12 +8,19 @@ import { useAuth } from "@/contexts/authContexts";
 import Link from "next/link";
 import { FORMATS } from "@/src/shared/lib/formats";
 import DashboardFooter from "@/src/widgets/footer/DashboardFooter";
+import { Announcement } from "@/src/entities/announcement/model/types";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { announcements, isLoading } = useAnnouncementStore();
-  const { readAnnouncements, readAssetAnnouncements } = useAnnouncementFeatureStore();
+  const { isLoading } = useAnnouncementStore();
+  const { readAnnouncements } = useAnnouncementFeatureStore();
   const { Qnas, loadInitialPersonalQna, loadInitialQna } = useQna();
+
+  // 대시보드 전용 임시 상태
+  const [dashboardAnnouncements, setDashboardAnnouncements] = useState<Announcement[]>([]);
+  const [dashboardAssets, setDashboardAssets] = useState<Announcement[]>([]);
+  const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(true);
+  const [isLoadingAssets, setIsLoadingAssets] = useState(true);
 
   const subTitles = [
     "너의 오늘이 내일의 성과로 이어질 거야. 매 순간을 소중히 여기고, 끝까지 밀고 나가자!",
@@ -38,8 +45,6 @@ export default function Dashboard() {
   const randomSubtitle = subTitles[Math.floor(Math.random() * subTitles.length)];
 
   const [subTitle, setSubTitle] = useState<string>("");
-  const [assets, setAssets] = useState<any[]>([]);
-  const [isLoadingAssets, setIsLoadingAssets] = useState(false);
 
   useEffect(() => {
     setSubTitle(randomSubtitle);
@@ -49,26 +54,27 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user?.memberId) return;
 
-    // 공지사항 로드 (최신 4개만)
-    readAnnouncements(1, 4, false);
-
-    // 자료실 로드
-    const loadAssets = async () => {
-      setIsLoadingAssets(true);
+    // 공지사항과 자료실을 각각 별도로 로드
+    const loadDashboardData = async () => {
       try {
-        const result = await fetch('/api/announcement?asset=true&page=1&itemsPerPage=4');
-        if (result.ok) {
-          const data = await result.json();
-          setAssets(data.announcements || []);
-        }
+        // 공지사항 로드 (isAssetOnly = false)
+        setIsLoadingAnnouncements(true);
+        const announcementResult = await readAnnouncements(1, 4, false);
+        setDashboardAnnouncements(announcementResult.announcements);
+        setIsLoadingAnnouncements(false);
+
+        // 자료실 로드 (isAssetOnly = true)
+        setIsLoadingAssets(true);
+        const assetResult = await readAnnouncements(1, 4, true);
+        setDashboardAssets(assetResult.announcements);
+        setIsLoadingAssets(false);
       } catch (error) {
-        console.error('자료실 로드 실패:', error);
-      } finally {
+        setIsLoadingAnnouncements(false);
         setIsLoadingAssets(false);
       }
     };
 
-    loadAssets();
+    loadDashboardData();
 
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
       loadInitialQna();
@@ -118,7 +124,7 @@ export default function Dashboard() {
               </a>
             </div>
 
-            {isLoading ? (
+            {isLoadingAnnouncements ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -140,7 +146,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : !announcements || announcements.length === 0 ? (
+            ) : !dashboardAnnouncements || dashboardAnnouncements.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -163,7 +169,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {announcements.slice(0, 4).map((item, index) => (
+                {dashboardAnnouncements.slice(0, 4).map((item, index) => (
                   <Link
                     key={index}
                     href={`/dashboard/announcement`}
@@ -190,7 +196,7 @@ export default function Dashboard() {
                 자료실
               </h3>
               <a
-                href="/dashboard/assets"
+                href="/dashboard/asset"
                 className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
               >
                 전체보기 →
@@ -218,7 +224,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : !assets || assets.length === 0 ? (
+            ) : !dashboardAssets || dashboardAssets.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -239,7 +245,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {assets.slice(0, 4).map((item, index) => (
+                {dashboardAssets.slice(0, 4).map((item, index) => (
                   <Link
                     key={index}
                     href={`/dashboard/assets`}

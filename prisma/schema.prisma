@@ -27,8 +27,8 @@ model Admin {
   adminPhone   String         @unique
   adminPosition String         @default("조교")
   adminMemo     String?
-  announcement Announcement[] @relation("AdminToAnnouncements")
-  academy      Academy[]      @relation("AdminToAcademy")
+  announcements Announcement[] @relation("AdminToAnnouncements")
+  academies      Academy[]      @relation("AdminToAcademy")
 
   memberId     Int            @id
   user         User           @relation("UserToAdmin", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
@@ -111,7 +111,7 @@ model Announcement {
 
 model AnnouncementFile {
   announcementId Int
-  fileId        Int
+  fileId        Int @default(0)  //여기 default 나중에 제거할 것
 
   announcement  Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
   file          File         @relation(fields: [fileId], references: [fileId], onDelete: Cascade)

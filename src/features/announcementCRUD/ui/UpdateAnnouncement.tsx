@@ -19,7 +19,6 @@ const UpdateAnnouncement: React.FC<UpdateAnnouncementProps> = ({
     setIsSubmitting(true);
     await updateAnnouncement(formData.announcementId, formData);
     setIsSubmitting(false);
-    onCancel();
   };
 
   return (

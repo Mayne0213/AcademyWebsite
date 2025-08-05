@@ -119,8 +119,7 @@ const UpdateAnnouncement: React.FC = () => {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
+    setIsSubmitting(true);
       
       const updatedAnnouncement = {
         announcementId: announcement.announcementId,
@@ -134,13 +133,9 @@ const UpdateAnnouncement: React.FC = () => {
         academyIds: selectedAcademyIds,
       };
 
-      await updateAnnouncement(announcement.announcementId, updatedAnnouncement);
-      router.push('/dashboard/announcement');
-    } catch (err) {
-      toast.error('수정 중 오류가 발생했습니다.');
-    } finally {
+      updateAnnouncement(announcement.announcementId, updatedAnnouncement);
       setIsSubmitting(false);
-    }
+      router.push('/dashboard/announcement');
   };
 
   if (loading) {

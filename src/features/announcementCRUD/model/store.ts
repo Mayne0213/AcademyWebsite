@@ -13,74 +13,72 @@ export const useAnnouncementFeatureStore = () => {
 
   const readAnnouncements = useCallback(async (page: number, itemsPerPage: number, isAssetOnly: boolean = false) => {
     entityStore.setLoading(true);
-    const result = await announcementApi.getAnnouncements(page, itemsPerPage, isAssetOnly);
-    entityStore.readAnnouncements(result.announcements);
-    paginationStore.setTotalCount(result.totalCount);
-    paginationStore.setCurrentPage(page);
-    paginationStore.setItemsPerPage(itemsPerPage);
-    entityStore.setLoading(false);
-    return result;
+    try {
+      const result = await announcementApi.getAnnouncements(page, itemsPerPage, isAssetOnly);
+      entityStore.readAnnouncements(result.announcements);
+      paginationStore.setTotalCount(result.totalCount);
+      paginationStore.setCurrentPage(page);
+      paginationStore.setItemsPerPage(itemsPerPage);
+      return result;
+    } finally {
+      entityStore.setLoading(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createAnnouncement = useCallback(async (newAnnouncement: CreateAnnouncementRequest) => {
     entityStore.setLoading(true);
-    const result = await announcementApi.createAnnouncement(newAnnouncement);
-    entityStore.createAnnouncement(result);
-    const currentPage = paginationStore.currentPage;
-    const itemsPerPage = paginationStore.itemsPerPage;
-    await readAnnouncements(currentPage, itemsPerPage, false);
-    
-    entityStore.setLoading(false);
-    return result;
-  }, [entityStore, paginationStore, readAnnouncements]);
+    try {
+      const result = await announcementApi.createAnnouncement(newAnnouncement);
+      entityStore.createAnnouncement(result);
+      paginationStore.incrementTotalCount();
+
+      return result;
+    } finally {
+      entityStore.setLoading(false);
+    }
+  }, [entityStore, paginationStore]);
 
   const updateAnnouncement = useCallback(async (announcementId: number, updateData: { announcementId: number; announcementTitle: string; announcementContent: string; isItAssetAnnouncement: boolean; isItImportantAnnouncement: boolean; files?: any[]; academyIds?: number[] }) => {
     entityStore.setLoading(true);
-    const result = await announcementApi.updateAnnouncement(announcementId, updateData);
-    entityStore.updateAnnouncement(result);
-    
-    if (result.isItAssetAnnouncement) {
-      entityStore.deleteAnnouncement(announcementId);
+    try {
+      const result = await announcementApi.updateAnnouncement(announcementId, updateData);
+      entityStore.updateAnnouncement(result);
+
+      // 자료실 공지로 변경된 경우 현재 목록에서 제거하고 목록 새로고침
+      if (result.isItAssetAnnouncement) {
+        entityStore.deleteAnnouncement(announcementId);
+        const currentPage = paginationStore.currentPage;
+        const itemsPerPage = paginationStore.itemsPerPage;
+        await readAnnouncements(currentPage, itemsPerPage, true);
+      }
+
+      return result;
+    } finally {
+      entityStore.setLoading(false);
     }
-    
-    entityStore.setLoading(false);
-    
-    return result;
-  }, [entityStore]);
+  }, [entityStore, paginationStore, readAnnouncements]);
 
   const deleteAnnouncement = useCallback(async (announcementId: number) => {
     entityStore.setLoading(true);
+    try {
+      const announcement = entityStore.announcements.find(a => a.announcementId === announcementId);
+      if (announcement && announcement.announcementFiles && announcement.announcementFiles.length > 0) {
+        await deleteAnnouncementFiles(announcement.announcementFiles);
+      }
 
-    const announcement = entityStore.announcements.find(a => a.announcementId === announcementId);
-    if (announcement && announcement.announcementFiles && announcement.announcementFiles.length > 0) {
-      await deleteAnnouncementFiles(announcement.announcementFiles);
+      // 공지사항 삭제 (DB, 상태 관리)
+      const deletedId = await announcementApi.deleteAnnouncement(announcementId);
+      entityStore.deleteAnnouncement(deletedId);
+
+      // totalCount를 직접 감소시킴
+      paginationStore.decrementTotalCount();
+
+      return deletedId;
+    } finally {
+      entityStore.setLoading(false);
     }
-
-    // 공지사항 삭제 (DB, 상태 관리)
-    const deletedId = await announcementApi.deleteAnnouncement(announcementId);
-    entityStore.deleteAnnouncement(deletedId);
-    
-    // 공지 삭제 후 목록 새로고침하여 totalCount 업데이트
-    const currentPage = paginationStore.currentPage;
-    const itemsPerPage = paginationStore.itemsPerPage;
-    await readAnnouncements(currentPage, itemsPerPage, false);
-    
-    entityStore.setLoading(false);
-    return deletedId;
-  }, [deleteAnnouncementFiles, entityStore, paginationStore, readAnnouncements]);
-
-  const readAssetAnnouncements = useCallback(async (page: number, itemsPerPage: number) => {
-    entityStore.setLoading(true);
-    const result = await announcementApi.getAssetAnnouncements(page, itemsPerPage);
-    entityStore.readAnnouncements(result.announcements);
-    paginationStore.setTotalCount(result.totalCount);
-    paginationStore.setCurrentPage(page);
-    paginationStore.setItemsPerPage(itemsPerPage);
-    entityStore.setLoading(false);
-    return result;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [deleteAnnouncementFiles, entityStore, paginationStore]);
 
   const readAnnouncementById = useCallback(async (announcementId: number) => {
     return await announcementApi.getAnnouncementById(announcementId);
@@ -88,10 +86,13 @@ export const useAnnouncementFeatureStore = () => {
 
   const toggleImportantAnnouncement = useCallback(async (announcementId: number, isItImportantAnnouncement: boolean) => {
     entityStore.setLoading(true);
-    const result = await announcementApi.toggleImportantAnnouncement(announcementId, isItImportantAnnouncement);
-    entityStore.updateAnnouncement(result);
-    entityStore.setLoading(false);
-    return result;
+    try {
+      const result = await announcementApi.toggleImportantAnnouncement(announcementId, isItImportantAnnouncement);
+      entityStore.updateAnnouncement(result);
+      return result;
+    } finally {
+      entityStore.setLoading(false);
+    }
   }, [entityStore]);
 
   return {
@@ -101,6 +102,5 @@ export const useAnnouncementFeatureStore = () => {
     updateAnnouncement,
     toggleImportantAnnouncement,
     deleteAnnouncement,
-    readAssetAnnouncements,
   };
 }; 

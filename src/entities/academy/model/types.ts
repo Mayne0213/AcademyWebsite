@@ -44,6 +44,5 @@ export interface UpdateAcademyRequest {
   academyName?: string;
   academyPhone?: string;
   academyAddress?: string;
-  academyMemo?: string;
   updatedAt: Date;
 }

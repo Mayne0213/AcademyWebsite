@@ -13,6 +13,12 @@ export const usePaginationStore = create<PaginationStore>((set) => ({
   
   setTotalCount: (totalCount: number) => set({ totalCount }),
   
+    // totalCount를 증가시키는 메서드
+  incrementTotalCount: () => set((state) => ({ totalCount: state.totalCount + 1 })),
+
+  // totalCount를 감소시키는 메서드
+  decrementTotalCount: () => set((state) => ({ totalCount: Math.max(0, state.totalCount - 1) })),
+
 }));
 
 // totalPages를 계산하는 selector 함수

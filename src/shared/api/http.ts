@@ -59,8 +59,7 @@ export const apiGet = async <T>(url: string): Promise<T> => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     toast.error(errorMessage);
-    // 에러를 다시 throw하지 않고 null이나 기본값 반환
-    return null as T;
+    throw new Error(errorMessage);
   }
 };
 
@@ -86,7 +85,7 @@ export const apiPost = async <T>(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     toast.error(errorMessage);
-    return null as T;
+    throw new Error(errorMessage);
   }
 };
 
@@ -111,7 +110,7 @@ export const apiPut = async <T>(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     toast.error(errorMessage);
-    return null as T;
+    throw new Error(errorMessage);
   }
 };
 
@@ -132,7 +131,7 @@ export const apiDelete = async <T>(url: string): Promise<T> => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
     toast.error(errorMessage);
-    return null as T;
+    throw new Error(errorMessage);
   }
 };
 
