@@ -9,7 +9,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="bg-gray-200 min-h-screen w-full flex font-sansKR-Regular">
+    <div className="w-full flex font-sansKR-Regular">
       {/* 사이드바 - 데스크톱에서는 항상 표시, 모바일에서는 조건부 표시 */}
       <div className="hidden desktop:block">
         <Sidebar
@@ -28,12 +28,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       )}
 
-      <div className="w-full flex flex-col min-h-screen desktop:ml-[250px] mt-[60px]">
+      <div className="w-full flex flex-col h-screen desktop:ml-[250px] pt-[60px]">
         <Navbar
           onChange={() => setSidebarOpen(!sidebarOpen)}
         />
 
-        <div className="p-[20px] w-full flex-1">{children}</div>
+        <div className="px-[20px] pt-[20px] w-full flex-1 overflow- bg-gray-200">{children}</div>
       </div>
     </div>
   );

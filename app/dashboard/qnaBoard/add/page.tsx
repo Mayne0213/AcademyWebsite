@@ -6,13 +6,14 @@ import { useQna } from "@/components/hooks/useQna";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/authContexts";
-
+import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
+import type { File as FileEntity } from "@/src/entities/file/model/types";
 
 interface QnaFormInput {
   qnaTitle: string;
   qnaContent: string;
   qnaUserId: number;
-  qnaImageUrl?: string;
+  qnaFiles?: { fileId: number }[];
 }
 
 const AddQnAPage = () => {
@@ -25,10 +26,10 @@ const AddQnAPage = () => {
     qnaContent: "",
   });
 
-  // 업로드된 이미지 URL 상태 관리
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  // 파일 업로드 상태 관리
+  const [files, setFiles] = useState<FileEntity[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isImageUploading, setIsImageUploading] = useState(false); // 이미지 업로드 로딩 상태 추가
+  const [isFileUploading, setIsFileUploading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -40,21 +41,21 @@ const AddQnAPage = () => {
     }));
   };
 
-  // 이미지 업로드 완료 시 호출되는 함수
-  const handleImageUploadComplete = (imageUrl: string) => {
-    setUploadedImageUrl(imageUrl);
-    toast.success("이미지가 성공적으로 업로드되었습니다!");
+  // 파일 업로드 완료 시 호출되는 함수
+  const handleFileUploadComplete = (file: FileEntity) => {
+    setFiles(prev => [...prev, file]);
+    toast.success("파일이 성공적으로 업로드되었습니다!");
   };
 
-  // 이미지 업로드 로딩 상태 핸들러
-  const handleImageUploadLoading = (isLoading: boolean) => {
-    setIsImageUploading(isLoading);
+  // 파일 삭제 함수
+  const handleFileDelete = (fileId: number) => {
+    setFiles(prev => prev.filter(file => file.fileId !== fileId));
+    toast.info("파일이 제거되었습니다.");
   };
 
-  // 업로드된 이미지 제거 함수
-  const handleRemoveImage = () => {
-    setUploadedImageUrl("");
-    toast.info("이미지가 제거되었습니다.");
+  // 파일 업로드 로딩 상태 핸들러
+  const handleFileUploadLoading = (isLoading: boolean) => {
+    setIsFileUploading(isLoading);
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -82,7 +83,9 @@ const AddQnAPage = () => {
         qnaTitle: form.qnaTitle.trim(),
         qnaContent: form.qnaContent.trim(),
         qnaUserId: user.memberId,
-        qnaImageUrl: uploadedImageUrl || "",
+        qnaFiles: files.map(file => ({
+          fileId: file.fileId,
+        })),
       };
 
       addQna(newQna);
@@ -141,14 +144,39 @@ const AddQnAPage = () => {
             </p>
           </div>
 
-
+          {/* 파일 업로드 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              첨부 파일
+            </label>
+            <FileUploadDropzone
+              onUploadComplete={handleFileUploadComplete}
+              multiple={true}
+              folder="qna-files"
+              className="mb-4"
+            />
+            
+            {/* 업로드된 파일 목록 */}
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium text-gray-700">업로드된 파일:</h4>
+                {files.map((file) => (
+                  <FileDisplay
+                    key={file.fileId}
+                    file={file}
+                    onDelete={handleFileDelete}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={isSubmitting || isImageUploading} // 이미지 업로드 중에도 비활성화
+              disabled={isSubmitting || isFileUploading}
               className={`px-4 py-2 rounded-md transition-all duration-200 ${
-                isSubmitting || isImageUploading
+                isSubmitting || isFileUploading
                   ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
@@ -158,10 +186,10 @@ const AddQnAPage = () => {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 inline-block"></div>
                   등록 중...
                 </>
-              ) : isImageUploading ? (
+              ) : isFileUploading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 inline-block"></div>
-                  이미지 업로드 중...
+                  파일 업로드 중...
                 </>
               ) : (
                 "질문 등록"

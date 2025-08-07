@@ -9,12 +9,21 @@ import { Pagination } from "@/src/shared/ui";
 import { useAuth } from "@/contexts/authContexts";
 import { useQna } from "@/components/hooks/useQna";
 import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
+import { FileDisplay } from "@/src/entities/file/ui";
 
 import { QnaCommentFormInput } from "@/components/type/qnaType";
 import { FORMATS } from "@/src/shared/lib/formats";
+import { apiGet } from "@/src/shared/api";
 
 interface ExpandedItems {
   [key: number]: boolean;
+}
+
+interface ExpandedDetail {
+  qnaContent: string;
+  qnaImageUrl: string | null;
+  comments: any[];
+  qnaFiles: any[];
 }
 
 const QnaBoard: React.FC = () => {
@@ -101,15 +110,15 @@ const QnaBoard: React.FC = () => {
     if (expandedItems[globalIndex] || expandedDetails[qnaId]) return;
     setLoadingDetails((prev) => ({ ...prev, [qnaId]: true }));
     try {
-      const res = await fetch(`/api/qna/${qnaId}`);
-      if (res.ok) {
-        const data = await res.json();
+      const data = await apiGet<any>(`/api/qna/${qnaId}`);
+      if (data) {
         setExpandedDetails((prev) => ({
           ...prev,
           [qnaId]: {
             qnaContent: data.qnaContent,
-            qnaImageUrl: data.qnaImageUrl,
+            qnaImageUrl: data.qnaFiles?.[0]?.file?.fileUrl,
             comments: data.comments || [],
+            qnaFiles: data.qnaFiles || [],
           },
         }));
       }
@@ -149,7 +158,7 @@ const QnaBoard: React.FC = () => {
                 Qnas.slice(startIndex, endIndex).map((item, index) => {
                   const globalIndex = startIndex + index;
                   const isExpanded = expandedItems[globalIndex];
-                  const detail = expandedDetails[item.qnaId];
+                  const detail = expandedDetails[item.qnaId] as ExpandedDetail | undefined;
                   const isDetailLoading = loadingDetails[item.qnaId];
                   return (
                     <div
@@ -217,12 +226,30 @@ const QnaBoard: React.FC = () => {
                               <div className="text-gray-400">불러오는 중...</div>
                             ) : detail ? (
                               <>
-
                                 <p
                                   className={`text-gray-700 leading-relaxed whitespace-pre-wrap ${isCompact ? "text-base" : "text-lg"}`}
                                 >
                                   {detail.qnaContent || "내용이 없습니다."}
                                 </p>
+
+                                {/* 첨부 파일 섹션 */}
+                                {detail.qnaFiles && detail.qnaFiles.length > 0 && (
+                                  <div className="mt-4">
+                                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                                      첨부 파일 ({detail.qnaFiles.length}개)
+                                    </h4>
+                                    <div className="space-y-2">
+                                      {detail.qnaFiles.map((fileItem: any) => (
+                                        <FileDisplay
+                                          key={fileItem.fileId}
+                                          file={fileItem.file}
+                                          onDelete={() => {}} // 읽기 전용이므로 빈 함수
+                                          showDelete={false}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </>
                             ) : (
                               <div className="text-gray-400">상세 정보를 불러올 수 없습니다.</div>
