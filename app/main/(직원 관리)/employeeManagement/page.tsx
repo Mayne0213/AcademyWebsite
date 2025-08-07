@@ -103,9 +103,15 @@ const AdminList = ({ onEdit, onDelete }: { onEdit?: (admin: any) => void; onDele
     setLoading(true);
     try {
       const res = await fetch("/api/admin");
-      const data = await res.json();
-      setAdmins(data);
+      const result = await res.json();
+      if (result.success && Array.isArray(result.data)) {
+        setAdmins(result.data);
+      } else {
+        setAdmins([]);
+        toast.error("관리자 목록을 불러오지 못했습니다.");
+      }
     } catch {
+      setAdmins([]);
       toast.error("관리자 목록을 불러오지 못했습니다.");
     } finally {
       setLoading(false);

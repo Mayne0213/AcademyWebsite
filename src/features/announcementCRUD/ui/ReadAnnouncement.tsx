@@ -77,7 +77,6 @@ const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
           <AnnouncementItemWithUD
             key={announcement.announcementId}
             announcement={announcement}
-            isAssetOnly={isAssetOnly}
           />
         ))}
       </ul>

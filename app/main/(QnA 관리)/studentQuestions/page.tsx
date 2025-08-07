@@ -4,51 +4,38 @@ import { Button } from '@/src/shared/ui/button';
 import { useEffect, useState } from 'react';
 import { useQna } from "@/components/hooks/useQna";
 import { useAuth } from "@/contexts/authContexts";
-
-// 타입 정의
-interface Question {
-  id: number;
-  title: string;
-  content: string;
-  answer?: string;
-  answeredBy?: string;
-  createdAt: string;
-  updatedAt?: string;
-  history?: { answer: string; updatedAt: string }[];
-  hidden?: boolean;
-}
+import { apiGet } from "@/src/shared/api";
+import { FileDisplay } from '@/src/entities/file/ui';
+import { Trash2 } from 'lucide-react';
 
 export default function AdminQuestionBoard() {
   const { Qnas, loadInitialQna, addComment, deleteQna, deleteCommentFromQna } = useQna();
   const { user } = useAuth();
   const [selected, setSelected] = useState<any>(null);
+  const [selectedDetail, setSelectedDetail] = useState<any>(null);
   const [answer, setAnswer] = useState("");
   const [responder, setResponder] = useState("");
   const [filter, setFilter] = useState<'all' | 'answered' | 'unanswered'>('all');
   const [search, setSearch] = useState('');
-  const [desc, setDesc] = useState(true);
 
   useEffect(() => {
     loadInitialQna();
   }, [loadInitialQna]);
 
-  // QnA 필터링/정렬
-  const filtered = Qnas
-    .filter((q) => filter === 'answered' ? q.comments?.length : filter === 'unanswered' ? !q.comments?.length : true)
-    .filter((q) =>
-      q.qnaTitle.toLowerCase().includes(search.toLowerCase()) ||
-      q.qnaContent.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) =>
-      desc
-        ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
-
-  const handleView = (q: any) => {
+  const handleView = async (q: any) => {
     setSelected(q);
     setAnswer("");
     setResponder("");
+    
+    // 상세 정보 로드
+    try {
+      const data = await apiGet<any>(`/api/qna/${q.qnaId}`);
+      if (data) {
+        setSelectedDetail(data);
+      }
+    } catch (error) {
+      console.error("QnA 상세 정보 로드 실패:", error);
+    }
   };
 
   const handleSave = async () => {
@@ -62,13 +49,45 @@ export default function AdminQuestionBoard() {
     setAnswer("");
     setResponder("");
     loadInitialQna();
+    // 상세 정보 다시 로드
+    handleView(selected);
   };
 
   const handleHide = async (id: number) => {
     await deleteQna(id);
     setSelected(null);
+    setSelectedDetail(null);
     loadInitialQna();
   };
+
+  const handleDeleteComment = async (qnaId: number, commentId: number) => {
+    if (confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
+      await deleteCommentFromQna(qnaId, commentId);
+      // 상세 정보 다시 로드
+      if (selected) {
+        handleView(selected);
+      }
+    }
+  };
+
+  // 필터링된 QnA 목록
+  const filteredQnas = Qnas.filter(q => {
+    const matchesSearch = q.qnaTitle.toLowerCase().includes(search.toLowerCase()) ||
+                         q.qnaContent.toLowerCase().includes(search.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    const hasComments = q.comments && q.comments.length > 0;
+    
+    switch (filter) {
+      case 'answered':
+        return hasComments;
+      case 'unanswered':
+        return !hasComments;
+      default:
+        return true;
+    }
+  });
 
   return (
     <main className="min-h-screen bg-white rounded-xl p-8 text-gray-800">
@@ -119,7 +138,7 @@ export default function AdminQuestionBoard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 min-h-screen">
         <section className="border rounded-lg shadow-sm">
           <ul>
-            {filtered.map((q) => (
+            {filteredQnas.map((q) => (
               <li
                 key={q.qnaId}
                 className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${selected?.qnaId === q.qnaId ? 'bg-gray-100' : ''}`}
@@ -129,6 +148,7 @@ export default function AdminQuestionBoard() {
                   <div>
                     <h3 className="font-semibold text-lg">{q.qnaTitle}</h3>
                     <p className="text-sm text-gray-500">{new Date(q.createdAt).toLocaleString()}</p>
+                    <p className="text-sm text-gray-600">{q.student?.studentName || "알 수 없음"}</p>
                   </div>
                   <span className={`text-sm font-medium ${(q.comments && q.comments.length > 0) ? 'text-green-600' : 'text-red-500'}`}>
                     {(q.comments && q.comments.length > 0) ? '답변 완료' : '미답변'}
@@ -141,45 +161,114 @@ export default function AdminQuestionBoard() {
 
         <section>
           {selected ? (
-            <div className="bg-gray-50 border rounded-lg shadow-sm p-4 space-y-4 min-h-screen">
-              <h2 className="text-xl font-bold">{selected.qnaTitle}</h2>
-              <p className="whitespace-pre-wrap text-gray-700">{selected.qnaContent}</p>
-              <textarea
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                className="w-full border rounded p-2 h-32"
-                placeholder="답변을 입력하세요"
-              />
-              <input
-                type="text"
-                value={responder}
-                onChange={(e) => setResponder(e.target.value)}
-                placeholder="답변자 이름"
-                className="border p-2 rounded w-full"
-              />
-              <div className="flex gap-2 justify-end">
-                <Button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >답변 저장</Button>
-                <Button
-                  onClick={() => handleHide(selected.qnaId)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >질문 숨기기</Button>
+            <div className="bg-white border rounded-lg shadow-sm min-h-screen">
+              {/* 제목 및 메타데이터 */}
+              <div className="border-b p-6">
+                <h2 className="text-xl font-sansKR-SemiBold text-gray-900 mb-3">{selected.qnaTitle}</h2>
+                <div className="flex items-center text-sm text-gray-500 space-x-4">
+                  <span>작성자: {selected.student?.studentName || "알 수 없음"}</span>
+                  <span>|</span>
+                  <span>작성일: {new Date(selected.createdAt).toLocaleDateString()}</span>
+                </div>
               </div>
-              {selected.comments && selected.comments.length > 0 && (
-                <div>
-                  <h3 className="font-semibold">수정 이력</h3>
-                  <ul className="list-disc list-inside text-sm text-gray-600">
-                    {selected.comments.map((h: any, i: number) => (
-                      <li key={i}>[{new Date(h.createdAt).toLocaleString()}] {h.commentContent}</li>
-                    ))}
-                  </ul>
+
+              {/* 질문 내용 */}
+              <div className="p-6">
+                <div className="text-gray-800 leading-relaxed">
+                  {selected.qnaContent}
+                </div>
+                
+                {/* 첨부 파일 표시 */}
+                {selectedDetail?.qnaFiles && selectedDetail.qnaFiles.length > 0 && (
+                  <div className="mt-6 pt-6 border-t">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                      첨부 파일 ({selectedDetail.qnaFiles.length}개)
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedDetail.qnaFiles.map((fileItem: any) => (
+                        <FileDisplay
+                          key={fileItem.fileId}
+                          file={fileItem.file}
+                          showDelete={false}
+                          className="bg-gray-50"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 답변 목록 */}
+              {selectedDetail?.comments && selectedDetail.comments.length > 0 && (
+                <div className="border-t bg-gray-50">
+                  <div className="p-6">
+                    <h3 className="font-sansKR-SemiBold text-gray-900 mb-4">답변 ({selectedDetail.comments.length}개)</h3>
+                    <div className="space-y-4">
+                      {selectedDetail.comments.map((comment: any) => (
+                        <div key={comment.commentId} className="bg-white rounded-lg p-4 border shadow-sm">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-900">
+                                {comment?.admin?.adminName || 
+                                 comment?.student?.studentName || 
+                                 "알 수 없음"}
+                              </span>
+                              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                {comment?.adminId? '관리자' : '학생'}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="text-xs text-gray-400">
+                                {new Date(comment.createdAt).toLocaleString()}
+                              </div>
+                              <button
+                                onClick={() => handleDeleteComment(selected.qnaId, comment.commentId)}
+                                className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                title="댓글 삭제"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                          <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                            {comment.commentContent}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
+
+              {/* 답변 작성 */}
+              <div className="border-t p-6 bg-white">
+                <h3 className="font-sansKR-SemiBold text-gray-900 mb-3">새 답변 작성</h3>
+                <textarea
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-3 h-32 mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                  placeholder="답변을 입력하세요"
+                />
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    onClick={handleSave}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    답변 저장
+                  </Button>
+                  <Button
+                    onClick={() => handleHide(selected.qnaId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    질문 숨기기
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
-            <p className="text-gray-500">왼쪽에서 질문을 선택하세요.</p>
+            <div className="bg-white border rounded-lg shadow-sm p-8 text-center">
+              <p className="text-gray-500 text-lg">왼쪽에서 질문을 선택하세요.</p>
+            </div>
           )}
         </section>
       </div>

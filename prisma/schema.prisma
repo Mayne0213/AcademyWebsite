@@ -19,7 +19,6 @@ model User {
 
   student      Student?          @relation("UserToStudent")
   admin        Admin?            @relation("UserToAdmin")
-  qnaComments  QnABoardComment[] @relation("UserInQnAComment")
 }
 
 model Admin {
@@ -29,6 +28,9 @@ model Admin {
   adminMemo     String?
   announcements Announcement[] @relation("AdminToAnnouncements")
   academies      Academy[]      @relation("AdminToAcademy")
+  qnaComments   QnABoardComment[] @relation("AdminToQnAComment")
+  counselingSchedules    CounselingSchedule[] @relation("AdminToCounselingSchedule")
+  counselingReservations CounselingReservation[] @relation("AdminToCounselingReservation")
 
   memberId     Int            @id
   user         User           @relation("UserToAdmin", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
@@ -42,6 +44,8 @@ model Student {
   studentBirthYear  Int
   studentMemo       String?
   qnas              QnABoard[]        @relation("StudentToQnA")
+  qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
+  counselingReservations CounselingReservation[] @relation("StudentToCounselingReservation")
 
   memberId          Int     @id
   user              User    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
@@ -93,7 +97,6 @@ model AcademyFile {
   @@index([fileId])
 }
 
-
 model Announcement {
   announcementId        Int                @id @default(autoincrement())
   announcementTitle                 String       @default("")
@@ -129,6 +132,7 @@ model QnABoard {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   qnaUserId   Int               // 기존 API와의 호환성을 위해 유지
+  isItAnswered Boolean           @default(false)
   comments    QnABoardComment[] @relation("QnAWithComments")
   qnaFiles    QnaFile[]
   student     Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
@@ -151,15 +155,64 @@ model QnaFile {
 model QnABoardComment {
   commentId      Int      @id @default(autoincrement())
   commentContent String   @db.Text
-  commentUserId  Int
+  studentId      Int?
+  adminId        Int?
   qnaId          Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  user           User     @relation("UserInQnAComment", fields: [commentUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  student        Student? @relation("StudentToQnAComment", fields: [studentId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  admin          Admin?   @relation("AdminToQnAComment", fields: [adminId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
   qna            QnABoard @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
 
-  @@index([commentUserId], map: "QnABoardComment_commentUserId_fkey")
-  @@index([qnaId], map: "QnABoardComment_qnaId_fkey")
+  @@index([studentId])
+  @@index([adminId])
+  @@index([qnaId])
+}
+
+
+
+model CounselingSchedule {
+  scheduleId    Int      @id @default(autoincrement())
+  adminId       Int
+  date          DateTime // 날짜만 저장 (시간 제외)
+  timeSlotId    Int      // config의 TIME_SLOTS에서 관리
+  isAvailable   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  admin         Admin    @relation("AdminToCounselingSchedule", fields: [adminId], references: [memberId], onDelete: Cascade)
+  reservations  CounselingReservation[]
+  
+  @@unique([adminId, date, timeSlotId])
+  @@index([adminId])
+  @@index([date])
+}
+
+model CounselingReservation {
+  reservationId   Int      @id @default(autoincrement())
+  studentId       Int
+  adminId         Int
+  scheduleId      Int
+  consultationContent String @db.Text
+  status          ReservationStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  student         Student  @relation("StudentToCounselingReservation", fields: [studentId], references: [memberId], onDelete: Cascade)
+  admin           Admin    @relation("AdminToCounselingReservation", fields: [adminId], references: [memberId], onDelete: Cascade)
+  schedule        CounselingSchedule @relation(fields: [scheduleId], references: [scheduleId], onDelete: Cascade)
+  
+  @@unique([scheduleId])
+  @@index([studentId])
+  @@index([adminId])
+  @@index([scheduleId])
+}
+
+enum ReservationStatus {
+  PENDING    // 대기중
+  CONFIRMED  // 확정
+  CANCELLED  // 취소됨
+  COMPLETED  // 완료
 }
 
 enum Role {

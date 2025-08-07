@@ -42,14 +42,16 @@ export async function GET(req: NextRequest) {
 
     const QnAs = await prisma.qnABoard.findMany({
       orderBy: { createdAt: "desc" },
-      select: {
-        qnaId: true,
-        qnaTitle: true,
-        updatedAt: true,
+      include: {
         student: {
           select: {
             memberId: true,
             studentName: true,
+          },
+        },
+        qnaFiles: {
+          include: {
+            file: true,
           },
         },
       },
@@ -58,8 +60,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, data: QnAs }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] QnA 조회 실패:", error);
-
-    const errorMessage = error instanceof Error ? error.message : String(error);
 
     return NextResponse.json(
       { success: false, message: "QnA 조회에 실패했습니다." },
@@ -83,8 +83,23 @@ export async function POST(req: Request) {
         qnaTitle,
         qnaContent,
         qnaUserId,
+        qnaFiles: qnaFiles && qnaFiles.length > 0 ? {
+          create: qnaFiles.map((file: any) => ({
+            fileId: file.fileId,
+          })),
+        } : undefined,
+      },
+      include: {
+        student: {
+          select: {
+            memberId: true,
+            studentName: true,
+          },
+        },
         qnaFiles: {
-          connect: qnaFiles.map((file: any) => ({ fileId: file.fileId })),
+          include: {
+            file: true,
+          },
         },
       },
     });
