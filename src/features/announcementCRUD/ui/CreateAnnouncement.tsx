@@ -1,17 +1,20 @@
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/authContexts";
-import { CreateAnnouncementRequest } from "@/src/entities/announcement/model/types";
+import { CreateAnnouncementRequest,AnnouncementDetail } from "@/src/entities/announcement/model/types";
 import AnnouncementForm from "./AnnouncementForm";
-import { AnnouncementDetail } from "@/src/entities/announcement/model/types";
+
 import { useAnnouncementFeatureStore } from "../model/store";
+import Modal from "@/src/shared/ui/Modal";
 
 interface CreateAnnouncementProps {
-  onCancel: () => void;
+  isOpen: boolean;
+  onClose: () => void;
   isAssetOnly?: boolean;
 }
 
 const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
-  onCancel,
+  isOpen,
+  onClose,
   isAssetOnly = false,
 }) => {
   const { user } = useAuth();
@@ -47,18 +50,24 @@ const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
     
     await createAnnouncement(createRequest);
     setIsSubmitting(false);
-    onCancel();
+    onClose();
   };
 
   return (
-    <AnnouncementForm
-      initialData={initialData}
-      onSubmit={handleSubmit}
-      onCancel={onCancel}
-      submitButtonText="추가"
-      isSubmitting={isSubmitting}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
       title="신규 공지사항 작성"
-    />
+      size="lg"
+    >
+      <AnnouncementForm
+        initialData={initialData}
+        onSubmit={handleSubmit}
+        onCancel={onClose}
+        submitButtonText="추가"
+        isSubmitting={isSubmitting}
+      />
+    </Modal>
   );
 };
 

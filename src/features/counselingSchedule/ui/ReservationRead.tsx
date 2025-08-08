@@ -29,8 +29,8 @@ const ReservationReadSkeleton = () => (
 );
 
 export const ReservationRead = () => {
-  const { reservations, isLoading } = useCounselingStore();
   const { fetchReservations } = useCounselingScheduleFeatureStore();
+  const { reservations, isLoading } = useCounselingStore();
 
   useEffect(() => {
     fetchReservations();

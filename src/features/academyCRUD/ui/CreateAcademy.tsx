@@ -31,10 +31,6 @@ const CreateAcademy: React.FC<CreateAcademyProps> = ({ onAdd, onCancel }) => {
     setUploadedFiles(prev => [...prev, file]);
   };
 
-  const handleUploadError = (error: string) => {
-    console.error('Upload error:', error);
-  };
-
   const handleFileDelete = (fileId: number) => {
     setUploadedFiles(prev => prev.filter(file => file.fileId !== fileId));
   };

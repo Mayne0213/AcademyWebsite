@@ -1,37 +1,60 @@
 import { Student } from "@/src/entities/student/model/types";
-import { UserInfo } from "@/src/entities/user/model/types";
 
-// 공지 엔티티
+// QnA 엔티티 (Prisma 스키마와 정확히 일치)
 export interface QnABoard  {
   qnaId: number;
   qnaTitle: string;
   qnaContent: string;
-  qnaImageUrl?: string;
-  qnaUserId: number;
-  qnaComments: QnABoardComment[];
-  qnaStudent: Student; 
   createdAt: Date;
   updatedAt: Date;
+  qnaUserId: number;
+  isItAnswered: boolean;
+  comments: QnABoardComment[];
+  qnaFiles: QnaFile[];
+  student: Student;
 }
 
 export interface QnABoardComment {
   commentId: number;
   commentContent: string;
-  commentUserId: number;
+  studentId?: number;
+  adminId?: number;
   qnaId: number;
-  qnaCommentUser: UserInfo;
-  qnaCommentQna: QnABoard;
   createdAt: Date;
   updatedAt: Date;
+  student?: Student;
+  admin?: {
+    memberId: number;
+    adminName: string;
+    adminPhone: string;
+    adminPosition: string;
+    adminMemo?: string;
+  };
+  qna: QnABoard;
 }
 
-// 공지 배열
+export interface QnaFile {
+  qnaId: number;
+  fileId: number;
+  qna: QnABoard;
+  file: {
+    fileId: number;
+    fileName: string;
+    originalName: string;
+    fileUrl: string;
+    fileType: string;
+    fileSize?: number;
+    createdAt: Date;
+  };
+}
+
+// QnA 배열
 export interface  QnABoardState {
   qnas: QnABoard[];
   isLoading: boolean;
 }
 
-// 공지 기본 타입
+// QnA 기본 타입
 export interface QnABoardBasicActions {
   readQnABoards: (qnaBoards: QnABoard[]) => void;
   createQnABoard: (qnaBoard: QnABoard) => void;
@@ -40,11 +63,11 @@ export interface QnABoardBasicActions {
   setLoading: (isLoading: boolean) => void;
 }
 
-// 공지 업데이트 요청 타입
+// QnA 업데이트 요청 타입
 export interface UpdateQnABoardRequest {
   qnaTitle?: string;
   qnaContent?: string;
-  qnaImageUrl?: string;
   qnaUserId?: number;
+  isItAnswered?: boolean;
   updatedAt: Date;
 }

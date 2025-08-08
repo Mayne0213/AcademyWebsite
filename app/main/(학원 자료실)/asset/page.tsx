@@ -40,14 +40,11 @@ const AnnouncementBoard = () => {
         />
       </div>
 
-      {writeNewAnnouncement && (
-        <div className="mb-4 border rounded-xl border-gray-200 p-4 shadow-md">
-          <CreateAnnouncement
-            onCancel={() => setWriteNewAnnouncement(false)}
-            isAssetOnly={true}
-          />
-        </div>
-      )}
+      <CreateAnnouncement
+        isOpen={writeNewAnnouncement}
+        onClose={() => setWriteNewAnnouncement(false)}
+        isAssetOnly={true}
+      />
 
       <div className="flex-grow">
         <ReadAnnouncement

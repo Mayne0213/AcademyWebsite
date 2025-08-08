@@ -55,6 +55,7 @@ export const SchedulePicker = () => {
   const { fetchSchedulesByMonth } = useCounselingScheduleFeatureStore();
   const { isLoading } = useCounselingStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
   // 컴포넌트 마운트 시 현재 월의 스케줄을 불러옴
   useEffect(() => {
@@ -81,9 +82,11 @@ export const SchedulePicker = () => {
             <Calendar 
               mode="single"
               selected={selectedDate!}
+              month={currentMonth}
               onSelect={(date) => setSelectedDate(date!)}
               onMonthChange={(date) => {
-                fetchSchedulesByMonth(date.getFullYear(),  date.getMonth() + 1);
+                setCurrentMonth(date);
+                fetchSchedulesByMonth(date.getFullYear(), date.getMonth() + 1);
               }}
               className="w-full max-w-md lg:max-w-lg xl:max-w-xl"
             />
