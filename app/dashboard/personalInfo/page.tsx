@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import { useRouter } from "next/navigation";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";

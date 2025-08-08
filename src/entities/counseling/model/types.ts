@@ -5,8 +5,8 @@ export interface CounselingReservation {
   adminId: number;
   scheduleId: number;
   consultationContent: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date; // ㄴㅇㅇㄴㄴㅇㄴㅇ
+  updatedAt: Date;
   student: {
     studentName: string;
     studentPhone: string;
@@ -30,15 +30,15 @@ export interface CounselingSchedule {
   date: string;
   timeSlotId: number;
   isAvailable: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date; //ㅇㄴㅇㄴㄴㅇㅇㄴ
+  updatedAt: Date;
   timeSlot: {
     timeSlotId: number;
     startTime: string;
     endTime: string;
     displayName: string;
   };
-  reservations: {
+  reservations?: {
     reservationId: number;
     student: {
       studentName: string;
@@ -47,25 +47,7 @@ export interface CounselingSchedule {
       studentBirthYear: number;
       studentMemo: string | null;
     };
-  }[];
-}
-
-export interface Admin {
-  memberId: number;
-  adminName: string;
-  adminPhone: string;
-  adminPosition: string;
-  adminMemo?: string;
-}
-
-export interface Student {
-  memberId: number;
-  academyId: number;
-  studentName: string;
-  studentPhone: string;
-  studentHighschool?: string;
-  studentBirthYear: number;
-  studentMemo?: string;
+  };
 }
 
 // API 요청/응답 타입들

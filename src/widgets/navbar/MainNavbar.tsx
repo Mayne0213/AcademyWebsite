@@ -1,5 +1,5 @@
 import { Menu } from "lucide-react";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import { FORMATS } from "@/src/shared/lib/formats";
 
 const Navbar = ({ onChange }: { onChange: () => void }) => {

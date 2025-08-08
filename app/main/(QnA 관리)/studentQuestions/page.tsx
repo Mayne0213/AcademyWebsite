@@ -3,7 +3,7 @@
 import { Button } from '@/src/shared/ui/button';
 import { useEffect, useState } from 'react';
 import { useQna } from "@/components/hooks/useQna";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import { apiGet } from "@/src/shared/api";
 import { FileDisplay } from '@/src/entities/file/ui';
 import { Trash2 } from 'lucide-react';

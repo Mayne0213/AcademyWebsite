@@ -6,7 +6,7 @@ import { Calendar, Trash2 } from "lucide-react";
 import Link from "next/link";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { Pagination } from "@/src/shared/ui";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import { useQna } from "@/components/hooks/useQna";
 import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
 import { FileDisplay } from "@/src/entities/file/ui";

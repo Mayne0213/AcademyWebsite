@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import favicon from "@/app/favicon.ico";
+import favicon from "@/public/favicon.ico";
 import { BarLoader } from "react-spinners";
 import { useDeviceDetect } from "@/src/shared/lib/deviceType";
 

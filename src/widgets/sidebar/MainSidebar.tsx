@@ -2,7 +2,7 @@ import Image from "next/image";
 import icon from "@/public/OasisNoRectangle.webp";
 import Link from "next/link";
 import tabs from "@/src/widgets/sidebar/model/MainSidebarTabs";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import DeviceType from "@/src/shared/lib/deviceType";
 
 interface SidebarProps {

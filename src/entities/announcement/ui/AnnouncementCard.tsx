@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Announcement } from '@/src/entities/announcement/model/types';
 import { ChevronDown, ChevronUp, Calendar, User, Edit, Trash2, Pin, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/authContexts';
+import { useAuth } from '@/src/app/providers';
 import { FileItem } from '@/src/entities/file/ui';
 import { extractYouTubeVideoId } from '@/src/shared/lib/utils';
 import { announcementApi } from '../api';

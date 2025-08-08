@@ -17,8 +17,8 @@ export const ScheduleItem = ({
           {TIME_SLOTS.find(slot => slot.timeSlotId === schedule.timeSlotId)?.displayName || `${schedule.timeSlotId}번 시간대`}
         </h5>
         <p className="text-gray-500 text-xs tablet:text-sm">
-          {schedule.reservations && schedule.reservations.length > 0 ? 
-            `예약: ${schedule.reservations[0].student.studentName}` : 
+          {schedule.reservations?.student?.studentName ?
+            `예약: ${schedule.reservations.student.studentName}` :
             '예약 없음'
           }
         </p>
@@ -27,7 +27,7 @@ export const ScheduleItem = ({
         <span className={`font-medium px-2 py-1 rounded text-xs tablet:text-sm ${schedule.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
           {schedule.isAvailable ? '예약 가능' : '예약됨'}
         </span>
-        {(!schedule.reservations || schedule.reservations.length === 0) && (
+        {!schedule.reservations && (
           <button
             onClick={(e) => {
               e.stopPropagation();

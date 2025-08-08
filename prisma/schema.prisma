@@ -169,8 +169,6 @@ model QnABoardComment {
   @@index([qnaId])
 }
 
-
-
 model CounselingSchedule {
   scheduleId    Int      @id @default(autoincrement())
   adminId       Int
@@ -181,7 +179,7 @@ model CounselingSchedule {
   updatedAt     DateTime @updatedAt
   
   admin         Admin    @relation("AdminToCounselingSchedule", fields: [adminId], references: [memberId], onDelete: Cascade)
-  reservations  CounselingReservation[]
+  reservations  CounselingReservation?
   
   @@unique([adminId, date, timeSlotId])
   @@index([adminId])
@@ -194,7 +192,7 @@ model CounselingReservation {
   adminId         Int
   scheduleId      Int
   consultationContent String @db.Text
-  status          ReservationStatus @default(PENDING)
+  status          ReservationStatus @default(CONFIRMED)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   

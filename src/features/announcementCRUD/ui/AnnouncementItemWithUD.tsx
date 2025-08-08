@@ -10,7 +10,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Announcement, AnnouncementDetail } from "@/src/entities/announcement/model/types";
-import UpdateAnnouncement from "./UpdateAnnouncement";
+import CreateAnnouncement from "./CreateAnnouncement";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { FileItem } from "@/src/entities/file/ui";
 import { FORMATS } from "@/src/shared/lib/formats";
@@ -60,12 +60,13 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
     
     return (
       <div className="border p-4 rounded-lg shadow-sm">
-        <UpdateAnnouncement
-          announcement={detailData}
-          onCancel={() => {
+        <CreateAnnouncement
+          isOpen={true}
+          onClose={() => {
             setIsEditing(false);
             setDetailData(null);
           }}
+          announcement={detailData}
         />
       </div>
     );
