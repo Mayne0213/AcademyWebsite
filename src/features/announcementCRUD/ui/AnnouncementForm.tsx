@@ -15,7 +15,7 @@ interface AnnouncementFormProps {
   onCancel: () => void;
   submitButtonText: string;
   isSubmitting?: boolean;
-  title: string;
+  title?: string;
 }
 
 const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
@@ -123,7 +123,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
 
   return (
     <div>
-      <h1 className="text-xl ml-2 mb-2">{title}</h1>
+      {title && <h1 className="text-xl ml-2 mb-2">{title}</h1>}
       
       {/* 제목 입력 */}
       <input
