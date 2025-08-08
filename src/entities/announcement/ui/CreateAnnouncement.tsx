@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useAnnouncementFeatureStore } from '@/src/features/announcementCRUD/model/store';
 import { useAcademyFeatureStore } from '@/src/features/academyCRUD/model/store';
 import { useAcademyStore } from '@/src/entities/academy/model/store';
-import { useAuth } from '@/contexts/authContexts';
+import { useAuth } from '@/src/app/providers';
 import { toast } from 'sonner';
 import { CreateAnnouncementRequest } from '@/src/entities/announcement/model/types';
 import { FileUploadDropzone, FileDisplay } from '@/src/entities/file/ui';

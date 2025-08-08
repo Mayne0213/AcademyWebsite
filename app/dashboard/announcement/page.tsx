@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Header from "@/src/widgets/header/DashboardHeader";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import { AnnouncementCard } from "@/src/entities/announcement/ui";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useQna } from "@/components/hooks/useQna";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import type { File as FileEntity } from "@/src/entities/file/model/types";
 

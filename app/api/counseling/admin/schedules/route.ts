@@ -127,6 +127,7 @@ export async function GET(request: NextRequest) {
       const timeSlotInfo = TIME_SLOTS.find(slot => slot.timeSlotId === schedule.timeSlotId);
       return {
         ...schedule,
+        reservations: schedule.reservations || null,
         timeSlot: timeSlotInfo || {
           timeSlotId: schedule.timeSlotId,
           startTime: "00:00",
@@ -276,8 +277,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // 예약이 있는 경우 삭제 불가
-    if (schedule.reservations.length > 0) {
+    // 예약이 있는 경우 삭제 불가 (reservations는 단일 객체)
+    if (schedule.reservations) {
       return NextResponse.json(
         { error: '예약이 있는 스케줄은 삭제할 수 없습니다.' },
         { status: 400 }

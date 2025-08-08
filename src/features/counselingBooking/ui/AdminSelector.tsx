@@ -1,13 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Admin } from '@/src/entities/counseling';
+import { Admin } from '@/src/entities/admin/model/types';
 import { useCounselingBookingStore } from '../model';
+
+// AdminSelector에서 실제로 사용하는 필드들만 포함하는 타입
+interface AdminSelectorItem {
+  memberId: number;
+  adminName: string;
+  adminPosition: string;
+  adminPhone: string;
+}
 
 interface AdminSelectorProps {
   selectedAdminId: number | null;
   onAdminSelect: (adminId: number) => void;
-  availableAdmins?: Admin[];
+  availableAdmins?: AdminSelectorItem[];
   isLoadingAdmins?: boolean;
 }
 
@@ -31,7 +39,12 @@ export const AdminSelector = ({
   }, [fetchAdmins, availableAdmins]);
 
   // 외부에서 전달받은 상담사 목록이 있으면 사용, 없으면 store에서 가져온 것 사용
-  const displayAdmins = availableAdmins || admins;
+  const displayAdmins = availableAdmins || admins.map(admin => ({
+    memberId: admin.memberId,
+    adminName: admin.adminName,
+    adminPosition: admin.adminPosition,
+    adminPhone: admin.adminPhone
+  }));
   const displayLoading = isLoadingAdmins || isLoading;
 
   if (displayLoading) {
@@ -59,7 +72,7 @@ export const AdminSelector = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {displayAdmins.map((admin: Admin) => (
+          {displayAdmins.map((admin: AdminSelectorItem) => (
             <div
               key={admin.memberId}
               className={`p-4 border rounded-lg cursor-pointer transition-colors ${

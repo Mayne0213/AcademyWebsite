@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { CounselingReservation, Admin } from '@/src/entities/counseling';
+import { CounselingReservation } from '@/src/entities/counseling';
+import { Admin } from '@/src/entities/admin/model/types';
 import { getAvailableAdmins, createCounselingReservation } from '@/src/entities/counseling/api';
 
 interface CounselingBookingState {

@@ -4,7 +4,7 @@ import { User } from "lucide-react";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { useQna } from "@/components/hooks/useQna";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import Link from "next/link";
 import { FORMATS } from "@/src/shared/lib/formats";
 import DashboardFooter from "@/src/widgets/footer/DashboardFooter";

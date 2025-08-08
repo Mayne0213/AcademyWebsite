@@ -1,9 +1,9 @@
 import { 
-  Admin, 
   CounselingReservation, 
   CreateCounselingReservationRequest,
   CounselingSchedule
 } from '../model/types';
+import { Admin } from '@/src/entities/admin/model/types';
 import { COUNSELING_VALIDATION } from '../model/validation';
 import { apiGet, apiPost, apiDelete } from '@/src/shared/api';
 

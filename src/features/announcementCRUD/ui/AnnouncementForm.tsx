@@ -8,6 +8,7 @@ import {
   normalizeAnnouncementData 
 } from "@/src/features/announcementCRUD/model/utils";
 import { ANNOUNCEMENT_VALIDATION } from "@/src/entities/announcement/model/validation";
+import Modal from "@/src/shared/ui/Modal";
 
 interface AnnouncementFormProps {
   initialData?: AnnouncementDetail;
@@ -16,6 +17,8 @@ interface AnnouncementFormProps {
   submitButtonText: string;
   isSubmitting?: boolean;
   title?: string;
+  isOpen?: boolean;
+  modalTitle?: string;
 }
 
 const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
@@ -25,6 +28,8 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   submitButtonText,
   isSubmitting = false,
   title,
+  isOpen = true,
+  modalTitle,
 }) => {
   // 폼 상태 관리
   const [form, setForm] = useState({
@@ -121,7 +126,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
     }
   };
 
-  return (
+  const formContent = (
     <div>
       {title && <h1 className="text-xl ml-2 mb-2">{title}</h1>}
       
@@ -144,21 +149,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
         className="w-full border p-2 mb-2"
         rows={4}
       />
-      
-      {/* 자료실 업로드 체크박스 */}
-      {/* <div className="flex items-center space-x-2 mb-2">
-        <input
-          type="checkbox"
-          name="isItAssetAnnouncement"
-          checked={form.isItAssetAnnouncement}
-          onChange={handleChange}
-          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-          id="isItAssetAnnouncement"
-        />
-        <label htmlFor="isItAssetAnnouncement" className="text-sm text-gray-700 select-none">
-          자료실로 업로드
-        </label>
-      </div> */}
 
       {/* 파일 업로드 섹션 */}
       <div className="mb-4">
@@ -206,6 +196,17 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
         </Button>
       </div>
     </div>
+  );
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onCancel}
+      title={modalTitle}
+      size="lg"
+    >
+      {formContent}
+    </Modal>
   );
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "@/contexts/authContexts";
+import { useAuth } from "@/src/app/providers";
 import Link from "next/link";
 import { Button } from "@/src/shared/ui/button";
 
