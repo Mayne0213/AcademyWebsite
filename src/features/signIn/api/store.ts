@@ -24,7 +24,8 @@ export const useAuthFeatureStore = create<AuthFeatureState & AuthFeatureActions>
       console.log("response=", response);
 
       if (response) {
-        set({ user: response, error: null, isAuthenticating: false });
+        set({ user: response, error: null });
+        // 로딩 상태는 리다이렉트 완료 후에 해제됨
         return response;
       } else {
         const errorMessage = '로그인에 실패했습니다.';
@@ -35,11 +36,6 @@ export const useAuthFeatureStore = create<AuthFeatureState & AuthFeatureActions>
       const errorMessage = error instanceof Error ? error.message : '로그인 중 오류가 발생했습니다.';
       set({ error: errorMessage, isAuthenticating: false });
       throw error;
-    } finally {
-      // 로그인 성공 시 짧은 지연 후 로딩 상태 해제
-      setTimeout(() => {
-        set({ isAuthenticating: false });
-      }, 2000);
     }
   },
 
@@ -96,6 +92,11 @@ export const useAuthFeatureStore = create<AuthFeatureState & AuthFeatureActions>
   // 에러 초기화
   clearError: () => {
     set({ error: null });
+  },
+
+  // 로딩 상태 설정
+  setLoading: (isAuthenticating: boolean) => {
+    set({ isAuthenticating });
   },
 }));
 
