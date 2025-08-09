@@ -53,11 +53,13 @@ export default function AdminQuestionBoard() {
     handleView(selected);
   };
 
-  const handleHide = async (id: number) => {
+  const handleDelete = async (id: number) => {
+    if (confirm("정말로 이 질문을 삭제하시겠습니까?")) {
     await deleteQna(id);
     setSelected(null);
-    setSelectedDetail(null);
-    loadInitialQna();
+      setSelectedDetail(null);
+      loadInitialQna();
+    }
   };
 
   const handleDeleteComment = async (qnaId: number, commentId: number) => {
@@ -150,9 +152,9 @@ export default function AdminQuestionBoard() {
                     <p className="text-sm text-gray-500">{new Date(q.createdAt).toLocaleString()}</p>
                     <p className="text-sm text-gray-600">{q.student?.studentName || "알 수 없음"}</p>
                   </div>
-                  <span className={`text-sm font-medium ${(q.comments && q.comments.length > 0) ? 'text-green-600' : 'text-red-500'}`}>
-                    {(q.comments && q.comments.length > 0) ? '답변 완료' : '미답변'}
-                  </span>
+                  {/* <span className={`text-sm font-medium ${(q.isItAnswered ? 'text-green-600' : 'text-red-500')}`}> */}
+                    {/* {q.isItAnswered ? '답변 완료' : '미답변'} */}
+                  {/* </span> */}
                 </div>
               </li>
             ))}
@@ -257,10 +259,10 @@ export default function AdminQuestionBoard() {
                     답변 저장
                   </Button>
                   <Button
-                    onClick={() => handleHide(selected.qnaId)}
+                    onClick={() => handleDelete(selected.qnaId)}
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                   >
-                    질문 숨기기
+                    답변 삭제
                   </Button>
                 </div>
               </div>
