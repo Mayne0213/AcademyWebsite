@@ -37,6 +37,10 @@ export interface CounselingReservation {
     studentPhone: string;
     studentHighschool: string | null;
   };
+  admin: {
+    adminName: string;
+    adminPosition: string;
+  };
   schedule: {
     scheduleId: number;
     date: string;
@@ -54,6 +58,7 @@ export interface CreateCounselingReservationRequest {
   adminId: number;
   date: string | null;
   timeSlotId: number | null;
+  scheduleId: number;
   consultationContent: string;
 }
 

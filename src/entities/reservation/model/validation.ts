@@ -18,6 +18,7 @@ export const CreateCounselingReservationSchema = z.object({
   adminId: z.number().positive('상담사를 선택해주세요.'),
   date: z.string().min(1, '날짜를 선택해주세요.'),
   timeSlotId: z.number().positive('시간대를 선택해주세요.'),
+  scheduleId: z.number().positive('스케줄을 선택해주세요.'),
   consultationContent: z.string()
     .min(1, '상담 내용을 입력해주세요.')
     .max(1000, '상담 내용은 1000자 이내로 작성해주세요.'),

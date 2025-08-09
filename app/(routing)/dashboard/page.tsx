@@ -9,6 +9,7 @@ import Link from "next/link";
 import { FORMATS } from "@/src/shared/lib/formats";
 import DashboardFooter from "@/src/widgets/footer/DashboardFooter";
 import { Announcement } from "@/src/entities/announcement/model/types";
+import { ReservationDisplay } from "@/src/entities/reservation/ui";
 
 export default function Dashboard() {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -106,6 +107,13 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* 예약 정보 섹션 - subTitle 아래에 표시 */}
+      {user?.role === "STUDENT" && (
+        <div className="max-w-6xl mx-auto px-6">
+          <ReservationDisplay />
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-12 min-h-scren">

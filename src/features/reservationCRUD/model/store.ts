@@ -57,12 +57,14 @@ export const useReservationCRUDStore = create<ReservationCRUDState & Reservation
         adminId: data.adminId,
         date: data.date,
         timeSlotId: data.timeSlotId,
+        scheduleId: data.scheduleId,
         consultationContent: data.consultationContent
       };
       await createCounselingReservation(requestData);
       set({ isSubmitting: false });
     } catch (error) {
       set({ error: '상담 예약에 실패했습니다.', isSubmitting: false });
+      throw error;
     }
   },
 

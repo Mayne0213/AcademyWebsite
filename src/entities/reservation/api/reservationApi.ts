@@ -40,3 +40,14 @@ export const getAdminReservations = async (): Promise<CounselingReservation[]> =
     throw error;
   }
 };
+
+// 학생용 예약 목록 조회
+export const getStudentReservations = async (): Promise<CounselingReservation[]> => {
+  try {
+    const data = await apiGet<CounselingReservation[]>(API_ENDPOINTS.RESERVATION.BASE);
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};

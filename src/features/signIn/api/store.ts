@@ -107,7 +107,7 @@ export const useAuthRouting = () => {
     
     switch (user.role) {
       case "ADMIN":
-        targetPath = "/dashboard";
+        targetPath = "/main";
         break;
       case "DEVELOPER":
         targetPath = "/main";

@@ -196,8 +196,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 사용자의 상담 예약 목록 조회
-    const reservations = await prisma.counselingReservation.findMany({
+    // 현재 날짜/시간 이후의 상담 예약 목록만 조회 (로컬 시간 기준)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // 0부터 시작하므로 +1
+    const day = String(now.getDate()).padStart(2, '0');
+    const currentDate = `${year}-${month}-${day}`; // YYYY-MM-DD 형식
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+    // 사용자의 모든 예약을 가져온 후 클라이언트에서 시간 필터링
+    const allReservations = await prisma.counselingReservation.findMany({
       where: {
         studentId: user.student.memberId
       },
@@ -222,8 +232,8 @@ export async function GET(request: NextRequest) {
       ]
     });
 
-    // timeSlot 정보를 포함해서 반환
-    const reservationsWithTimeSlot = reservations.map(reservation => ({
+    // timeSlot 정보를 포함하고 현재 시간 이후의 예약만 필터링
+    const reservationsWithTimeSlot = allReservations.map(reservation => ({
       ...reservation,
       schedule: {
         ...reservation.schedule,
@@ -236,9 +246,45 @@ export async function GET(request: NextRequest) {
       }
     }));
 
-    return NextResponse.json(reservationsWithTimeSlot);
+    // 오늘 날짜의 예약 중에서 현재 시간 이후의 예약만 필터링
+    const validReservations = reservationsWithTimeSlot.filter(reservation => {
+      try {
+        // 예약 날짜도 로컬 시간 기준으로 변환
+        const scheduleDate = new Date(reservation.schedule.date);
+        const resYear = scheduleDate.getFullYear();
+        const resMonth = String(scheduleDate.getMonth() + 1).padStart(2, '0'); // 0부터 시작하므로 +1
+        const resDay = String(scheduleDate.getDate()).padStart(2, '0');
+        const reservationDate = `${resYear}-${resMonth}-${resDay}`;
+
+        // 오늘보다 미래 날짜는 모두 포함
+        if (reservationDate > currentDate) {
+          return true;
+        }
+
+        // 오늘 날짜인 경우 시간 비교
+        if (reservationDate === currentDate) {
+          const timeSlot = reservation.schedule.timeSlot;
+          if (!timeSlot || !timeSlot.startTime) {
+            return true; // timeSlot 정보가 없으면 일단 포함
+          }
+          const [startHour, startMinute] = timeSlot.startTime.split(':').map(Number);
+          const reservationTimeInMinutes = startHour * 60 + startMinute;
+
+          // 현재 시간 이후의 예약만 포함
+          return reservationTimeInMinutes > currentTimeInMinutes;
+        }
+
+        return false;
+      } catch (error) {
+        console.error('날짜 필터링 오류:', error, reservation);
+        return true; // 오류 발생 시 일단 포함
+      }
+    });
+
+    return NextResponse.json(validReservations);
 
   } catch (error) {
+    console.error('[API ERROR] 상담 예약 목록 조회 실패:', error);
     return NextResponse.json(
       { success: false, message: '상담 예약 목록을 불러오는데 실패했습니다.' },
       { status: 500 }
