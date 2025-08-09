@@ -36,6 +36,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const userInfo = await authFeatureStore.login(userId, password);
       if (userInfo) {
         authRouting.handleLoginSuccess(userInfo);
+        // 리다이렉트 후 로딩 상태 해제
+        authFeatureStore.setLoading(false);
       }
     },
     [authFeatureStore, authRouting],

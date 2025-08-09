@@ -17,4 +17,5 @@ export interface AuthFeatureActions {
   setUser: (user: UserInfo | null) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+  setLoading: (isAuthenticating: boolean) => void;
 }
