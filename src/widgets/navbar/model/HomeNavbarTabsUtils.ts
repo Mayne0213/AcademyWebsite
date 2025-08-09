@@ -1,6 +1,6 @@
 import tabs from "./HomeNavbarTabs";
 
-const GetTabsValue = (identifier: string, pathname: string) => {
+const GetTabsValue = (identifier: string, pathname: string): string | number | null => {
   for (const [index, tab] of tabs.entries()) {
     for (const [, item] of tab.submenu.entries()) {
       if (item.href === pathname) {
@@ -20,6 +20,7 @@ const GetTabsValue = (identifier: string, pathname: string) => {
       }
     }
   }
+  return null;
 };
 
 export default GetTabsValue; 

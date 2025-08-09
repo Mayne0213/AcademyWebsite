@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import AnnouncementItemWithUD from "./AnnouncementItemWithUD";
-import { Announcement } from "@/src/entities/announcement/model/types";
+import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
+import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
+import { usePaginationStore, useTotalPages } from "@/src/shared/model/pagination";
 
 interface ReadAnnouncementProps {
-  announcements: Announcement[];
-  isLoading: boolean;
   isAssetOnly?: boolean;
 }
 
@@ -44,12 +44,17 @@ const AnnouncementSkeleton = () => {
   );
 };
 
-
 const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
-  announcements,
-  isLoading,
   isAssetOnly = false,
 }) => {
+  const { announcements, isLoading } = useAnnouncementStore();
+  const { readAnnouncements } = useAnnouncementFeatureStore();
+  const { currentPage } = usePaginationStore();
+
+  useEffect(() => {
+    readAnnouncements(currentPage, 6, isAssetOnly);
+  }, [readAnnouncements, currentPage, isAssetOnly]);
+
   if (isLoading) {
     return (
       <div className="flex-1 space-y-4 relative">
@@ -64,7 +69,7 @@ const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
 
   if (announcements.length === 0) {
     return (
-        <div className="h-screen font-sansKR-SemiBold text-2xl flex items-center justify-center">
+        <div className="flex-1 w-full font-sansKR-SemiBold text-2xl flex items-center justify-center">
           공지글이 없습니다.
         </div>
     );
@@ -73,7 +78,7 @@ const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
   return (
     <div className="flex-1 space-y-4 relative">
       <ul className="space-y-4">
-        {announcements.map((announcement: Announcement) => (
+        {announcements.map((announcement) => (
           <AnnouncementItemWithUD
             key={announcement.announcementId}
             announcement={announcement}

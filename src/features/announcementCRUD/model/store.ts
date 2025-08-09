@@ -74,6 +74,16 @@ export const useAnnouncementFeatureStore = () => {
       // totalCount를 직접 감소시킴
       paginationStore.decrementTotalCount();
 
+      // 현재 페이지의 마지막 항목을 삭제했고, 이전 페이지가 있다면 이전 페이지로 이동
+      // const currentPage = paginationStore.currentPage;
+      // const itemsPerPage = paginationStore.itemsPerPage;
+      // const totalCount = paginationStore.totalCount;
+
+      // // 현재 페이지에서 마지막 항목을 삭제했고, 이전 페이지가 있는 경우
+      // if (totalCount > 0 && (totalCount % itemsPerPage === 0) && currentPage > 1) {
+      //   paginationStore.setCurrentPage(currentPage - 1);
+      // }
+
       return deletedId;
     } finally {
       entityStore.setLoading(false);

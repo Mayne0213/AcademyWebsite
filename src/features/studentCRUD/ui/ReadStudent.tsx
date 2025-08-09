@@ -86,7 +86,7 @@ const ReadStudent: React.FC<StudentTableProps> = ({ users, isLoading = true, tot
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.memberId} className="text-sm text-gray-800 border-b border-gray-200 hover:bg-gray-50 transition">
+            <tr key={user.memberId} className="text-sm bg-white text-gray-800 border-b border-gray-200 hover:bg-gray-50 transition">
               <td className="py-3 text-center cursor-pointer w-1/6" onClick={() => router.push(`/main/student/${user.memberId}`)}>
                 {user.studentName}
               </td>

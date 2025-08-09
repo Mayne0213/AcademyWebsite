@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { create }from "zustand";
-import TextbookData from "@/app/main/(교재 관리)/textbookManagement/textbook.json";
+import TextbookData from "@/app/(routing)/main/(교재 관리)/textbookManagement/textbook.json";
 
 interface Textbook{
     textbookId: number,

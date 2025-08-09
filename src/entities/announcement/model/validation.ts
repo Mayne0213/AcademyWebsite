@@ -33,10 +33,10 @@ export const CreateAnnouncementSchema = z.object({
   authorId: z.number(),
   isItAssetAnnouncement: z.boolean(),
   isItImportantAnnouncement: z.boolean(),
+  academyIds: z.array(z.number()).min(1, '최소 하나의 학원을 선택해야 합니다.'),
   files: z.array(z.object({
     fileId: z.number(),
   })).optional().default([]),
-  academyIds: z.array(z.number()).optional(),
 });
 
 export const UpdateAnnouncementSchema = z.object({
@@ -45,10 +45,10 @@ export const UpdateAnnouncementSchema = z.object({
   announcementContent: z.string().min(1, '공지사항 내용은 필수입니다.'),
   isItAssetAnnouncement: z.boolean(),
   isItImportantAnnouncement: z.boolean(),
+  academyIds: z.array(z.number()).min(1, '최소 하나의 학원을 선택해야 합니다.'),
   files: z.array(z.object({
     fileId: z.number(),
   })).optional().default([]),
-  academyIds: z.array(z.number()).optional(),
 });
 
 // 타입 안전성을 위한 타입 체크 함수

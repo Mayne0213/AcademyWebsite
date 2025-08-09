@@ -42,8 +42,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const logout = useCallback(async () => {
-    await authFeatureStore.logout();
-    authRouting.handleLogout();
+    try {
+      await authFeatureStore.logout();
+      authRouting.handleLogout();
+    } finally {
+      // 로그아웃 완료 후 로딩 상태는 자동으로 리셋됨 (페이지 리다이렉트로 인해)
+    }
   }, [authFeatureStore, authRouting]);
 
   // 페이지 로드 시 사용자 정보 확인

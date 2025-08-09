@@ -4,11 +4,12 @@ import { AnnouncementDetail } from "@/src/entities/announcement/model/types";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import { File as FileEntity } from "@/src/entities/file/model/types";
 import { 
-  convertAnnouncementFileToEntity, 
-  normalizeAnnouncementData 
+  convertAnnouncementFileToEntity
 } from "@/src/features/announcementCRUD/model/utils";
 import { ANNOUNCEMENT_VALIDATION } from "@/src/entities/announcement/model/validation";
 import Modal from "@/src/shared/ui/Modal";
+import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
+import { useAcademyStore } from "@/src/entities/academy/model/store";
 
 interface AnnouncementFormProps {
   initialData?: AnnouncementDetail;
@@ -31,6 +32,10 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   isOpen = true,
   modalTitle,
 }) => {
+  // 학원 데이터 가져오기
+  const { readAcademies } = useAcademyFeatureStore();
+  const { academies } = useAcademyStore();
+
   // 폼 상태 관리
   const [form, setForm] = useState({
     announcementTitle: "",
@@ -38,21 +43,30 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
     isItAssetAnnouncement: false,
   });
   const [files, setFiles] = useState<FileEntity[]>([]);
+  const [selectedAcademies, setSelectedAcademies] = useState<number[]>([]);
+
+  // 학원 데이터 로드
+  useEffect(() => {
+    readAcademies();
+  }, [readAcademies]);
 
   // 초기 데이터 설정
   useEffect(() => {
     if (initialData) {
-      const normalizedData = normalizeAnnouncementData(initialData);
       setForm({
-        announcementTitle: normalizedData.announcementTitle,
-        announcementContent: normalizedData.announcementContent,
-        isItAssetAnnouncement: normalizedData.isItAssetAnnouncement,
+        announcementTitle: initialData.announcementTitle,
+        announcementContent: initialData.announcementContent,
+        isItAssetAnnouncement: initialData.isItAssetAnnouncement,
       });
       
-      const convertedFiles = normalizedData.announcementFiles?.map(convertAnnouncementFileToEntity) || [];
+      const convertedFiles = initialData.announcementFiles?.map(convertAnnouncementFileToEntity) || [];
       setFiles(convertedFiles);
+
+      // 선택된 학원들 설정
+      const academyIds = initialData.academies?.map((academy: { academyId: number }) => academy.academyId) || [];
+      setSelectedAcademies(academyIds);
     }
-  }, [initialData]);
+  }, [initialData, academies]);
 
   // 파일 업로드 완료 핸들러
   const handleFileUploadComplete = (uploadedFile: FileEntity) => {
@@ -62,6 +76,17 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   // 파일 삭제 핸들러
   const handleFileDelete = (fileId: number) => {
     setFiles(prev => prev.filter(file => file.fileId !== fileId));
+  };
+
+  // 학원 선택 핸들러
+  const handleAcademySelection = (academyId: number) => {
+    setSelectedAcademies(prev => {
+      if (prev.includes(academyId)) {
+        return prev.filter(id => id !== academyId);
+      } else {
+        return [...prev, academyId];
+      }
+    });
   };
 
   // 폼 필드 변경 핸들러
@@ -97,32 +122,27 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
         files: files.map(file => ({
           fileId: file.fileId,
         })),
-        academyIds: initialData.academies?.map(academy => academy.academyId) || [],
+        academyIds: selectedAcademies,
       };
       ANNOUNCEMENT_VALIDATION.validateAnnouncementForUpdate(updateData);
       onSubmit(updateData as any);
       
 
     } else {
-      // 생성 모드: AnnouncementDetail 타입에 맞는 형태로 데이터 구성
-      const submitData: AnnouncementDetail = {
-        announcementId: initialData.announcementId,
+      // 생성 모드: CreateAnnouncementRequest 타입에 맞는 형태로 데이터 구성
+      const submitData = {
         announcementTitle: form.announcementTitle,
         announcementContent: form.announcementContent,
         authorId: initialData.authorId,
         isItAssetAnnouncement: form.isItAssetAnnouncement,
         isItImportantAnnouncement: initialData.isItImportantAnnouncement || false,
-        announcementFiles: files.map(file => ({
+        academyIds: selectedAcademies,
+        files: files.map(file => ({
           fileId: file.fileId,
-          key: file.fileUrl,
-          originalName: file.originalName,
-          fileType: file.fileType,
-          fileSize: file.fileSize || 0,
         })),
-        academies: initialData.academies || [],
       };
       ANNOUNCEMENT_VALIDATION.validateAnnouncementForCreate(submitData);
-      onSubmit(submitData);
+      onSubmit(submitData as any);
     }
   };
 
@@ -149,6 +169,31 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
         className="w-full border p-2 mb-2"
         rows={4}
       />
+
+      {/* 학원 선택 섹션 */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          공지 대상 학원 선택
+        </label>
+        <div className="border rounded-md p-3 bg-gray-50">
+          <div className="grid grid-cols-2 gap-2">
+            {academies.map((academy) => (
+              <label
+                key={academy.academyId}
+                className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedAcademies.includes(academy.academyId)}
+                  onChange={() => handleAcademySelection(academy.academyId)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">{academy.academyName}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* 파일 업로드 섹션 */}
       <div className="mb-4">

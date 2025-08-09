@@ -13,3 +13,4 @@ export * from "./BackgroundGrayShelf";
 export * from "./BackgroundDot";
 export * from "./LoadingSpinner";
 export * from "./Modal";
+export * from "./Loading";

@@ -66,6 +66,19 @@ export const API_ENDPOINTS = {
     SEARCH: "/api/files/search",
   },
 
+  // 예약 관련 엔드포인트
+  RESERVATION: {
+    BASE: "/api/reservation/student",
+    ADMIN: "/api/reservation/admin",
+  },
+
+  // 스케줄 관련 엔드포인트
+  SCHEDULE: {
+    ADMINS: "/api/schedule/student",
+    ADMIN: "/api/schedule/admin",
+    BY_ADMIN_ID: (adminId: number) => `/api/schedule/student?adminId=${adminId}`,
+  },
+
 } as const;
 
 // S3 설정
