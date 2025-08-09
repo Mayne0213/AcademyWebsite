@@ -99,6 +99,12 @@ export const FORMATS = {
   formatUserDisplayName: (user: any): string => {
     if (!user) return '';
 
+    // API에서 제공하는 name 필드를 우선 사용
+    if (user.name && user.name !== '' && user.name !== 'null') {
+      return user.name;
+    }
+
+    // name 필드가 없거나 빈 경우 기존 로직 사용
     if (user.role === 'STUDENT' && user.student?.studentName) {
       return user.student.studentName;
     }

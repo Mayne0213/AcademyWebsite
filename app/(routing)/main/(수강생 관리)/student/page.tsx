@@ -1,0 +1,104 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+
+import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
+import { useStudentStore } from "@/src/entities/student/model/store";
+import { ReadStudent } from "@/src/features/studentCRUD/ui/ReadStudent";
+import { SearchInput, SortControls, Pagination } from "@/src/shared/ui";
+
+import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
+import { useAcademyStore } from "@/src/entities/academy/model/store";
+import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
+import useFilteredSortedPaginatedUsers from "@/components/hooks/useFilteredSortedPaginatedUsers";
+
+const Student = () => {
+  const { readStudents } = useStudentFeatureStore();
+  const { students, isLoading: studentsLoading } = useStudentStore();
+
+  const { readAcademies } = useAcademyFeatureStore();
+  const { academies, isLoading: academiesLoading } = useAcademyStore();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedAcademy, setSelectedAcademy] = useState<string>("전체");
+
+  const { paginatedUsers, totalPages, totalUsers } = useFilteredSortedPaginatedUsers({
+    students,
+    academies,
+    searchTerm,
+    selectedAcademy,
+    sortKey,
+    currentPage,
+  });
+
+  useEffect(() => {
+    readStudents();
+    readAcademies();
+    setSortKey("name");
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <main className="h-full flex flex-col">
+      {/* 헤더 및 정렬 버튼 */}
+      <div className="flex justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-sansKR-SemiBold">학생 목록</h1>
+          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            총 {totalUsers}명
+          </span>
+        </div>
+
+        <SortControls
+          sortOptions={[
+            { key: "name", label: "이름순 정렬" },
+            { key: "school", label: "학교순 정렬" },
+          ]}
+          currentSortKey={sortKey}
+          onSortChange={setSortKey}
+        />
+      </div>
+
+      {/* 필터 + 학생 추가 + 검색 */}
+      <div className="w-full flex justify-between mb-4">
+        <AcademyFilter
+          selectedAcademy={selectedAcademy}
+          onAcademyChange={(academy) => {
+            setSelectedAcademy(academy);
+            setCurrentPage(1);
+          }}
+          academies={academies}
+        />
+
+        <div className="w-1/6">
+          <SearchInput
+            searchTerm={searchTerm}
+            onSearchTermChange={(term: string) => {
+              setSearchTerm(term);
+              setCurrentPage(1);
+            }}
+            placeholder="학생 이름으로 검색..."
+          />
+        </div>
+      </div>
+
+      <div className="flex-grow">
+        <ReadStudent
+          users={paginatedUsers}
+          isLoading={studentsLoading || academiesLoading}
+          totalUsers={totalUsers}
+        />
+      </div>
+      <div className={`${totalUsers === 0 ? "hidden" : ""} mt-4`}>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+    </main>
+  );
+};
+
+export default Student;

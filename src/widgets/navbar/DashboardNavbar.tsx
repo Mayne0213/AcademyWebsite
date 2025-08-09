@@ -43,6 +43,12 @@ export default function Navbar() {
             >
               질문 게시판
             </a>
+            <a
+              href="/dashboard/reservation"
+              className="text-gray-600 hover:text-gray-900 text-sm transition"
+            >
+              상담 예약
+            </a>
           </nav>
 
           {/* 우측 로그아웃 / 모바일 메뉴 */}
@@ -105,6 +111,13 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
             >
               질문 게시판
+            </a>
+            <a
+              href="/dashboard/reservation"
+              className="block text-gray-600 hover:text-gray-900 text-sm px-3 py-3 rounded-md hover:bg-gray-100 transition-all duration-200 transform hover:translate-x-1"
+              onClick={() => setMenuOpen(false)}
+            >
+              상담 예약
             </a>
             <div className="border-t border-gray-200 my-2"></div>
             <button

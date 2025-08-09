@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "@/src/app/providers";
-import { CreateAnnouncementRequest, AnnouncementDetail } from "@/src/entities/announcement/model/types";
+import { AnnouncementDetail } from "@/src/entities/announcement/model/types";
 import AnnouncementForm from "./AnnouncementForm";
 import { useAnnouncementFeatureStore } from "../model/store";
 
@@ -36,26 +36,13 @@ const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
     academies: [],
   };
 
-  const handleSubmit = async (formData: AnnouncementDetail) => {
+  const handleSubmit = async (formData: any) => {
     setIsSubmitting(true);
     
     if (isEditMode) {
-      // 수정 모드
       await updateAnnouncement(formData.announcementId, formData);
     } else {
-      // 생성 모드
-      const createRequest: CreateAnnouncementRequest = {
-        announcementTitle: formData.announcementTitle,
-        announcementContent: formData.announcementContent,
-        authorId: formData.authorId,
-        isItAssetAnnouncement: formData.isItAssetAnnouncement,
-        isItImportantAnnouncement: formData.isItImportantAnnouncement,
-        files: formData.announcementFiles.map(file => ({
-          fileId: file.fileId,
-        })),
-      };
-
-      await createAnnouncement(createRequest);
+      await createAnnouncement(formData);
     }
 
     setIsSubmitting(false);

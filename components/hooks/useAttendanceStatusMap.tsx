@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import AttendanceData from "@/app/main/(출석 관리)/attendance/studentAttendance.json";
+import AttendanceData from "@/app/(routing)/main/(출석 관리)/attendance/studentAttendance.json";
 
 interface Attendance {
   attendanceId: number;

@@ -58,6 +58,12 @@ const tabs = [
         href: "/main/studentReport",
         description: "",
       },
+      {
+        label: "문자 전송",
+        icon: Mail,
+        href: "/main/message",
+        description: "",
+      },
     ],
   },
   {
@@ -73,12 +79,6 @@ const tabs = [
         label: "학원 자료실",
         icon: Paperclip,
         href: "/main/asset",
-        description: "",
-      },
-      {
-        label: "문자 전송",
-        icon: Mail,
-        href: "/main/message",
         description: "",
       },
       {
@@ -114,12 +114,6 @@ const tabs = [
         label: "단과 관리",
         icon: Building,
         href: "/main/academyManagement",
-        description: "",
-      },
-      {
-        label: "회계 현황",
-        icon: Coins,
-        href: "",
         description: "",
       },
     ],

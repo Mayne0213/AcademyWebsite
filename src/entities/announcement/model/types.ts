@@ -25,13 +25,11 @@ export interface AnnouncementFile {
   file: File;
 }
 
-// 공지 배열 (pagination 관련 상태 제거)
 export interface AnnouncementState {
   announcements: Announcement[];
   isLoading: boolean;
 }
 
-// 공지 기본 타입 (pagination 관련 액션 제거)
 export interface AnnouncementBasicActions {
   readAnnouncements: (announcements: Announcement[]) => void;
   createAnnouncement: (announcement: Announcement) => void;

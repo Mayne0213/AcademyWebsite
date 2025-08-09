@@ -10,7 +10,8 @@ import type { File as FileEntity } from '@/src/entities/file/model/types';
 
 const UpdateAnnouncement: React.FC = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const { readAcademies } = useAcademyFeatureStore();
   const { academies } = useAcademyStore();
   const { readAnnouncementById, updateAnnouncement } = useAnnouncementFeatureStore();
