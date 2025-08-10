@@ -85,16 +85,13 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
           <div className="flex-1 min-w-0 space-y-2">
             <div className="flex items-center justify-start mb-1 gap-1">
             <h3
-              className="text-gray-900 mb-1 text-lg"
+              className="text-gray-900 mb-1 text-base smalltablet:text-lg truncate"
             >
               {announcement.announcementTitle}
             </h3>
-              {(announcement.fileCount ?? 0) > 0 && (
-                  <FileText className="w-3 h-3 text-blue-500" />
-              )}
             </div>
             <div
-              className="flex flex-wrap items-center gap-2 text-gray-500 text-sm"
+              className="flex flex-wrap items-center gap-2 text-gray-500 text-xs smalltablet:text-sm"
             >
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
@@ -120,7 +117,7 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
               }`}
               title={announcement.isItImportantAnnouncement ? '중요 공지 해제' : '중요 공지 설정'}
             >
-              <Pin className={announcement.isItImportantAnnouncement ? 'fill-current w-5 h-5 text-yellow-500' : 'w-5 h-5 text-gray-500'} />
+              <Pin className={announcement.isItImportantAnnouncement ? 'fill-current w-3 h-3 text-yellow-500' : 'w-5 h-5 text-gray-500'} />
             </button>
             <button
               onClick={() => {

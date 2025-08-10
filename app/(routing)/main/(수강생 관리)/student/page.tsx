@@ -40,12 +40,12 @@ const Student = () => {
   }, []);
 
   return (
-    <main className="h-full flex flex-col">
+    <main className="h-full flex flex-col p-4">
       {/* 헤더 및 정렬 버튼 */}
-      <div className="flex justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl font-sansKR-SemiBold">학생 목록</h1>
-          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+      <div className="flex flex-col smalltablet:flex-row smalltablet:justify-between smalltablet:items-center gap-3 smalltablet:gap-4 mb-4 smalltablet:mb-6">
+        <div className="flex smalltablet:flex-row smalltablet:items-center gap-2 smalltablet:gap-3">
+          <h1 className="text-2xl smalltablet:text-2xl tablet:text-2xl desktop:text-3xl font-sansKR-SemiBold">학생 목록</h1>
+          <span className="text-xs flex items-center justify-center text-center smalltablet:text-sm tablet:text-base text-gray-500 bg-gray-100 px-2 smalltablet:px-3 py-1 rounded-lg smalltablet:rounded-full">
             총 {totalUsers}명
           </span>
         </div>
@@ -61,17 +61,19 @@ const Student = () => {
       </div>
 
       {/* 필터 + 학생 추가 + 검색 */}
-      <div className="w-full flex justify-between mb-4">
-        <AcademyFilter
-          selectedAcademy={selectedAcademy}
-          onAcademyChange={(academy) => {
-            setSelectedAcademy(academy);
-            setCurrentPage(1);
-          }}
-          academies={academies}
-        />
+      <div className="w-full flex flex-col smalltablet:flex-row smalltablet:justify-between gap-3 smalltablet:gap-4 mb-4 smalltablet:mb-6">
+        <div className="w-full smalltablet:w-auto">
+          <AcademyFilter
+            selectedAcademy={selectedAcademy}
+            onAcademyChange={(academy) => {
+              setSelectedAcademy(academy);
+              setCurrentPage(1);
+            }}
+            academies={academies}
+          />
+        </div>
 
-        <div className="w-1/6">
+        <div className="w-full smalltablet:w-1/3 tablet:w-1/4 desktop:w-1/6">
           <SearchInput
             searchTerm={searchTerm}
             onSearchTermChange={(term: string) => {
@@ -90,7 +92,7 @@ const Student = () => {
           totalUsers={totalUsers}
         />
       </div>
-      <div className={`${totalUsers === 0 ? "hidden" : ""} mt-4`}>
+      <div className={`${totalUsers === 0 ? "hidden" : ""} mt-4 smalltablet:mt-6`}>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

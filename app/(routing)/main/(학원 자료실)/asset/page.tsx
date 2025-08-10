@@ -20,13 +20,13 @@ const AnnouncementBoard = () => {
   }, [readAnnouncements, currentPage]);
 
   return (
-    <main className="h-full flex flex-col">
+    <main className="h-full flex flex-col p-4">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <div className="text-2xl font-sansKR-Bold">
+          <div className="text-2xl smalltablet:text-2xl tablet:text-2xl desktop:text-3xl font-sansKR-Bold">
             학원 자료실
           </div>
-          <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          <span className="text-xs flex items-center justify-center text-center smalltablet:text-sm tablet:text-base text-gray-500 bg-gray-100 px-2 smalltablet:px-3 py-1 rounded-lg smalltablet:rounded-full">
             총 {totalCount}개
           </span>
         </div>

@@ -92,10 +92,10 @@ export default function AdminQuestionBoard() {
   });
 
   return (
-    <main className="h-full flex flex-col">
-      <h1 className="text-3xl font-sansKR-SemiBold mb-6">📋 관리자 질문 게시판</h1>
+    <main className="h-full flex flex-col p-4">
+      <h1 className="text-2xl smalltablet:text-2xl tablet:text-2xl desktop:text-3xl font-sansKR-SemiBold mb-4">📋 질문 관리</h1>
 
-      <div className="flex flex-wrap items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-4 mb-4">
         <div className="space-x-2">
           <Button
             onClick={() => setFilter('all')}
@@ -163,7 +163,7 @@ export default function AdminQuestionBoard() {
 
         <section>
           {selected ? (
-            <div className="bg-white border rounded-lg shadow-sm min-h-screen">
+            <div className="bg-white border rounded-lg shadow-sm">
               {/* 제목 및 메타데이터 */}
               <div className="border-b p-6">
                 <h2 className="text-xl font-sansKR-SemiBold text-gray-900 mb-3">{selected.qnaTitle}</h2>
