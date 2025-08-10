@@ -1,5 +1,7 @@
+"use client";
 
-import { Download, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { getFileIcon, isPreviewable, getDownloadUrl } from '@/src/entities/file';
 import { toast } from 'sonner';
 
@@ -16,6 +18,7 @@ interface FileItemProps {
 }
 
 const FileItem = ({ file }: FileItemProps) => {
+  const router = useRouter();
   const fileType = file.fileType || file.announcementFileType;
   const fileName = file.originalName || file.announcementFileOriginalName;
   const fileKey = file.key || file.announcementFileKey || file.url;
@@ -29,13 +32,7 @@ const FileItem = ({ file }: FileItemProps) => {
 
     try {
       const downloadUrl = await getDownloadUrl(fileKey);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName || 'download';
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      router.push(downloadUrl);
     } catch (error) {
       toast.error('파일 다운로드에 실패했습니다.');
     }
@@ -61,7 +58,7 @@ const FileItem = ({ file }: FileItemProps) => {
   }
 
   return (
-    <div onClick={handleFileDownload} className={`flex items-center justify-between py-2 px-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer`}>
+    <button onClick={handleFileDownload} className={`flex items-center w-full text-left justify-between py-2 px-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors cursor-pointer`}>
       <div className="flex items-center space-x-3 flex-1">
         {getFileIcon(fileType)}
         <div className="flex-1">
@@ -82,7 +79,7 @@ const FileItem = ({ file }: FileItemProps) => {
           </button>
         )}
       </div>
-    </div>
+    </button>
   );
 };
 

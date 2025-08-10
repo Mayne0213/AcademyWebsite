@@ -7,7 +7,6 @@ import {
   convertAnnouncementFileToEntity
 } from "@/src/features/announcementCRUD/model/utils";
 import { ANNOUNCEMENT_VALIDATION } from "@/src/entities/announcement/model/validation";
-import Modal from "@/src/shared/ui/Modal";
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
 import { useAcademyStore } from "@/src/entities/academy/model/store";
 
@@ -18,8 +17,6 @@ interface AnnouncementFormProps {
   submitButtonText: string;
   isSubmitting?: boolean;
   title?: string;
-  isOpen?: boolean;
-  modalTitle?: string;
 }
 
 const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
@@ -29,8 +26,6 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   submitButtonText,
   isSubmitting = false,
   title,
-  isOpen = true,
-  modalTitle,
 }) => {
   // 학원 데이터 가져오기
   const { readAcademies } = useAcademyFeatureStore();
@@ -147,7 +142,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   };
 
   const formContent = (
-    <div>
+    <div className="">
       {title && <h1 className="text-xl ml-2 mb-2">{title}</h1>}
       
       {/* 제목 입력 */}
@@ -210,7 +205,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
         {/* 업로드된 파일 목록 */}
         {files.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-700">업로드된 파일:</h4>
+            <h4 className="text-sm font-medium text-gray-700">업로드된 :</h4>
             {files.map((file) => (
               <FileDisplay
                 key={file.fileId}
@@ -224,7 +219,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
       </div>
 
       {/* 버튼 영역 */}
-      <div className="w-full flex justify-end">
+      <div className="w-full flex justify-end pt-4 border-t">
         <Button
           variant="default"
           onClick={handleSubmit}
@@ -244,14 +239,9 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({
   );
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onCancel}
-      title={modalTitle}
-      size="lg"
-    >
+    <div className="bg-white border-gray-300 rounded-lg border shadow-lg p-6">
       {formContent}
-    </Modal>
+    </div>
   );
 };
 

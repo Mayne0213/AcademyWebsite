@@ -76,12 +76,12 @@ const AnnouncementHeader = ({
     <div className="flex justify-between items-start gap-2 sm:gap-4">
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center justify-start mb-1 gap-1">
-          <h3 className="text-gray-900 text-base smalltablet:text-lg">
+          <h3 className="text-gray-900 flex items-center gap-1 text-base smalltablet:text-lg">
             {announcement.announcementTitle}
-          </h3>
             {(announcement.fileCount ?? 0) > 0 && (
-                <FileText className="w-3 h-3 text-blue-500" />
+                <FileText className="w-4 h-4 text-blue-500" />
             )}
+          </h3>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-gray-500 text-xs smalltablet:text-sm">
           <div className="hidden smalltablet:flex items-center gap-1">

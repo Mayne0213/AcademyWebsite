@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { User } from "lucide-react";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
@@ -256,7 +257,7 @@ export default function Dashboard() {
                 {dashboardAssets.slice(0, 4).map((item, index) => (
                   <Link
                     key={index}
-                    href={`/dashboard/assets`}
+                    href={`/dashboard/asset`}
                     className="py-3 border-b border-gray-50 last:border-b-0 hover:bg-gray-25 -mx-2 px-2 rounded-lg transition-colors duration-200 cursor-pointer block"
                   >
                     <div className="flex justify-between items-start">
