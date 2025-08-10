@@ -4,13 +4,13 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Student } from "@/src/entities/student/model/types";
 
-interface StudentTableProps {
+interface StudentReadProps {
   users: Student[];
   isLoading?: boolean;
   totalUsers?: number;
 }
 
-const ReadStudentSkeleton = () => {
+const StudentReadSkeleton = () => {
   return (
     <div className="w-full overflow-x-auto">
       <table className="min-w-[800px] w-full table-fixed">
@@ -53,13 +53,13 @@ const ReadStudentSkeleton = () => {
   );
 };
 
-const ReadStudent: React.FC<StudentTableProps> = ({ users, isLoading = true, totalUsers = 0 }) => {
+const StudentRead: React.FC<StudentReadProps> = ({ users, isLoading = true, totalUsers = 0 }) => {
   const router = useRouter();
   const currentYear = new Date().getFullYear();
 
   // 로딩 중일 때 스켈레톤 반환
   if (isLoading) {
-    return <ReadStudentSkeleton />;
+    return <StudentReadSkeleton />;
   }
 
   // 검색 결과가 없을 때 메시지 반환
@@ -103,4 +103,4 @@ const ReadStudent: React.FC<StudentTableProps> = ({ users, isLoading = true, tot
   );
 };
 
-export { ReadStudent };
+export { StudentRead };

@@ -1,4 +1,2 @@
-export { default as AnnouncementForm } from './AnnouncementForm';
-export { default as AnnouncementItemWithUD } from './AnnouncementItemWithUD';
-export { default as CreateAnnouncement } from './CreateAnnouncement'; 
-export { default as ReadAnnouncement } from './ReadAnnouncement';
+export { default as AnnouncementCU } from './AnnouncementCU';
+export { default as AnnouncementRead } from './AnnouncementRead';

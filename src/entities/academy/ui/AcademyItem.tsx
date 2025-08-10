@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Academy } from "@/src/entities/academy/model/types";
 import { Button } from "@/src/shared/ui/button";
-import UpdateAcademy from "./UpdateAcademy";  
+import AcademyCU from "@/src/features/academyCRUD/ui/AcademyCU";  
 import { Phone, MapPin } from "lucide-react";
 import SignedImage from "@/src/shared/ui/SignedImage";
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
@@ -10,7 +10,7 @@ interface Props {
   academy: Academy;
 }
 
-const AcademyItemWithUD: React.FC<Props> = ({ academy }) => {
+const AcademyItem: React.FC<Props> = ({ academy }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { deleteAcademy } = useAcademyFeatureStore();
 
@@ -26,7 +26,8 @@ const AcademyItemWithUD: React.FC<Props> = ({ academy }) => {
   if (isEditing) {
     return (
       <li className="border p-3 smalltablet:p-4 tablet:p-6 rounded-lg shadow-sm">
-        <UpdateAcademy
+        <AcademyCU
+          mode="update"
           academy={academy}
           onCancel={() => setIsEditing(false)}
         />
@@ -86,4 +87,4 @@ const AcademyItemWithUD: React.FC<Props> = ({ academy }) => {
   }
 };
 
-export default AcademyItemWithUD; 
+export default AcademyItem;

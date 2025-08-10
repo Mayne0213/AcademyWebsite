@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
-import ReadAnnouncement from "@/src/features/announcementCRUD/ui/ReadAnnouncement";
-import CreateAnnouncement from "@/src/features/announcementCRUD/ui/CreateAnnouncement";
+import AnnouncementRead from "@/src/features/announcementCRUD/ui/AnnouncementRead";
+import AnnouncementCU from "@/src/features/announcementCRUD/ui/AnnouncementCU";
 import { usePaginationStore, useTotalPages } from "@/src/shared/model/pagination";
 import { Pagination } from "@/src/shared/ui";
 
@@ -39,13 +39,13 @@ const AnnouncementBoard = () => {
       </div>
 
       {writeNewAnnouncement && (
-        <CreateAnnouncement
+        <AnnouncementCU
           onClose={() => setWriteNewAnnouncement(false)}
           isAssetOnly={true}
         />
       )}
 
-      <ReadAnnouncement isAssetOnly={true} />
+      <AnnouncementRead isAssetOnly={true} />
 
       <Pagination
         currentPage={currentPage}

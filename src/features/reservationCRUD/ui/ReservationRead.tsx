@@ -30,15 +30,14 @@ const ReservationReadSkeleton = () => (
 );
 
 export const ReservationRead = () => {
-  const { fetchReservations } = useScheduleCRUDFeatureStore();
+  const { readReservations } = useScheduleCRUDFeatureStore();
   const { reservations, isLoading } = useReservationStore();
 
   useEffect(() => {
-    fetchReservations();
+    readReservations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 로딩 중일 때 스켈레톤 표시
   if (isLoading) {
     return <ReservationReadSkeleton />;
   }

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 
 import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
 import { useStudentStore } from "@/src/entities/student/model/store";
-import { ReadStudent } from "@/src/features/studentCRUD/ui/ReadStudent";
+import { StudentRead } from "@/src/features/studentCRUD/ui/StudentRead";
 import { SearchInput, SortControls, Pagination } from "@/src/shared/ui";
 
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
@@ -86,7 +86,7 @@ const Student = () => {
       </div>
 
       <div className="flex-grow">
-        <ReadStudent
+        <StudentRead
           users={paginatedUsers}
           isLoading={studentsLoading || academiesLoading}
           totalUsers={totalUsers}

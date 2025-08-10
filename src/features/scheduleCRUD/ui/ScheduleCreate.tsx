@@ -12,7 +12,7 @@ export const ScheduleCreate = ({
   selectedDate,
   onCancel,
 }: ScheduleCreateProps) => {
-  const { handleAddSchedule } = useScheduleCRUDFeatureStore();
+  const { createSchedule } = useScheduleCRUDFeatureStore();
   const [newScheduleDate, setNewScheduleDate] = useState(selectedDate);
   const [newScheduleTimeSlot, setNewScheduleTimeSlot] = useState<number | null>(null);
 
@@ -22,7 +22,7 @@ export const ScheduleCreate = ({
     }
     
     try {
-      await handleAddSchedule({
+      await createSchedule({
         date: newScheduleDate,
         timeSlotId: newScheduleTimeSlot
       });

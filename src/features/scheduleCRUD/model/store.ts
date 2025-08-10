@@ -15,7 +15,7 @@ export const useScheduleCRUDFeatureStore = () => {
   const reservationStore = useReservationStore.getState();
   const scheduleStore = useScheduleStore.getState();
 
-  const fetchReservations = useCallback(async () => {
+  const readReservations = useCallback(async () => {
     reservationStore.setLoading(true);
     try {
       // 예약 목록 조회
@@ -28,7 +28,7 @@ export const useScheduleCRUDFeatureStore = () => {
     }
   }, [reservationStore]);
 
-  const fetchAllSchedules = useCallback(async () => {
+  const readSchedules = useCallback(async () => {
     scheduleStore.setLoading(true);
     try {
       // 전체 스케줄 목록 조회
@@ -41,7 +41,7 @@ export const useScheduleCRUDFeatureStore = () => {
     }
   }, [scheduleStore]);
 
-  const handleAddSchedule = useCallback(async (data: { date: string; timeSlotId: number }) => {
+  const createSchedule = useCallback(async (data: { date: string; timeSlotId: number }) => {
     scheduleStore.setLoading(true);
     try {
       const newSchedule = await createCounselingSchedule(data);
@@ -58,7 +58,7 @@ export const useScheduleCRUDFeatureStore = () => {
     }
   }, [scheduleStore]);
 
-  const handleDeleteSchedule = useCallback(async (scheduleId: number) => {
+  const deleteSchedule = useCallback(async (scheduleId: number) => {
     scheduleStore.setLoading(true);
     try {
       await deleteCounselingSchedule(scheduleId);
@@ -74,7 +74,7 @@ export const useScheduleCRUDFeatureStore = () => {
     }
   }, [scheduleStore]);
 
-  const fetchSchedulesByDate = useCallback(async (date: string) => {
+  const readSchedulesByDate = useCallback(async (date: string) => {
     try {
       const schedulesData = await getSchedulesByDate(date);
       
@@ -93,7 +93,7 @@ export const useScheduleCRUDFeatureStore = () => {
     }
   }, [scheduleStore]);
 
-  const fetchSchedulesByMonth = useCallback(async (year: number, month: number) => {
+  const readSchedulesByMonth = useCallback(async (year: number, month: number) => {
     scheduleStore.setLoading(true);
     try {
       const schedulesData = await getSchedulesByMonth(year, month);
@@ -111,11 +111,11 @@ export const useScheduleCRUDFeatureStore = () => {
   }, [scheduleStore]);
 
   return {
-    fetchReservations,
-    fetchAllSchedules,
-    fetchSchedulesByDate,
-    fetchSchedulesByMonth,
-    handleAddSchedule,
-    handleDeleteSchedule,
+    readReservations,
+    readSchedules,
+    readSchedulesByDate,
+    readSchedulesByMonth,
+    createSchedule,
+    deleteSchedule,
   };
 }; 

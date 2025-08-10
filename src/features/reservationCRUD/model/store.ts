@@ -19,7 +19,7 @@ interface ReservationCRUDActions {
   setLoading: (isLoading: boolean) => void;
   setSubmitting: (isSubmitting: boolean) => void;
   setError: (error: string | null) => void;
-  fetchAdmins: () => Promise<void>;
+  readAdmins: () => Promise<void>;
   createReservation: (data: CreateReservationFormData) => Promise<void>;
   reset: () => void;
 }
@@ -39,7 +39,7 @@ export const useReservationCRUDStore = create<ReservationCRUDState & Reservation
   setSubmitting: (isSubmitting) => set({ isSubmitting }),
   setError: (error) => set({ error }),
 
-  fetchAdmins: async () => {
+  readAdmins: async () => {
     set({ isLoading: true, error: null });
     try {
       const admins = await getAvailableAdmins();

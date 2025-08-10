@@ -1,5 +1,5 @@
 import React from "react";
-import AcademyItemWithUD from "./AcademyItemWithUD";
+import AcademyItem from "@/src/entities/academy/ui/AcademyItem";
 import { useAcademyStore } from "@/src/entities/academy/model/store";
 
 const AcademySkeleton = () => {
@@ -36,7 +36,7 @@ const AcademySkeleton = () => {
   );
 };
 
-const ReadAcademy: React.FC = () => {
+const AcademyRead: React.FC = () => {
   const { academies, isLoading } = useAcademyStore();
 
   if (isLoading) {
@@ -59,7 +59,7 @@ const ReadAcademy: React.FC = () => {
         </li>
       ) : (
         academies.map((academy) => (
-          <AcademyItemWithUD
+          <AcademyItem
             key={academy.academyId}
             academy={academy}
           />
@@ -69,4 +69,4 @@ const ReadAcademy: React.FC = () => {
   );
 };
 
-export default ReadAcademy; 
+export default AcademyRead; 

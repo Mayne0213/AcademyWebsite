@@ -2,7 +2,8 @@
 
 import { Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { getFileIcon, isPreviewable, getDownloadUrl } from '@/src/entities/file';
+import { getFileIcon, isPreviewable } from '@/src/entities/file';
+import { fileApi } from '@/src/entities/file/api';
 import { toast } from 'sonner';
 
 interface FileItemProps {
@@ -31,7 +32,7 @@ const FileItem = ({ file }: FileItemProps) => {
     }
 
     try {
-      const downloadUrl = await getDownloadUrl(fileKey);
+      const downloadUrl = await fileApi.getDownloadUrl(fileKey);
       router.push(downloadUrl);
     } catch (error) {
       toast.error('파일 다운로드에 실패했습니다.');
@@ -46,7 +47,7 @@ const FileItem = ({ file }: FileItemProps) => {
     }
 
     try {
-      const downloadUrl = await getDownloadUrl(fileKey);
+      const downloadUrl = await fileApi.getDownloadUrl(fileKey);
       window.open(downloadUrl, '_blank');
     } catch (error) {
       toast.error('파일 미리보기에 실패했습니다.');

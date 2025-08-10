@@ -21,14 +21,14 @@ export const AdminSelector = ({
     admins, 
     isLoading, 
     error,
-    fetchAdmins 
+    readAdmins 
   } = useReservationCRUDStore();
 
   useEffect(() => {
     if (!availableAdmins) {
-      fetchAdmins();
+      readAdmins();
     }
-  }, [fetchAdmins, availableAdmins]);
+  }, [readAdmins, availableAdmins]);
 
   // 외부에서 전달받은 상담사 목록이 있으면 사용, 없으면 store에서 가져온 것 사용
   const displayAdmins = availableAdmins || admins;

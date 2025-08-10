@@ -54,25 +54,4 @@ export const getFileIcon = (fileType: string): React.ReactElement => {
   return <Paperclip className="w-4 h-4 text-gray-500" />;
 };
 
-// 파일 다운로드 URL을 가져오는 함수
-export const getDownloadUrl = async (fileKey: string): Promise<string> => {
-  try {
-    const response = await fetch('/api/files/download-url', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ fileKey }),
-    });
-
-    if (!response.ok) {
-      throw new Error('다운로드 URL 생성에 실패했습니다.');
-    }
-
-    const data = await response.json();
-    return data.downloadUrl;
-  } catch (error) {
-    console.error('다운로드 URL 생성 오류:', error);
-    throw error;
-  }
-}; 
+ 
