@@ -16,9 +16,9 @@ const AcademyBoard = () => {
   }, [readAcademies]);
 
   return (
-    <main>
-      <div className="flex justify-between mb-6">
-        <h2 className="text-2xl font-sansKR-SemiBold">단과 관리</h2>
+    <main className="h-full flex flex-col p-4">
+      <div className="flex justify-between mb-4">
+        <h2 className="text-2xl smalltablet:text-2xl tablet:text-2xl desktop:text-3xl font-sansKR-SemiBold">단과 관리</h2>
         <Plus
           className="cursor-pointer"
           onClick={() => {
@@ -28,7 +28,7 @@ const AcademyBoard = () => {
       </div>
 
       {writeNewAcademy && (
-        <div className="mb-6">
+        <div className="mb-4">
           <CreateAcademy
             onCancel={() => setWriteNewAcademy(false)}
             onAdd={(academy:any) => {
