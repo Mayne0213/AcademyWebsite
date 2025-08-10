@@ -38,11 +38,12 @@ const AnnouncementBoard = () => {
         />
       </div>
 
-      <CreateAnnouncement
-        isOpen={writeNewAnnouncement}
-        onClose={() => setWriteNewAnnouncement(false)}
-        isAssetOnly={true}
-      />
+      {writeNewAnnouncement && (
+        <CreateAnnouncement
+          onClose={() => setWriteNewAnnouncement(false)}
+          isAssetOnly={true}
+        />
+      )}
 
       <ReadAnnouncement isAssetOnly={true} />
 

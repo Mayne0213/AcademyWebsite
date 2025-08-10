@@ -5,14 +5,12 @@ import AnnouncementForm from "./AnnouncementForm";
 import { useAnnouncementFeatureStore } from "../model/store";
 
 interface CreateAnnouncementProps {
-  isOpen: boolean;
   onClose: () => void;
   isAssetOnly?: boolean;
   announcement?: AnnouncementDetail; // 기존 데이터 (수정 시 사용)
 }
 
 const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
-  isOpen,
   onClose,
   isAssetOnly = false,
   announcement,
@@ -50,15 +48,16 @@ const CreateAnnouncement: React.FC<CreateAnnouncementProps> = ({
   };
 
   return (
-    <AnnouncementForm
-      initialData={initialData}
-      onSubmit={handleSubmit}
-      onCancel={onClose}
-      submitButtonText={isEditMode ? "저장" : "추가"}
-      isSubmitting={isSubmitting}
-      isOpen={isOpen}
-      modalTitle={isEditMode ? "공지사항 수정" : "신규 공지사항 작성"}
-    />
+    <div className="mb-4">
+      <AnnouncementForm
+        initialData={initialData}
+        onSubmit={handleSubmit}
+        onCancel={onClose}
+        submitButtonText={isEditMode ? "저장" : "추가"}
+        isSubmitting={isSubmitting}
+        title={isEditMode ? "공지사항 수정" : "신규 공지사항 작성"}
+      />
+    </div>
   );
 };
 

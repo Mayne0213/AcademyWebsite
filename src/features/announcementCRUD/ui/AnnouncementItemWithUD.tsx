@@ -59,9 +59,8 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
     }
     
     return (
-      <div className="border p-4 rounded-lg shadow-sm">
+      <div className="">
         <CreateAnnouncement
-          isOpen={true}
           onClose={() => {
             setIsEditing(false);
             setDetailData(null);
@@ -73,7 +72,7 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-300 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-300">
       {/* Header */}
       <div
         className="p-4 sm:p-6 cursor-pointer relative"
