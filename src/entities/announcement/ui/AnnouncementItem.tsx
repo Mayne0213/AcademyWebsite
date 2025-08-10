@@ -7,10 +7,9 @@ import {
   Trash2,
   User,
   Pin,
-  FileText,
 } from "lucide-react";
 import { Announcement, AnnouncementDetail } from "@/src/entities/announcement/model/types";
-import CreateAnnouncement from "./CreateAnnouncement";
+import AnnouncementCU from "@/src/features/announcementCRUD/ui/AnnouncementCU";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { FileItem } from "@/src/entities/file/ui";
 import { FORMATS } from "@/src/shared/lib/formats";
@@ -19,7 +18,7 @@ interface Props {
   announcement: Announcement;
 }
 
-const AnnouncementItemWithUD: React.FC<Props> = ({
+const AnnouncementItem: React.FC<Props> = ({
   announcement,
 }) => {
   const { readAnnouncementById, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
@@ -59,8 +58,8 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
     }
     
     return (
-      <div className="">
-        <CreateAnnouncement
+      <div>
+        <AnnouncementCU
           onClose={() => {
             setIsEditing(false);
             setDetailData(null);
@@ -184,4 +183,4 @@ const AnnouncementItemWithUD: React.FC<Props> = ({
   );
 };
 
-export default AnnouncementItemWithUD; 
+export default AnnouncementItem;

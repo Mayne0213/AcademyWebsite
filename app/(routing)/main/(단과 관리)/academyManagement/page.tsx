@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
-import CreateAcademy from "@/src/features/academyCRUD/ui/CreateAcademy";
-import ReadAcademy from "@/src/features/academyCRUD/ui/ReadAcademy";
+import AcademyCU from "@/src/features/academyCRUD/ui/AcademyCU";
+import AcademyRead from "@/src/features/academyCRUD/ui/AcademyRead";
 
 const AcademyBoard = () => {
   const [writeNewAcademy, setWriteNewAcademy] = useState<boolean>(false);
@@ -29,7 +29,8 @@ const AcademyBoard = () => {
 
       {writeNewAcademy && (
         <div className="mb-4">
-          <CreateAcademy
+          <AcademyCU
+            mode="create"
             onCancel={() => setWriteNewAcademy(false)}
             onAdd={(academy:any) => {
               createAcademy(academy);
@@ -39,7 +40,7 @@ const AcademyBoard = () => {
         </div>
       )}
 
-      <ReadAcademy />
+      <AcademyRead />
     </main>
   );
 };

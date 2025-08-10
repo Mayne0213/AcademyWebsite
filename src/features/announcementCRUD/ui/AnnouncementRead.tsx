@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect } from "react";
-import AnnouncementItemWithUD from "./AnnouncementItemWithUD";
+import { AnnouncementItem } from "@/src/entities/announcement/ui";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
-import { usePaginationStore, useTotalPages } from "@/src/shared/model/pagination";
+import { usePaginationStore } from "@/src/shared/model/pagination";
 
-interface ReadAnnouncementProps {
+interface AnnouncementReadProps {
   isAssetOnly?: boolean;
 }
 
@@ -44,7 +44,7 @@ const AnnouncementSkeleton = () => {
   );
 };
 
-const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
+const AnnouncementRead: React.FC<AnnouncementReadProps> = ({
   isAssetOnly = false,
 }) => {
   const { announcements, isLoading } = useAnnouncementStore();
@@ -79,7 +79,7 @@ const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
     <div className="flex-1 space-y-4 relative">
       <ul className="space-y-4">
         {announcements.map((announcement) => (
-          <AnnouncementItemWithUD
+          <AnnouncementItem
             key={announcement.announcementId}
             announcement={announcement}
           />
@@ -89,4 +89,4 @@ const ReadAnnouncement: React.FC<ReadAnnouncementProps> = ({
   );
 };
 
-export default ReadAnnouncement; 
+export default AnnouncementRead; 

@@ -149,7 +149,7 @@ export const ReservationCreate = () => {
     createReservation, 
     isSubmitting, 
     isLoading: storeLoading,
-    fetchAdmins,
+    readAdmins,
     admins
   } = useReservationCRUDStore();
   
@@ -166,7 +166,7 @@ export const ReservationCreate = () => {
 
   // 상담사 목록과 스케줄 로드
   useEffect(() => {
-    fetchAdmins();
+    readAdmins();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

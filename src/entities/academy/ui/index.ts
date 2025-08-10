@@ -1,1 +1,1 @@
-export * from './AcademyCard'; 
+export * from './AcademyItem'; 

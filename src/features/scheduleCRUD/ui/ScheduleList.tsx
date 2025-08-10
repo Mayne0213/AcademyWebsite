@@ -52,7 +52,7 @@ const ScheduleListSkeleton = () => (
 );
 
 export const ScheduleList = () => {
-  const { fetchSchedulesByMonth } = useScheduleCRUDFeatureStore();
+  const { readSchedulesByMonth } = useScheduleCRUDFeatureStore();
   const { isLoading } = useScheduleStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
@@ -63,7 +63,7 @@ export const ScheduleList = () => {
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1; // getMonth()는 0부터 시작하므로 +1
     
-    fetchSchedulesByMonth(currentYear, currentMonth);
+    readSchedulesByMonth(currentYear, currentMonth);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -88,7 +88,7 @@ export const ScheduleList = () => {
               onSelect={(date) => setSelectedDate(date!)}
               onMonthChange={(date) => {
                 setCurrentMonth(date);
-                fetchSchedulesByMonth(date.getFullYear(), date.getMonth() + 1);
+                readSchedulesByMonth(date.getFullYear(), date.getMonth() + 1);
               }}
               className="w-full max-w-sm smalltablet:max-w-md tablet:max-w-lg desktop:max-w-xl"
             />
