@@ -32,7 +32,7 @@ Zustand를 활용한 전역 상태 관리, Prisma ORM, S3 파일 업로드, 반�
 frontend/
   app/
     dashboard/
-      qnaBoard/         # QnA 게시판 (목록, 상세, 추가, 수정)
+      qna/              # QnA 게시판 (목록, 상세, 추가, 수정)
       announcement/     # 공지사항
       assets/           # 자료실
     api/                # Next.js API routes (백엔드)

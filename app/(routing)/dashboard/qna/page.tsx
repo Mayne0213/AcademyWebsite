@@ -382,7 +382,7 @@ const QnaBoard: React.FC = () => {
       {/* 질문 작성 버튼 */}
       {user?.role === "STUDENT" && (
         <div className="max-w-6xl mx-auto px-4 flex justify-end">
-          <Link href="/dashboard/qnaBoard/add">
+          <Link href="/dashboard/qna/add">
             <button
               className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition ${
                 isCompact ? "text-sm px-3 py-1.5" : ""
