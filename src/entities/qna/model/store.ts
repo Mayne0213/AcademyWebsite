@@ -35,8 +35,6 @@ export const useQnaDetailStore = create<QnaDetailState & QnaDetailBasicAction>((
 
   readDetail: (detail: QnADetail) => set({ selectedDetail: detail }),
 
-  clearDetail: () => set({ selectedDetail: null, isDetailLoading: false }),
-
   addComment: (comment: QnABoardComment) => set((state) => ({
     selectedDetail: state.selectedDetail ? {
       ...state.selectedDetail,
@@ -52,4 +50,5 @@ export const useQnaDetailStore = create<QnaDetailState & QnaDetailBasicAction>((
   })),
 
   setIsDetailLoading: (isDetailLoading: boolean) => set({ isDetailLoading }),
+  clearDetail: () => set({ selectedDetail: null, isDetailLoading: false }),
 }));
