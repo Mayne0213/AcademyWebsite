@@ -71,24 +71,6 @@ export interface CreateReservationFormData {
   consultationContent: string;
 }
 
-// ui 폼 상태용 
-export interface CounselingBookingFormData {
-  adminId: number;
-  date: Date | null;
-  timeSlotId: number | null;
-  scheduleId: number | null;
-  consultationContent: string;
-}
-
-export interface UpdateCounselingReservationRequest {
-  reservationId: number;
-  consultationContent?: string;
-  adminId?: number;
-  date?: string;
-  timeSlotId?: number;
-  status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
-}
-
 // Reservation Store 타입들
 export interface ReservationState {
   reservations: CounselingReservation[];

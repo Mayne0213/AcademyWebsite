@@ -10,7 +10,7 @@ interface ReservationDisplayProps {
   className?: string;
 }
 
-export function ReservationDisplay({ className = "" }: ReservationDisplayProps) {
+export function ReservationCard({ className = "" }: ReservationDisplayProps) {
   const { user } = useAuth();
   const [reservations, setReservations] = useState<CounselingReservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);

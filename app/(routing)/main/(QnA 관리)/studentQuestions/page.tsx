@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { QnaRead, QnaItem } from '@/src/features/qnaCRUD/ui';
+import QnaRead from '@/src/features/qnaCRUD/ui/QnaRead';
+import QnaItem from '@/src/entities/qna/ui/QnaItem';
 
 export default function AdminQuestionBoard() {
   const [selectedQnaId, setSelectedQnaId] = useState<number | null>(null);

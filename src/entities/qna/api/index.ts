@@ -60,15 +60,6 @@ export const qnaApi = {
     }
   },
 
-  // 특정 사용자의 QnA 조회
-  getQnAsByUser: async (userId: number): Promise<QnABoard[]> => {
-    try {
-      return await apiGet<QnABoard[]>(`${API_ENDPOINTS.QNA.BASE}?userId=${userId}`);
-    } catch (error) {
-      throw error;
-    }
-  },
-
   // 댓글 생성
   createComment: async (qnaId: number, newComment: CreateCommentRequest): Promise<QnABoardComment> => {
     try {

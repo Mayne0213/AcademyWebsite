@@ -1,29 +1,95 @@
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useAuth } from "@/src/app/providers";
+import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import type { File as FileEntity } from "@/src/entities/file/model/types";
+import type { QnABoard, QnaFile } from "@/src/entities/qna/model/types";
 
-interface QnaFormProps {
-  form: {
-    qnaTitle: string;
-    qnaContent: string;
+export const QnaCreate: React.FC = () => {
+  const router = useRouter();
+  const { createQnA } = useQnAFeatureStore();
+  const { user } = useAuth();
+
+  const [form, setForm] = useState({
+    qnaTitle: "",
+    qnaContent: "",
+  });
+
+  // 파일 업로드 상태 관리
+  const [files, setFiles] = useState<FileEntity[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-  files: FileEntity[];
-  isSubmitting: boolean;
-  onFormChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onFileUploadComplete: (file: FileEntity) => void;
-  onFileDelete: (fileId: number) => void;
-  onSubmit: (e: React.FormEvent) => void;
-}
 
-export const QnaCreate: React.FC<QnaFormProps> = ({
-  form,
-  files,
-  isSubmitting,
-  onFormChange,
-  onFileUploadComplete,
-  onFileDelete,
-  onSubmit,
-}) => {
+  // 파일 업로드 완료 시 호출되는 함수
+  const handleFileUploadComplete = (file: FileEntity) => {
+    setFiles(prev => [...prev, file]);
+    toast.success("파일이 성공적으로 업로드되었습니다!");
+  };
+
+  // 파일 삭제 함수
+  const handleFileDelete = (fileId: number) => {
+    setFiles(prev => prev.filter(file => file.fileId !== fileId));
+    toast.info("파일이 제거되었습니다.");
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user?.memberId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    if (!form.qnaTitle.trim()) {
+      toast.error("제목을 입력해주세요.");
+      return;
+    }
+
+    if (!form.qnaContent.trim()) {
+      toast.error("내용을 입력해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const newQna = {
+        qnaTitle: form.qnaTitle.trim(),
+        qnaContent: form.qnaContent.trim(),
+        qnaUserId: user.memberId,
+        isItAnswered: false,
+        qnaFiles: files.map(file => ({
+          qnaId: 0,
+          fileId: file.fileId,
+          qna: {} as QnABoard,
+          file: file,
+        } as QnaFile)),
+        comments: [],
+        student: {} as any,
+      };
+
+      await createQnA(newQna);
+      toast.success("질문이 성공적으로 등록되었습니다!");
+      router.push("/dashboard/qnaBoard");
+    } catch (error) {
+      console.error("질문 등록 오류:", error);
+      toast.error("질문 등록 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <form
       onSubmit={onSubmit}
@@ -36,7 +102,7 @@ export const QnaCreate: React.FC<QnaFormProps> = ({
         <input
           name="qnaTitle"
           value={form.qnaTitle}
-          onChange={onFormChange}
+          onChange={handleChange}
           required
           maxLength={100}
           className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -54,7 +120,7 @@ export const QnaCreate: React.FC<QnaFormProps> = ({
         <textarea
           name="qnaContent"
           value={form.qnaContent}
-          onChange={onFormChange}
+          onChange={handleChange}
           rows={8}
           required
           maxLength={1000}
@@ -72,7 +138,7 @@ export const QnaCreate: React.FC<QnaFormProps> = ({
           첨부 파일
         </label>
         <FileUploadDropzone
-          onUploadComplete={onFileUploadComplete}
+          onUploadComplete={handleFileUploadComplete}
           multiple={true}
           folder="qna-files"
           className="mb-4"
@@ -86,7 +152,7 @@ export const QnaCreate: React.FC<QnaFormProps> = ({
               <FileDisplay
                 key={file.fileId}
                 file={file}
-                onDelete={onFileDelete}
+                onDelete={handleFileDelete}
               />
             ))}
           </div>
