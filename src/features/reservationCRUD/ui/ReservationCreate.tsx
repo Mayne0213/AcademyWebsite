@@ -1,32 +1,63 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { useReservationCRUDStore } from '../model';
 import { AdminSelector } from './AdminSelector';
-import { AdminWithSchedules, AvailableSchedule, CreateReservationFormData, CounselingBookingFormData } from '@/src/entities/reservation/model/types';
+import { AdminWithSchedules, AvailableSchedule, CreateReservationFormData } from '@/src/entities/reservation/model/types';
+
+// 폼 데이터 타입 정의
+interface ReservationFormData {
+  adminId: number;
+  date: string;
+  timeSlotId: number;
+  scheduleId: number;
+  consultationContent: string;
+}
 
 // Step 1: 상담사 선택 컴포넌트
 interface Step1AdminSelectionProps {
-  formData: CounselingBookingFormData;
+  control: any;
+  watch: any;
+  setValue: any;
   availableAdmins: AdminWithSchedules[];
   isLoadingAdmins: boolean;
-  onAdminSelect: (adminId: number) => void;
+  errors: any;
 }
 
-const Step1AdminSelection = ({ 
-  formData, 
-  availableAdmins, 
-  isLoadingAdmins, 
-  onAdminSelect 
+const Step1AdminSelection = ({
+  control,
+  watch,
+  setValue,
+  availableAdmins,
+  isLoadingAdmins,
+  errors
 }: Step1AdminSelectionProps) => {
+  const selectedAdminId = watch('adminId');
+
+  const handleAdminSelect = (adminId: number) => {
+    setValue('adminId', adminId);
+    // 다른 필드들 초기화
+    setValue('date', '');
+    setValue('timeSlotId', '');
+    setValue('scheduleId', '');
+  };
+
   return (
     <div>
       <h3 className="text-lg font-semibold mb-3">선생님 선택</h3>
-      <AdminSelector
-        selectedAdminId={formData.adminId || null}
-        onAdminSelect={onAdminSelect}
-        availableAdmins={availableAdmins}
-        isLoadingAdmins={isLoadingAdmins}
+      <Controller
+        name="adminId"
+        control={control}
+        rules={{ required: '선생님을 선택해주세요' }}
+        render={() => (
+          <AdminSelector
+            selectedAdminId={selectedAdminId || null}
+            onAdminSelect={handleAdminSelect}
+            availableAdmins={availableAdmins}
+            isLoadingAdmins={isLoadingAdmins}
+          />
+        )}
       />
     </div>
   );
@@ -34,40 +65,63 @@ const Step1AdminSelection = ({
 
 // Step 2: 날짜 선택 컴포넌트
 interface Step2DateSelectionProps {
-  formData: CounselingBookingFormData;
+  control: any;
+  watch: any;
+  setValue: any;
   availableDates: string[];
-  onDateSelect: (date: string) => void;
+  errors: any;
 }
 
-const Step2DateSelection = ({ 
-  formData, 
-  availableDates, 
-  onDateSelect 
+const Step2DateSelection = ({
+  control,
+  watch,
+  setValue,
+  availableDates,
+  errors
 }: Step2DateSelectionProps) => {
+  const selectedAdminId = watch('adminId');
+  const selectedDate = watch('date');
+
+  const handleDateSelect = (date: string) => {
+    setValue('date', date);
+    // 시간대 관련 필드들 초기화
+    setValue('timeSlotId', '');
+    setValue('scheduleId', '');
+  };
+
   return (
     <div>
       <h3 className="text-lg font-semibold mb-3">날짜 선택</h3>
-      {formData.adminId ? (
-        <div>
-          <select
-            className="w-full p-3 border border-gray-300 rounded-lg"
-            onChange={(e) => onDateSelect(e.target.value)}
-            value={formData.date ? formData.date.toISOString().split('T')[0] : ''}
-            required
-          >
-            <option value="">날짜를 선택해주세요</option>
-            {availableDates.map(date => (
-              <option key={date} value={date}>
-                {new Date(date).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  weekday: 'long'
-                })}
-              </option>
-            ))}
-          </select>
-        </div>
+      {selectedAdminId ? (
+        <Controller
+          name="date"
+          control={control}
+          rules={{ required: '날짜를 선택해주세요' }}
+          render={({ field }) => (
+            <div>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                onChange={(e) => handleDateSelect(e.target.value)}
+                value={selectedDate || ''}
+              >
+                <option value="">날짜를 선택해주세요</option>
+                {availableDates.map(date => (
+                  <option key={date} value={date}>
+                    {new Date(date).toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      weekday: 'long'
+                    })}
+                  </option>
+                ))}
+              </select>
+              {errors.date && (
+                <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
+              )}
+            </div>
+          )}
+        />
       ) : (
         <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
           선생님을 먼저 선택해주세요
@@ -79,38 +133,61 @@ const Step2DateSelection = ({
 
 // Step 3: 시간대 선택 컴포넌트
 interface Step3TimeSlotSelectionProps {
-  formData: CounselingBookingFormData;
+  control: any;
+  watch: any;
+  setValue: any;
   availableTimeSlots: AvailableSchedule[];
-  onTimeSlotSelect: (timeSlotId: number, scheduleId: number) => void;
+  errors: any;
 }
 
-const Step3TimeSlotSelection = ({ 
-  formData, 
-  availableTimeSlots, 
-  onTimeSlotSelect 
+const Step3TimeSlotSelection = ({
+  control,
+  watch,
+  setValue,
+  availableTimeSlots,
+  errors
 }: Step3TimeSlotSelectionProps) => {
+  const selectedDate = watch('date');
+  const selectedTimeSlot = watch('timeSlotId');
+
+  const handleTimeSlotSelect = (timeSlotId: number, scheduleId: number) => {
+    setValue('timeSlotId', timeSlotId);
+    setValue('scheduleId', scheduleId);
+  };
+
   return (
     <div>
       <h3 className="text-lg font-semibold mb-3">시간대 선택</h3>
-      {formData.date ? (
-        <select
-          className="w-full p-3 border border-gray-300 rounded-lg"
-          onChange={(e) => {
-            const selectedSchedule = availableTimeSlots.find(schedule => schedule.timeSlotId === parseInt(e.target.value));
-            if (selectedSchedule) {
-              onTimeSlotSelect(parseInt(e.target.value), selectedSchedule.scheduleId);
-            }
-          }}
-          value={formData.timeSlotId || ''}
-          required
-        >
-          <option value="">시간대를 선택해주세요</option>
-          {availableTimeSlots.map(schedule => (
-            <option key={schedule.scheduleId} value={schedule.timeSlotId}>
-              {schedule.timeSlot.displayName}
-            </option>
-          ))}
-        </select>
+      {selectedDate ? (
+        <Controller
+          name="timeSlotId"
+          control={control}
+          rules={{ required: '시간대를 선택해주세요' }}
+          render={({ field }) => (
+            <div>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg"
+                onChange={(e) => {
+                  const selectedSchedule = availableTimeSlots.find(schedule => schedule.timeSlotId === parseInt(e.target.value));
+                  if (selectedSchedule) {
+                    handleTimeSlotSelect(selectedSchedule.timeSlotId, selectedSchedule.scheduleId);
+                  }
+                }}
+                value={selectedTimeSlot || ''}
+              >
+                <option value="">시간대 선택</option>
+                {availableTimeSlots.map(schedule => (
+                  <option key={schedule.scheduleId} value={schedule.timeSlotId}>
+                    {schedule.timeSlot.displayName}
+                  </option>
+                ))}
+              </select>
+              {errors.timeSlotId && (
+                <p className="text-red-500 text-sm mt-1">{errors.timeSlotId.message}</p>
+              )}
+            </div>
+          )}
+        />
       ) : (
         <div className="p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
           날짜를 먼저 선택해주세요
@@ -120,25 +197,38 @@ const Step3TimeSlotSelection = ({
   );
 };
 
-// Step 4: 상담 내용 입력 컴포넌트
+// Step 4: 상담 내용 컴포넌트
 interface Step4ConsultationContentProps {
-  formData: CounselingBookingFormData;
-  onContentChange: (content: string) => void;
+  control: any;
+  errors: any;
 }
 
 const Step4ConsultationContent = ({ 
-  formData, 
-  onContentChange 
+  control,
+  errors
 }: Step4ConsultationContentProps) => {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-3">상담 내용</h3>
-      <textarea
-        className="w-full p-3 border border-gray-300 rounded-lg h-32"
-        placeholder="상담하고 싶은 내용을 입력해주세요..."
-        value={formData.consultationContent}
-        onChange={(e) => onContentChange(e.target.value)}
-        required
+      <Controller
+        name="consultationContent"
+        control={control}
+        rules={{
+          required: '상담 내용을 입력해주세요',
+          minLength: { value: 10, message: '상담 내용은 최소 10자 이상 입력해주세요' }
+        }}
+        render={({ field }) => (
+          <div>
+            <textarea
+              {...field}
+              className="w-full p-3 border border-gray-300 rounded-lg h-32 resize-none"
+              placeholder="상담하고 싶은 내용을 자세히 작성해주세요"
+            />
+            {errors.consultationContent && (
+              <p className="text-red-500 text-sm mt-1">{errors.consultationContent.message}</p>
+            )}
+          </div>
+        )}
       />
     </div>
   );
@@ -153,12 +243,21 @@ export const ReservationCreate = () => {
     admins
   } = useReservationCRUDStore();
   
-  const [formData, setFormData] = useState<CounselingBookingFormData>({
-    adminId: 0,
-    date: null,
-    timeSlotId: null,
-    scheduleId: null,
-    consultationContent: '',
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid }
+  } = useForm<ReservationFormData>({
+    defaultValues: {
+      adminId: 0,
+      date: '',
+      timeSlotId: 0,
+      scheduleId: 0,
+      consultationContent: '',
+    },
+    mode: 'onChange'
   });
 
   const [availableSchedules, setAvailableSchedules] = useState<AvailableSchedule[]>([]);
@@ -170,120 +269,95 @@ export const ReservationCreate = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleAdminSelect = (adminId: number) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      adminId,
-      date: null,
-      timeSlotId: null,
-      scheduleId: null
-    }));
+  // 선택된 상담사가 변경될 때 스케줄 업데이트
+  const selectedAdminId = watch('adminId');
 
-    // 선택된 상담사의 스케줄 가져오기
-    const selectedAdmin = admins.find(admin => admin.memberId === adminId);
-    if (selectedAdmin) {
-      setAvailableSchedules(selectedAdmin.schedules);
-      
-      // 가능한 날짜들 추출 (중복 제거) - ISO 날짜를 YYYY-MM-DD 형식으로 변환
-      const dates = [...new Set(selectedAdmin.schedules.map(schedule => {
-        const date = new Date(schedule.date);
-        return date.toISOString().split('T')[0];
-      }))];
-      setAvailableDates(dates);
-    }
-  };
-
-  const handleDateSelect = (date: string) => {
-    const selectedDate = new Date(date);
-    setFormData(prev => ({ 
-      ...prev, 
-      date: selectedDate,
-      timeSlotId: null,
-      scheduleId: null
-    }));
-  };
-
-  const handleTimeSlotSelect = (timeSlotId: number, scheduleId: number) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      timeSlotId,
-      scheduleId
-    }));
-  };
-
-  const handleContentChange = (content: string) => {
-    setFormData(prev => ({ 
-      ...prev, 
-      consultationContent: content 
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.adminId && formData.date && formData.timeSlotId && formData.scheduleId && formData.consultationContent) {
-      try {
-        const reservationData: CreateReservationFormData = {
-          adminId: formData.adminId,
-          date: formData.date.toISOString().split('T')[0],
-          timeSlotId: formData.timeSlotId!,
-          scheduleId: formData.scheduleId!,
-          consultationContent: formData.consultationContent
-        };
-        await createReservation(reservationData);
+  useEffect(() => {
+    if (selectedAdminId) {
+      const selectedAdmin = admins.find(admin => admin.memberId === selectedAdminId);
+      if (selectedAdmin) {
+        setAvailableSchedules(selectedAdmin.schedules);
         
-        // 성공 시 알림 및 페이지 이동
-        window.alert('상담 예약이 성공적으로 완료되었습니다! 예약 내역은 대시보드에서 확인하실 수 있습니다.');
-        window.location.href = '/dashboard';
-      } catch (error) {
-        window.alert('상담 예약에 실패했습니다. 다시 시도해주세요.');
+        // 가능한 날짜들 추출 (중복 제거)
+        const dates = [...new Set(selectedAdmin.schedules.map(schedule => {
+          const date = new Date(schedule.date);
+          return date.toISOString().split('T')[0];
+        }))];
+        setAvailableDates(dates);
       }
     }
-  };
+  }, [selectedAdminId, admins]);
 
   // 선택된 날짜의 가능한 시간대들
-  const availableTimeSlots = formData.date 
+  const selectedDate = watch('date');
+  const availableTimeSlots = selectedDate
     ? availableSchedules.filter(schedule => {
         const scheduleDate = new Date(schedule.date);
         const scheduleDateStr = scheduleDate.toISOString().split('T')[0];
-        const selectedDateStr = formData.date!.toISOString().split('T')[0];
-        return scheduleDateStr === selectedDateStr;
+        return scheduleDateStr === selectedDate;
       })
     : [];
 
+  const onSubmit = async (data: ReservationFormData) => {
+    try {
+      const reservationData: CreateReservationFormData = {
+        adminId: data.adminId,
+        date: data.date,
+        timeSlotId: data.timeSlotId,
+        scheduleId: data.scheduleId,
+        consultationContent: data.consultationContent
+      };
+
+      await createReservation(reservationData);
+
+      // 성공 시 알림 및 페이지 이동
+      window.alert('상담 예약이 성공적으로 완료되었습니다! 예약 내역은 대시보드에서 확인하실 수 있습니다.');
+      window.location.href = '/dashboard';
+    } catch (error) {
+      window.alert('상담 예약에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Step 1: 상담사 선택 */}
       <Step1AdminSelection
-        formData={formData}
+        control={control}
+        watch={watch}
+        setValue={setValue}
         availableAdmins={admins}
         isLoadingAdmins={storeLoading}
-        onAdminSelect={handleAdminSelect}
+        errors={errors}
       />
 
       {/* Step 2: 날짜 선택 */}
       <Step2DateSelection
-        formData={formData}
+        control={control}
+        watch={watch}
+        setValue={setValue}
         availableDates={availableDates}
-        onDateSelect={handleDateSelect}
+        errors={errors}
       />
 
       {/* Step 3: 시간대 선택 */}
       <Step3TimeSlotSelection
-        formData={formData}
+        control={control}
+        watch={watch}
+        setValue={setValue}
         availableTimeSlots={availableTimeSlots}
-        onTimeSlotSelect={handleTimeSlotSelect}
+        errors={errors}
       />
 
       {/* Step 4: 상담 내용 */}
       <Step4ConsultationContent
-        formData={formData}
-        onContentChange={handleContentChange}
+        control={control}
+        errors={errors}
       />
 
       {/* 제출 버튼 */}
       <button
         type="submit"
-        disabled={isSubmitting || !formData.adminId || !formData.date || !formData.timeSlotId || !formData.scheduleId || !formData.consultationContent}
+        disabled={isSubmitting || !isValid}
         className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
       >
         {isSubmitting ? '예약 중...' : '상담 예약하기'}

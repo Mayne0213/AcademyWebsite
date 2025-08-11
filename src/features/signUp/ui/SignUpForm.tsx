@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { signUpApi } from "@/src/features/signUp/model";
 import { SignUpFormData } from "@/src/features/signUp/model";
 import { SIGNUP_VALIDATION } from "@/src/features/signUp/model/validation";
@@ -13,46 +14,83 @@ import Step2Form from "./Step2Form";
 const SignUpForm = () => {
   const { readAcademies } = useAcademyFeatureStore();
   const { academies } = useAcademyStore();
-  const [isLoading, setIsLoading] = useState(false);
   
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<SignUpFormData>({
-    userId: "",
-    userPassword: "",
-    userCheckPassword: "",
-    academyId: 0,
-    studentName: "",
-    studentPhone: "",
-    studentBirthYear: "",
-    studentHighschool: "",
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    setError,
+    formState: { errors, isSubmitting },
+    trigger
+  } = useForm<SignUpFormData>({
+    defaultValues: {
+      userId: "",
+      userPassword: "",
+      userCheckPassword: "",
+      academyId: 0,
+      studentName: "",
+      studentPhone: "",
+      studentBirthYear: "",
+      studentHighschool: "",
+    },
+    mode: 'onChange'
   });
+
+  const [step, setStep] = useState(1);
 
   // 학원 목록 불러오기
   useEffect(() => {
     readAcademies();
   }, [readAcademies]);
 
-  // 폼 데이터 업데이트
-  const handleFormDataChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  // 다음 단계로 이동 (1단계 검증 후)
+  const handleNextStep = async () => {
+    const isStep1Valid = await trigger(['userId', 'userPassword', 'userCheckPassword']);
+    if (isStep1Valid) {
+      setStep(2);
+    }
+  };
+
+  // 이전 단계로 이동
+  const handlePreviousStep = () => {
+    setStep(1);
   };
 
   // 회원가입 제출
-  const handleSubmit = async () => {
-    SIGNUP_VALIDATION.validateSignUpData(formData);
-
-    // 모든 validation 통과
+  const onSubmit = async (data: SignUpFormData) => {
     try {
-      setIsLoading(true);
-      const result = await signUpApi.submitSignUp(formData);
+      SIGNUP_VALIDATION.validateSignUpData(data);
+
+      const result = await signUpApi.submitSignUp(data);
 
       if (result.success) {
         alert(SUCCESS_MESSAGES.AUTH.SIGNUP_SUCCESS);
         window.location.href = "/home/signIn";
       }
     } catch (error: any) {
-    } finally {
-      setIsLoading(false);
+      // 서버 에러 처리 - toast는 이미 apiPost에서 표시됨
+      if (error.message) {
+        // 아이디 중복 에러
+        if (error.message === "이미 사용 중인 아이디입니다.") {
+          setError("userId", {
+            type: "manual",
+            message: error.message
+          });
+          setStep(1); // 1단계로 돌아가기
+          return;
+        }
+
+        // 전화번호 중복 에러
+        if (error.message === "이미 등록된 전화번호입니다.") {
+          setError("studentPhone", {
+            type: "manual",
+            message: error.message
+          });
+          setStep(2); // 2단계로 이동
+          return;
+        }
+      }
+      // 기타 에러는 apiPost에서 이미 toast로 표시됨
     }
   };
 
@@ -60,28 +98,20 @@ const SignUpForm = () => {
     <div className={`bg-white rounded-2xl shadow-xl border border-gray-100 p-8`}>
       {step === 1 ? (
         <Step1Form
-          formData={{
-            userId: formData.userId || "",
-            userPassword: formData.userPassword || "",
-            userCheckPassword: formData.userCheckPassword || "",
-          }}
-          onNext={() => setStep(2)}
-          onFormDataChange={handleFormDataChange}
+          control={control}
+          errors={errors}
+          onNext={handleNextStep}
+          setValue={setValue}
         />
       ) : (
         <Step2Form
-          formData={{
-            academyId: formData.academyId,
-            studentName: formData.studentName || "",
-            studentPhone: formData.studentPhone || "",
-            studentBirthYear: formData.studentBirthYear || "",
-            studentHighschool: formData.studentHighschool || "",
-          }}
-          onPrevious={() => setStep(1)}
-          onSubmit={handleSubmit}
+          control={control}
+          errors={errors}
+          onPrevious={handlePreviousStep}
+          onSubmit={handleSubmit(onSubmit)}
           academies={academies}
-          isLoading={isLoading}
-          onFormDataChange={handleFormDataChange}
+          isLoading={isSubmitting}
+          setValue={setValue}
         />
       )}
     </div>

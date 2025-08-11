@@ -160,8 +160,8 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
 
   return (
     <div className="mb-4">
-      <div className="bg-white border-gray-300 rounded-lg border shadow-lg p-6">
-        <h1 className="text-xl ml-2 mb-2">{title}</h1>
+      <div className="bg-white border-gray-300 rounded-lg border shadow-lg p-4 smalltablet:p-6">
+        <h1 className="text-lg smalltablet:text-xl ml-2 mb-3 smalltablet:mb-4">{title}</h1>
         
         {/* 제목 입력 */}
         <input
@@ -171,7 +171,7 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
           onChange={handleChange}
           placeholder="공지 제목"
           required={mode === 'create'}
-          className="w-full border p-2 mb-2"
+          className="w-full border p-2 smalltablet:p-3 mb-3 smalltablet:mb-4 text-sm smalltablet:text-base"
         />
         
         {/* 내용 입력 */}
@@ -181,29 +181,29 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
           onChange={handleChange}
           placeholder="공지 내용"
           required={mode === 'create'}
-          className="w-full border p-2 mb-2"
+          className="w-full border p-2 smalltablet:p-3 mb-3 smalltablet:mb-4 text-sm smalltablet:text-base"
           rows={4}
         />
 
         {/* 학원 선택 섹션 */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="mb-4 smalltablet:mb-6">
+          <label className="block text-sm smalltablet:text-base font-medium text-gray-700 mb-2 smalltablet:mb-3">
             공지 대상 학원 선택
           </label>
-          <div className="border rounded-md p-3 bg-gray-50">
-            <div className="grid grid-cols-2 gap-2">
+          <div className="border rounded-md p-2 smalltablet:p-3 bg-gray-50">
+            <div className="grid grid-cols-1 smalltablet:grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4 gap-2 smalltablet:gap-3">
               {academies.map((academy) => (
                 <label
                   key={academy.academyId}
-                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 smalltablet:p-3 rounded text-sm smalltablet:text-base"
                 >
                   <input
                     type="checkbox"
                     checked={selectedAcademies.includes(academy.academyId)}
                     onChange={() => handleAcademySelection(academy.academyId)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 smalltablet:w-5 smalltablet:h-5"
                   />
-                  <span className="text-sm text-gray-700">{academy.academyName}</span>
+                  <span className="text-gray-700">{academy.academyName}</span>
                 </label>
               ))}
             </div>
@@ -211,8 +211,8 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
         </div>
 
         {/* 파일 업로드 섹션 */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="mb-4 smalltablet:mb-6">
+          <label className="block text-sm smalltablet:text-base font-medium text-gray-700 mb-2 smalltablet:mb-3">
             첨부 파일
           </label>
           <FileUploadDropzone
@@ -224,8 +224,8 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
           
           {/* 업로드된 파일 목록 */}
           {files.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-gray-700">
+            <div className="space-y-2 smalltablet:space-y-3">
+              <h4 className="text-sm smalltablet:text-base font-medium text-gray-700">
                 {mode === 'create' ? "업로드된 파일" : "첨부된 파일"}
               </h4>
               {files.map((file) => (
@@ -241,20 +241,21 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
         </div>
 
         {/* 버튼 영역 */}
-        <div className="w-full flex justify-end pt-4 border-t">
+        <div className="w-full flex flex-col smalltablet:flex-row justify-end pt-4 smalltablet:pt-6 border-t space-y-2 smalltablet:space-y-0 smalltablet:space-x-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full smalltablet:w-auto"
+          >
+            취소
+          </Button>
           <Button
             variant="default"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="mr-2"
+            className="w-full smalltablet:w-auto"
           >
             {isSubmitting ? "저장 중..." : submitButtonText}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
-            취소
           </Button>
         </div>
       </div>
