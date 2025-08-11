@@ -209,7 +209,7 @@ export default function Dashboard() {
           {/* 질문 게시판 */}
           <DashboardBoard
             title="질문 게시판"
-            href="/dashboard/qnaBoard"
+            href="/dashboard/qna"
             items={qnas}
             isLoading={isQnaLoading}
             getTitle={(item: any) => item.qnaTitle}

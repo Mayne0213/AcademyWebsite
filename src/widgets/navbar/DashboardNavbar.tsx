@@ -38,7 +38,7 @@ export default function Navbar() {
               자료실
             </a>
             <a
-              href="/dashboard/qnaBoard"
+              href="/dashboard/qna"
               className="text-gray-600 hover:text-gray-900 text-sm transition"
             >
               질문 게시판
@@ -106,7 +106,7 @@ export default function Navbar() {
               자료실
             </a>
             <a
-              href="/dashboard/qnaBoard"
+              href="/dashboard/qna"
               className="block text-gray-600 hover:text-gray-900 text-sm px-3 py-3 rounded-md hover:bg-gray-100 transition-all duration-200 transform hover:translate-x-1"
               onClick={() => setMenuOpen(false)}
             >
