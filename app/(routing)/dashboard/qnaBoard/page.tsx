@@ -7,11 +7,12 @@ import Link from "next/link";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { Pagination } from "@/src/shared/ui";
 import { useAuth } from "@/src/app/providers";
-import { useQna } from "@/components/hooks/useQna";
+import { useQnABoardStore } from "@/src/entities/qna/model/store";
+import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
 import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
 import { FileDisplay } from "@/src/entities/file/ui";
 
-import { QnaCommentFormInput } from "@/components/type/qnaType";
+import { CreateCommentRequest } from "@/src/entities/qna/model/types";
 import { FORMATS } from "@/src/shared/lib/formats";
 import { apiGet } from "@/src/shared/api";
 
@@ -33,24 +34,26 @@ const QnaBoard: React.FC = () => {
   const isCompact = deviceType ? deviceType <= DeviceType.SMALLTABLET : false;
 
   const {
-    loading,
-    Qnas,
-    addComment,
-    loadInitialPersonalQna,
-    loadInitialQna,
-    deleteQna,
-    deleteCommentFromQna,
-    expandedDetails,
-    setExpandedDetails,
-  } = useQna();
+    qnas,
+    isLoading,
+  } = useQnABoardStore();
+  const {
+    readQnAs,
+    readPersonalQnAs,
+    deleteQnA,
+    createComment,
+    deleteComment,
+  } = useQnAFeatureStore();
+
   const [expandedItems, setExpandedItems] = useState<ExpandedItems>({});
   const [loadingDetails, setLoadingDetails] = useState<{ [id: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>(
     {},
   );
+  const [expandedDetails, setExpandedDetails] = useState<{ [id: number]: ExpandedDetail }>({});
 
-  const totalPages = Math.ceil(Qnas.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(qnas.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
@@ -60,21 +63,21 @@ const QnaBoard: React.FC = () => {
     if (!user?.memberId) return;
 
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
-      loadInitialQna();
+      readQnAs();
     } else {
-      loadInitialPersonalQna();
+      readPersonalQnAs();
     }
-  }, [user, loadInitialPersonalQna, loadInitialQna]);
+  }, [user?.memberId, user?.role]);
 
   const handleDelete = async (id: number) => {
     if (confirm("정말로 이 질문을 삭제하시겠습니까?")) {
-      deleteQna(id);
+      deleteQnA(id);
     }
   };
 
   const handleDeleteComment = async (qnaId: number, commentId: number) => {
     if (confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
-      await deleteCommentFromQna(qnaId, commentId);
+      await deleteComment(qnaId, commentId);
       // 상태 업데이트는 zustand store에서만!
     }
   };
@@ -87,14 +90,14 @@ const QnaBoard: React.FC = () => {
     const content = commentInputs[qnaId]?.trim();
     if (!content) return;
 
-    const newQnaComment: QnaCommentFormInput = {
+    const newQnaComment: CreateCommentRequest = {
       commentContent: content,
       commentMemberId: user?.memberId as number,
       qnaId: qnaId,
     };
 
     try {
-      await addComment(newQnaComment);
+      await createComment(qnaId, newQnaComment);
       setCommentInputs((prev) => ({ ...prev, [qnaId]: "" }));
     } catch (err) {
       alert("댓글 등록 중 오류가 발생했습니다.");
@@ -136,7 +139,7 @@ const QnaBoard: React.FC = () => {
 
       <div className="max-w-6xl mx-auto px-4">
         <div className="space-y-4">
-          {loading ? (
+          {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 animate-pulse">
@@ -147,7 +150,7 @@ const QnaBoard: React.FC = () => {
             </div>
           ) : (
             <>
-              {Qnas.length === 0 ? (
+              {qnas.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
                   <div className="text-gray-400 mb-4">
                     <Calendar className="w-12 h-12 mx-auto" />
@@ -155,7 +158,7 @@ const QnaBoard: React.FC = () => {
                   <p className="text-gray-500">자신이 올린 질문만 표시됩니다.</p>
                 </div>
               ) : (
-                Qnas.slice(startIndex, endIndex).map((item, index) => {
+                qnas.slice(startIndex, endIndex).map((item, index) => {
                   const globalIndex = startIndex + index;
                   const isExpanded = expandedItems[globalIndex];
                   const detail = expandedDetails[item.qnaId] as ExpandedDetail | undefined;

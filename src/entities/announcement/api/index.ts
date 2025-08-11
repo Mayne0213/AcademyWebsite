@@ -2,7 +2,6 @@
 import { Announcement, CreateAnnouncementRequest, AnnouncementDetail } from "@/src/entities/announcement/model/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
-import { ANNOUNCEMENT_VALIDATION } from "@/src/entities/announcement/model/validation";
 import { toast } from "sonner";
 
 export const announcementApi = {
@@ -19,30 +18,22 @@ export const announcementApi = {
 
   createAnnouncement: async (newAnnouncement: CreateAnnouncementRequest): Promise<Announcement> => {
     try {
-      ANNOUNCEMENT_VALIDATION.validateAnnouncementForCreate(newAnnouncement);
       const result = await apiPost<Announcement>(API_ENDPOINTS.ANNOUNCEMENT.BASE, newAnnouncement);
       toast.success("공지사항이 성공적으로 생성되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },
 
   updateAnnouncement: async (announcementId: number, updateData: { announcementId: number; announcementTitle: string; announcementContent: string; isItAssetAnnouncement: boolean; isItImportantAnnouncement: boolean; files?: any[]; academyIds?: number[] }): Promise<Announcement> => {
     try {
-      ANNOUNCEMENT_VALIDATION.validateAnnouncementForUpdate(updateData);
       const result = await apiPut<Announcement>(API_ENDPOINTS.ANNOUNCEMENT.BY_ID(announcementId), updateData);
       toast.success("공지사항이 성공적으로 수정되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },

@@ -2,7 +2,6 @@
 import { UserInfo } from "@/src/entities/user/model/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
-import { USER_VALIDATION } from "@/src/entities/user/model/validation";
 import { toast } from "sonner";
 
 // 사용자 API 관련 함수들
@@ -18,19 +17,14 @@ export const userApi = {
 
   // 사용자 생성은 회원가입 페이지에서 처리
 
-  // 사용자 정보 수정 (간단한 validation)
+  // 사용자 정보 수정
   updateUser: async (updatedUser: Partial<UserInfo>): Promise<UserInfo> => {
     try {
-      USER_VALIDATION.validateUserInfoForUpdate(updatedUser);
-
       const result = await apiPut<UserInfo>(`${API_ENDPOINTS.AUTH.ME}`, updatedUser);
       toast.success("사용자 정보가 성공적으로 수정되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },

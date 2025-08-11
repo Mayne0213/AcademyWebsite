@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { User } from "lucide-react";
-import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
-import { useQna } from "@/components/hooks/useQna";
+import { useQnABoardStore } from "@/src/entities/qna/model/store";
+import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
 import { useAuth } from "@/src/app/providers";
 import Link from "next/link";
 import { FORMATS } from "@/src/shared/lib/formats";
@@ -14,9 +14,9 @@ import { ReservationDisplay } from "@/src/entities/reservation/ui";
 
 export default function Dashboard() {
   const { user, isLoading: isAuthLoading } = useAuth();
-  const { isLoading } = useAnnouncementStore();
   const { readAnnouncements } = useAnnouncementFeatureStore();
-  const { Qnas, loadInitialPersonalQna, loadInitialQna } = useQna();
+  const { qnas, isLoading: isQnaLoading } = useQnABoardStore();
+  const { readQnAs, readPersonalQnAs } = useQnAFeatureStore();
 
   // 대시보드 전용 임시 상태
   const [dashboardAnnouncements, setDashboardAnnouncements] = useState<Announcement[]>([]);
@@ -79,11 +79,11 @@ export default function Dashboard() {
     loadDashboardData();
 
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
-      loadInitialQna();
+      readQnAs();
     } else {
-      loadInitialPersonalQna();
+      readPersonalQnAs();
     }
-  }, [readAnnouncements, loadInitialQna, loadInitialPersonalQna, user?.memberId, user?.role]);
+  }, []);
 
   return (
     <div className="bg-gray-50">
@@ -288,7 +288,7 @@ export default function Dashboard() {
               </a>
             </div>
 
-            {isLoading ? (
+            {isQnaLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
@@ -310,7 +310,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            ) : !Qnas || Qnas.length === 0 ? (
+            ) : !qnas || qnas.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -331,7 +331,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {Qnas.slice(0, 4).map((item, index) => (
+                {qnas.slice(0, 4).map((item, index) => (
                   <Link
                     key={index}
                     href={`/dashboard/qnaBoard`}

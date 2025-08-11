@@ -14,6 +14,18 @@ export interface QnABoard  {
   student: Student;
 }
 
+// QnA 상세 정보 타입 (지연 로딩용)
+export interface QnADetail {
+  qnaId: number;
+  qnaTitle: string;
+  qnaContent: string;
+  createdAt: Date;
+  updatedAt: Date;
+  student: Student;
+  comments: QnABoardComment[];
+  qnaFiles: QnaFile[];
+}
+
 export interface QnABoardComment {
   commentId: number;
   commentContent: string;
@@ -63,11 +75,24 @@ export interface QnABoardBasicActions {
   setLoading: (isLoading: boolean) => void;
 }
 
-// QnA 업데이트 요청 타입
-export interface UpdateQnABoardRequest {
-  qnaTitle?: string;
-  qnaContent?: string;
-  qnaUserId?: number;
-  isItAnswered?: boolean;
-  updatedAt: Date;
+// 댓글 생성 요청 타입
+export interface CreateCommentRequest {
+  commentContent: string;
+  commentMemberId: number;
+  qnaId: number;
+}
+
+// QnA 상세 정보 상태 관리 타입
+export interface QnaDetailState {
+  selectedDetail: QnADetail | null;
+  isDetailLoading: boolean;
+}
+
+// QnA 상세 정보 기본 액션 타입
+export interface QnaDetailBasicAction {
+  readDetail: (detail: QnADetail) => void;
+  clearDetail: () => void;
+  addComment: (comment: QnABoardComment) => void;
+  removeComment: (commentId: number) => void;
+  setIsDetailLoading: (isDetailLoading: boolean) => void;
 }

@@ -1,13 +1,12 @@
 // entities/qna/api/index.ts
-import { QnABoard, QnABoardComment } from "@/src/entities/qna/model/types";
+import { QnABoard, QnABoardComment, QnADetail, CreateCommentRequest } from "@/src/entities/qna/model/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
-import { QNA_VALIDATION } from "@/src/entities/qna/model/validation";
 import { toast } from "sonner";
 
 // QnA API 관련 함수들
 export const qnaApi = {
-  // 모든 QnA 조회
+  // 모든 QnA 조회 (관리자/개발자만)
   getQnAs: async (): Promise<QnABoard[]> => {
     try {
       return await apiGet<QnABoard[]>(API_ENDPOINTS.QNA.BASE);
@@ -16,36 +15,35 @@ export const qnaApi = {
     }
   },
 
-  // QnA 생성 (간단한 validation)
+  // 개인 QnA 조회 (학생만)
+  getPersonalQnAs: async (): Promise<QnABoard[]> => {
+    try {
+      return await apiGet<QnABoard[]>(API_ENDPOINTS.QNA.PERSONAL);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // QnA 생성
   createQnA: async (newQnA: Omit<QnABoard, "qnaId" | "createdAt" | "updatedAt" | "qnaStudent" | "qnaComments">): Promise<QnABoard> => {
     try {
-      QNA_VALIDATION.validateQnABoardForCreate(newQnA);
-
       const result = await apiPost<QnABoard>(API_ENDPOINTS.QNA.BASE, newQnA);
       toast.success("QnA가 성공적으로 생성되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },
 
-  // QnA 수정 (간단한 validation)
+  // QnA 수정
   updateQnA: async (qnaId: number, updatedQnA: QnABoard): Promise<QnABoard> => {
     try {
-      QNA_VALIDATION.validateQnABoardForUpdate(updatedQnA);
-
       const result = await apiPut<QnABoard>(API_ENDPOINTS.QNA.BY_ID(qnaId), updatedQnA);
       toast.success("QnA가 성공적으로 수정되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },
@@ -71,36 +69,26 @@ export const qnaApi = {
     }
   },
 
-  // 댓글 생성 (간단한 validation)
-  createComment: async (qnaId: number, newComment: Omit<QnABoardComment, "commentId" | "createdAt" | "updatedAt" | "qnaCommentUser" | "qnaCommentQna">): Promise<QnABoardComment> => {
+  // 댓글 생성
+  createComment: async (qnaId: number, newComment: CreateCommentRequest): Promise<QnABoardComment> => {
     try {
-      QNA_VALIDATION.validateQnABoardCommentForCreate(newComment);
-
       const result = await apiPost<QnABoardComment>(API_ENDPOINTS.QNA.COMMENT.BY_QNA_ID(qnaId), newComment);
       toast.success("댓글이 성공적으로 생성되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },
 
-  // 댓글 수정 (간단한 validation)
+  // 댓글 수정
   updateComment: async (qnaId: number, commentId: number, updatedComment: QnABoardComment): Promise<QnABoardComment> => {
     try {
-      QNA_VALIDATION.validateQnABoardCommentForUpdate(updatedComment);
-
       const result = await apiPut<QnABoardComment>(API_ENDPOINTS.QNA.COMMENT.BY_ID(qnaId, commentId), updatedComment);
       toast.success("댓글이 성공적으로 수정되었습니다.");
 
       return result;
     } catch (error) {
-      if (error instanceof Error && error.message.includes("validation")) {
-        toast.error("입력 정보를 확인해주세요.");
-      }
       throw error;
     }
   },
@@ -117,10 +105,22 @@ export const qnaApi = {
     }
   },
 
-  // 특정 QnA의 댓글들 조회
-  getCommentsByQnA: async (qnaId: number): Promise<QnABoardComment[]> => {
+  // QnA 상세 정보 조회 (지연 로딩용)
+  getQnADetail: async (qnaId: number): Promise<QnADetail> => {
     try {
-      return await apiGet<QnABoardComment[]>(API_ENDPOINTS.QNA.COMMENT.BY_QNA_ID(qnaId));
+      const result = await apiGet<QnABoard>(API_ENDPOINTS.QNA.BY_ID(qnaId));
+
+      // QnADetail 형태로 변환하여 반환
+      return {
+        qnaId: result.qnaId,
+        qnaTitle: result.qnaTitle,
+        qnaContent: result.qnaContent,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+        student: result.student,
+        comments: result.comments || [],
+        qnaFiles: result.qnaFiles || []
+      };
     } catch (error) {
       throw error;
     }
