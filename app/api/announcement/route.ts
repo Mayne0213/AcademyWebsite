@@ -148,7 +148,6 @@ export async function POST(req: Request) {
       announcementContent,
       authorId,
       isItAssetAnnouncement,
-      isItImportantAnnouncement,
       files, // [{ fileId }]
       academyIds, // [1, 2, 3] - 선택된 학원 ID 배열
     } = body;

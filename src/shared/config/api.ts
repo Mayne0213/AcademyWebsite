@@ -31,6 +31,7 @@ export const API_ENDPOINTS = {
   QNA: {
     BASE: "/api/qna",
     BY_ID: (id: number) => `/api/qna/${id}`,
+    PERSONAL: "/api/qnaPersonal",
     COMMENT: {
       BY_QNA_ID: (qnaId: number) => `/api/qna/${qnaId}/comment`,
       BY_ID: (qnaId: number, commentId: number) => `/api/qna/${qnaId}/comment/${commentId}`,

@@ -68,8 +68,8 @@ export const useAnnouncementFeatureStore = () => {
       }
 
       // 공지사항 삭제 (DB, 상태 관리)
-      const deletedId = await announcementApi.deleteAnnouncement(announcementId);
-      entityStore.deleteAnnouncement(deletedId);
+
+      entityStore.deleteAnnouncement(await announcementApi.deleteAnnouncement(announcementId));
 
       // totalCount를 직접 감소시킴
       paginationStore.decrementTotalCount();
@@ -84,7 +84,7 @@ export const useAnnouncementFeatureStore = () => {
       //   paginationStore.setCurrentPage(currentPage - 1);
       // }
 
-      return deletedId;
+      return announcementId;
     } finally {
       entityStore.setLoading(false);
     }

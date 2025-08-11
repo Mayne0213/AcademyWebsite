@@ -2,23 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useQna } from "@/components/hooks/useQna";
+import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
 import Header from "@/src/widgets/header/DashboardHeader";
 import { toast } from "sonner";
 import { useAuth } from "@/src/app/providers";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import type { File as FileEntity } from "@/src/entities/file/model/types";
-
-interface QnaFormInput {
-  qnaTitle: string;
-  qnaContent: string;
-  qnaUserId: number;
-  qnaFiles?: { fileId: number }[];
-}
+import type { QnABoard, QnaFile } from "@/src/entities/qna/model/types";
 
 const AddQnAPage = () => {
   const router = useRouter();
-  const { addQna } = useQna();
+  const { createQnA } = useQnAFeatureStore();
   const { user } = useAuth();
 
   const [form, setForm] = useState({
@@ -79,16 +73,22 @@ const AddQnAPage = () => {
     setIsSubmitting(true);
 
     try {
-      const newQna: QnaFormInput = {
+      const newQna = {
         qnaTitle: form.qnaTitle.trim(),
         qnaContent: form.qnaContent.trim(),
         qnaUserId: user.memberId,
+        isItAnswered: false,
         qnaFiles: files.map(file => ({
+          qnaId: 0,
           fileId: file.fileId,
-        })),
+          qna: {} as QnABoard,
+          file: file,
+        } as QnaFile)),
+        comments: [],
+        student: {} as any,
       };
 
-      addQna(newQna);
+      await createQnA(newQna);
       toast.success("질문이 성공적으로 등록되었습니다!");
       router.push("/dashboard/qnaBoard");
     } catch (error) {

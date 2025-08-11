@@ -1,6 +1,5 @@
 import { CounselingSchedule } from '../model/types';
 import { apiGet, apiPost, apiDelete } from '@/src/shared/api';
-import { SCHEDULE_VALIDATION } from '../model/validation';
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '@/src/shared/config';
 
@@ -40,8 +39,6 @@ export const getSchedulesByMonth = async (year: number, month: number): Promise<
 // 스케줄 추가
 export const createCounselingSchedule = async (data: { date: string; timeSlotId: number }): Promise<CounselingSchedule> => {
   try {
-    SCHEDULE_VALIDATION.validateScheduleForCreate(data);
-
     const result = await apiPost<CounselingSchedule>(API_ENDPOINTS.SCHEDULE.ADMIN, data);
     toast.success('상담 스케줄이 성공적으로 생성되었습니다.');
        

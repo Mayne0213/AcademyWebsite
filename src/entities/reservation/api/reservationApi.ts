@@ -3,7 +3,6 @@ import {
   CreateCounselingReservationRequest,
   AdminWithSchedules
 } from '../model/types';
-import { RESERVATION_VALIDATION } from '../model/validation';
 import { apiGet, apiPost } from '@/src/shared/api';
 import { API_ENDPOINTS } from '@/src/shared/config';
 
@@ -21,7 +20,6 @@ export const getAvailableAdmins = async (): Promise<AdminWithSchedules[]> => {
 // 상담 예약 생성
 export const createCounselingReservation = async (data: CreateCounselingReservationRequest): Promise<CounselingReservation> => {
   try {
-    RESERVATION_VALIDATION.validateCreateReservation(data);
     const result = await apiPost<CounselingReservation>(API_ENDPOINTS.RESERVATION.BASE, data);
        
     return result;
