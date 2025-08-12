@@ -44,6 +44,7 @@ export const OMRGradingForm: React.FC<OMRGradingFormProps> = ({
   // 컴포넌트 마운트 시 기본값 설정
   React.useEffect(() => {
     setDefaultValues(questionCount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 문제 수 변경 시 기본값 재설정
