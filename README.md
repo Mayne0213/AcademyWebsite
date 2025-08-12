@@ -28,7 +28,7 @@ Zustand를 활용한 전역 상태 관리, Prisma ORM, S3 파일 업로드, 반�
 
 ## 폴더 구조
 
-```
+```text
 frontend/
   app/
     dashboard/
@@ -96,7 +96,7 @@ frontend/
 - 컴포넌트에서는 zustand의 상태만 사용, 직접 setState 금지
 - 댓글 추가/삭제/수정 시 store에서 QnA/상세 모두 자동 동기화
 
-```ts
+```typescript
 const {
   Qnas,
   addComment,
@@ -112,37 +112,37 @@ const {
 ## QnA/댓글 데이터 구조
 
 - **Qna**
-  ```ts
-  interface Qna {
-    qnaId: number;
-    qnaTitle: string;
-    qnaContent: string;
-    qnaImageUrl: string | null;
-    qnaUserId: number;
-    createdAt: string;
-    updatedAt: string;
-    comments?: QnaComment[];
-    user?: { memberId: number; userId: string; role: ...; student?: { studentName: string } }
-  }
-  ```
+  ```typescript
+interface Qna {
+  qnaId: number;
+  qnaTitle: string;
+  qnaContent: string;
+  qnaImageUrl: string | null;
+  qnaUserId: number;
+  createdAt: string;
+  updatedAt: string;
+  comments?: QnaComment[];
+  user?: { memberId: number; userId: string; role: ...; student?: { studentName: string } }
+}
+```text
 - **QnaComment**
-  ```ts
-  interface QnaComment {
-    commentId: number;
-    commentContent: string;
-    commentMemberId: number;
-    qnaId: number;
-    createdAt: string;
-    updatedAt: string;
-    user: any;
-  }
-  ```
+  ```typescript
+interface QnaComment {
+  commentId: number;
+  commentContent: string;
+  commentMemberId: number;
+  qnaId: number;
+  createdAt: string;
+  updatedAt: string;
+  user: any;
+}
+```
 
 ---
 
 ## 환경 변수 예시 (.env)
 
-```
+```text
 DATABASE_URL=mysql://user:password@host:3306/dbname
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...

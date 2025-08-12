@@ -46,6 +46,7 @@ model Student {
   qnas              QnABoard[]        @relation("StudentToQnA")
   qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
   counselingReservations CounselingReservation[] @relation("StudentToCounselingReservation")
+  examResults       ExamResult[]      @relation("StudentToExamResult")
 
   memberId          Int     @id
   user              User    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
@@ -206,15 +207,50 @@ model CounselingReservation {
   @@index([scheduleId])
 }
 
-enum ReservationStatus {
-  PENDING    // 대기중
-  CONFIRMED  // 확정
-  CANCELLED  // 취소됨
-  COMPLETED  // 완료
+model Exam {
+  examId              String   @id @default(cuid())
+  examName            String
+  totalQuestions  Int
+  correctAnswers  Json
+  questionScores  Json
+  questionTypes   Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+
+  results         ExamResult[] @relation("ExamToExamResult")
+
+  @@map("exam")
+}
+
+model ExamResult {
+  examResultId          String   @id @default(cuid())
+  examId      String
+  studentId   Int
+  totalScore  Int
+  grade       Int
+  results     Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+
+  exam        Exam     @relation("ExamToExamResult", fields: [examId], references: [examId], onDelete: Cascade)
+  student     Student  @relation("StudentToExamResult", fields: [studentId], references: [memberId], onDelete: Cascade)
+
+  @@map("exam_results")
+  @@index([examId])
+  @@index([studentId])
 }
 
 enum Role {
   DEVELOPER
   ADMIN
   STUDENT
+}
+
+enum ReservationStatus {
+  PENDING    // 대기중
+  CONFIRMED  // 확정
+  CANCELLED  // 취소됨
+  COMPLETED  // 완료
 }

@@ -179,3 +179,51 @@ export const apiDeleteWithAuth = async <T>(url: string): Promise<T> => {
   });
   return response.json();
 };
+
+// FormData POST 요청
+export const apiPostFormData = async <T>(
+  url: string,
+  formData: FormData
+): Promise<T> => {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      // FormData를 사용할 때는 Content-Type 헤더를 설정하지 않음
+      // 브라우저가 자동으로 multipart/form-data와 boundary를 설정
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage = errorText;
+
+      // JSON 응답인지 확인하고 message 필드 추출
+      try {
+        const errorJson = JSON.parse(errorText);
+        if (errorJson.message) {
+          errorMessage = errorJson.message;
+        }
+      } catch (parseError) {}
+
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+
+    // success가 false이면 에러 발생
+    if (result && typeof result === 'object' && 'success' in result && result.success === false) {
+      throw new Error(result.message || '요청이 실패했습니다');
+    }
+
+    // success 필드가 있고 data 필드가 있으면 data를 반환
+    if (result && typeof result === 'object' && 'success' in result && 'data' in result) {
+      return result.data;
+    }
+
+    return result;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
