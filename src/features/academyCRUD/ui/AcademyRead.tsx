@@ -49,23 +49,25 @@ const AcademyRead: React.FC = () => {
     );
   }
 
+  if (academies.length === 0) {
+    return (
+      <li className="col-span-1 smalltablet:col-span-2 tablet:col-span-3 h-screen flex justify-center items-center py-20">
+        <span className="font-sansKR-SemiBold text-lg smalltablet:text-xl tablet:text-2xl text-center px-4">
+          등록된 단과가 없습니다.
+        </span>
+      </li>
+    );
+  }
+
   return (
     <ul className="grid grid-cols-1 smalltablet:grid-cols-2 tablet:grid-cols-3 gap-3 smalltablet:gap-4 tablet:gap-6">
-      {academies.length === 0 ? (
-        <li className="col-span-1 smalltablet:col-span-2 tablet:col-span-3 h-screen flex justify-center items-center py-20">
-          <span className="font-sansKR-SemiBold text-lg smalltablet:text-xl tablet:text-2xl text-center px-4">
-            등록된 단과가 없습니다.
-          </span>
-        </li>
-      ) : (
-        academies.map((academy) => (
+        {academies.map((academy) => (
           <AcademyItem
             key={academy.academyId}
             academy={academy}
           />
-        ))
-      )}
-    </ul>
+        ))}
+      </ul>
   );
 };
 

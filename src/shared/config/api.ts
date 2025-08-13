@@ -80,6 +80,12 @@ export const API_ENDPOINTS = {
     BY_ADMIN_ID: (adminId: number) => `/api/schedule/student?adminId=${adminId}`,
   },
 
+  // 시험 관련 엔드포인트
+  EXAM: {
+    BASE: "/api/exam",
+    BY_ID: (id: number) => `/api/exam/${id}`,
+  },
+
 } as const;
 
 // S3 설정
