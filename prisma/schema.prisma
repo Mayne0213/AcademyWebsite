@@ -208,7 +208,7 @@ model CounselingReservation {
 }
 
 model Exam {
-  examId              String   @id @default(cuid())
+  examId              Int      @id @default(autoincrement())
   examName            String
   totalQuestions  Int
   correctAnswers  Json
@@ -224,8 +224,8 @@ model Exam {
 }
 
 model ExamResult {
-  examResultId          String   @id @default(cuid())
-  examId      String
+  examResultId         Int      @id @default(autoincrement())
+  examId      Int
   studentId   Int
   totalScore  Int
   grade       Int
