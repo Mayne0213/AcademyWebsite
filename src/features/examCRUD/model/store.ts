@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Exam, ExamSummary, CreateExamRequest, UpdateExamRequest } from "@/src/entities/exam/model/types";
+import { ExamSummary, CreateExamRequest, Exam } from "@/src/entities/exam/model/types";
 import { examApi } from '@/src/entities/exam/api';
 import { useExamStore } from "@/src/entities/exam/model/store";
 
@@ -7,38 +7,24 @@ import { useExamStore } from "@/src/entities/exam/model/store";
 export const useExamFeatureStore = () => {
   const entityStore = useExamStore.getState();
 
-  const readExams = useCallback(async () => {
+  const readExamSummaries = useCallback(async () => {
     entityStore.setLoading(true);
     try {
-      const exams = await examApi.getExams();
-      // entityStore.readExams(exams);
+      const exams = await examApi.readExamSummaries();
+      entityStore.readExamSummaries(exams);
     } finally {
       entityStore.setLoading(false);
     }
   }, [entityStore]);
 
-  const readExamById = useCallback(async (examId: number) => {
-    entityStore.setLoading(true);
+  const readExamDetail = useCallback(async (examId: number): Promise<Exam> => {
+    entityStore.setDetailLoading(true);
     try {
-      const exam = await examApi.getExamById(examId);
-      // 개별 시험을 store에 추가하거나 업데이트
-      const existingExams = entityStore.exams;
-      const examIndex = existingExams.findIndex(e => e.examId === examId);
-      
-      if (examIndex >= 0) {
-        // 기존 시험을 상세 정보로 업데이트
-        const updatedExams = [...existingExams];
-        updatedExams[examIndex] = {
-          ...updatedExams[examIndex],
-          ...exam
-        };
-        // entityStore.readExams(updatedExams);
-      } else {
-        // 새로운 시험을 추가
-        entityStore.createExam(exam);
-      }
+      const exam = await examApi.readExamDetail(examId);
+      entityStore.readExamDetail(exam);
+      return exam;
     } finally {
-      entityStore.setLoading(false);
+      entityStore.setDetailLoading(false);
     }
   }, [entityStore]);
 
@@ -46,7 +32,15 @@ export const useExamFeatureStore = () => {
     entityStore.setLoading(true);
     try {
       const createdExam = await examApi.createExam(newExam);
-      entityStore.createExam(createdExam);
+      // Exam을 ExamSummary로 변환하여 store에 저장
+      const examSummary: ExamSummary = {
+        examId: createdExam.examId,
+        examName: createdExam.examName,
+        totalQuestions: createdExam.totalQuestions,
+        createdAt: createdExam.createdAt,
+        updatedAt: createdExam.updatedAt,
+      };
+      entityStore.createExam(examSummary);
     } finally {
       entityStore.setLoading(false);
     }
@@ -63,8 +57,8 @@ export const useExamFeatureStore = () => {
   }, [entityStore]);
 
   return {
-    readExams,
-    readExamById,
+    readExamSummaries,
+    readExamDetail,
     createExam,
     deleteExam,
   };

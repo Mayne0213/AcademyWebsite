@@ -4,15 +4,22 @@ import { ExamSummary } from "@/src/entities/exam/model/types";
 import { Calendar, Pencil, BarChart3, FileText, CheckSquare } from "lucide-react";
 import { useState } from "react";
 import { useExamFeatureStore } from "../model";
+import { useExamStore } from "@/src/entities/exam/model/store";
+import { FORMATS } from "@/src/shared/lib/formats";
+import ExamAnswers from "./ExamAnswers";
 
 export default function ExamItem({ 
   exam
 }: {exam: ExamSummary}) {
-  const { deleteExam } = useExamFeatureStore();
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { deleteExam, readExamDetail } = useExamFeatureStore();
+  const { examDetail } = useExamStore(); 
+  const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ko-KR');
+  // 삭제 확인 및 실행 함수
+  const handleDelete = () => {
+    if (window.confirm(`"${exam.examName}" 시험을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 관련된 모든 데이터가 삭제됩니다.`)) {
+      deleteExam(exam.examId);
+    }
   };
 
   return (
@@ -28,7 +35,7 @@ export default function ExamItem({
                 <Pencil className="w-4 h-4" /> {exam.totalQuestions}문제
               </div>
               <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> {formatDate(exam.createdAt.toString())}
+                <Calendar className="w-4 h-4" /> {FORMATS.formatDate(exam.createdAt.toString())}
               </div>
             </div>
           </div>
@@ -37,7 +44,7 @@ export default function ExamItem({
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              setIsDeleteModalOpen(true);
+              handleDelete();
             }}
             className="text-red-600 border-red-300 hover:bg-red-50 hover:border-red-400"
           >
@@ -57,6 +64,10 @@ export default function ExamItem({
             <Button
               variant="outline"
               className="flex items-center gap-2 justify-center p-3 h-auto"
+              onClick={() => {
+                readExamDetail(exam.examId);
+                setIsAnswerModalOpen(true);
+              }}
             >
               <FileText className="w-4 h-4" />
               <span className="text-sm">답안 보기</span>
@@ -72,39 +83,13 @@ export default function ExamItem({
         </div>
       </div>
 
-      {/* 삭제 확인 Modal */}
       <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="시험 삭제 확인"
-        size="md"
+        isOpen={isAnswerModalOpen}
+        onClose={() => setIsAnswerModalOpen(false)}
+        title={`${exam.examName} - 답안 및 배점 정보`}
+        size="lg"
       >
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            <strong>{exam.examName}</strong> 시험을 삭제하시겠습니까?
-          </p>
-          <p className="text-sm text-red-600">
-            이 작업은 되돌릴 수 없으며, 관련된 모든 데이터가 삭제됩니다.
-          </p>
-          
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteModalOpen(false)}
-            >
-              취소
-            </Button>
-            <Button
-              onClick={async () => {
-                await deleteExam(exam.examId);
-                setIsDeleteModalOpen(false);
-              }}
-              className="bg-red-500 hover:bg-red-600 text-white hover:text-white"
-            >
-              삭제
-            </Button>
-          </div>
-        </div>
+        {examDetail && <ExamAnswers examDetail={examDetail} />}
       </Modal>
     </>
   );

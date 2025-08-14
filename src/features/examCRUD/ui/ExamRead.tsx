@@ -47,11 +47,11 @@ const ExamSkeleton = () => {
 };
 
 export default function ExamRead() {
-  const { readExams } = useExamFeatureStore();
+  const { readExamSummaries } = useExamFeatureStore();
   const { exams, isLoading } = useExamStore();
 
   useEffect(() => {
-    readExams();
+    readExamSummaries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

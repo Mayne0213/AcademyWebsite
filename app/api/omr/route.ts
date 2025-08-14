@@ -9,43 +9,31 @@ const execAsync = promisify(exec);
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('OMR API 호출 시작');
-    
     const formData = await request.formData();
-    console.log('FormData 파싱 완료');
     
     const imageFile = formData.get('image') as File;
-    const correctAnswersStr = formData.get('correctAnswers') as string;
-    const questionScoresStr = formData.get('questionScores') as string;
-    const questionTypesStr = formData.get('questionTypes') as string;
-    
-    console.log('받은 데이터:');
-    console.log('- imageFile:', imageFile?.name, imageFile?.size);
-    console.log('- correctAnswers 길이:', correctAnswersStr?.length);
-    console.log('- questionScores 길이:', questionScoresStr?.length);
-    console.log('- questionTypes 길이:', questionTypesStr?.length);
-    
-    // JSON 파싱 시도
-    let correctAnswers, questionScores, questionTypes;
-    try {
-      correctAnswers = JSON.parse(correctAnswersStr);
-      questionScores = JSON.parse(questionScoresStr);
-      questionTypes = JSON.parse(questionTypesStr);
-      console.log('JSON 파싱 성공');
-    } catch (parseError) {
-      console.error('JSON 파싱 실패:', parseError);
-      console.error('correctAnswers 원본:', correctAnswersStr);
-      console.error('questionScores 원본:', questionScoresStr);
-      console.error('questionTypes 원본:', questionTypesStr);
-      return NextResponse.json(
-        { success: false, message: `JSON 파싱 실패: ${parseError}` },
-        { status: 400 }
-      );
-    }
+    const correctAnswers = formData.get('correctAnswers') as string;
+    const questionScores = formData.get('questionScores') as string;
+    const questionTypes = formData.get('questionTypes') as string;
 
     if (!imageFile) {
       return NextResponse.json(
         { success: false, message: '이미지 파일이 필요합니다' },
+        { status: 400 }
+      );
+    }
+
+    // JSON 파싱 검증
+    let parsedCorrectAnswers, parsedQuestionScores, parsedQuestionTypes;
+    
+    try {
+      parsedCorrectAnswers = JSON.parse(correctAnswers);
+      parsedQuestionScores = JSON.parse(questionScores);
+      parsedQuestionTypes = JSON.parse(questionTypes);
+    } catch (parseError) {
+      console.error('FormData 파싱 오류:', parseError);
+      return NextResponse.json(
+        { success: false, message: '잘못된 데이터 형식입니다' },
         { status: 400 }
       );
     }
@@ -58,25 +46,24 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(await imageFile.arrayBuffer());
       
       await writeFile(tempImagePath, buffer);
-      console.log('임시 이미지 파일 저장 완료:', tempImagePath);
 
-      // Python 스크립트 실행
+      // Python 스크립트 실행 - JSON 문자열을 직접 전달
       const scriptPath = path.join(process.cwd(), 'scripts', 'omr_grading.py');
-      console.log('Python 스크립트 경로:', scriptPath);
       
-      const command = `python3 "${scriptPath}" "${tempImagePath}" '${JSON.stringify(correctAnswers)}' '${JSON.stringify(questionScores)}' '${JSON.stringify(questionTypes)}'`;
+      // JSON 문자열을 그대로 전달 (Python에서 json.loads로 파싱)
+      const command = `python3 "${scriptPath}" "${tempImagePath}" '${correctAnswers}' '${questionScores}' '${questionTypes}'`;
+      
       console.log('실행할 명령어:', command);
       
       const { stdout, stderr } = await execAsync(command);
       
-      console.log('Python 스크립트 stdout:', stdout);
       if (stderr) {
         console.error('Python 스크립트 stderr:', stderr);
       }
 
-      if (stderr) {
+      if (stderr && stderr.trim() !== '') {
         return NextResponse.json(
-          { success: false, message: stderr },
+          { success: false, message: `Python 스크립트 오류: ${stderr}` },
           { status: 500 }
         );
       }
@@ -85,7 +72,6 @@ export async function POST(request: NextRequest) {
       let result;
       try {
         result = JSON.parse(stdout);
-        console.log('Python 결과 파싱 성공:', result);
       } catch (parseError) {
         console.error('Python 결과 파싱 실패:', parseError);
         console.error('Python stdout 원본:', stdout);
@@ -108,7 +94,6 @@ export async function POST(request: NextRequest) {
       // 임시 파일 삭제
       try {
         await fs.unlink(tempImagePath);
-        console.log('임시 파일 삭제 완료');
       } catch (cleanupError) {
         console.error('임시 파일 삭제 실패:', cleanupError);
       }
