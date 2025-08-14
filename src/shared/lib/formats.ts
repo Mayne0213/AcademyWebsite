@@ -10,7 +10,7 @@ export const FORMATS = {
     return phone;
   },
   
-  // 날짜 포맷팅
+  // 날짜 포맷팅 (YYYY-MM-DD)
   formatDate: (date: Date | string): string => {
     const d = new Date(date);
     return d.toLocaleDateString('ko-KR', {

@@ -86,11 +86,11 @@ def estimate_selected_answers(centers, answer_positions, tolerance=30):
                     matches.append(choice)
 
         if len(matches) == 1:
-            selected[q_num] = matches[0]
+            selected[str(q_num)] = matches[0]  # 문자열 키로 저장
         elif len(matches) > 1:
-            selected[q_num] = "중복"
+            selected[str(q_num)] = "중복"  # 문자열 키로 저장
         else:
-            selected[q_num] = "미기입"
+            selected[str(q_num)] = "미기입"  # 문자열 키로 저장
     return selected
 
 def calculate_total_score(selected_answers, correct_answers, question_scores):
@@ -98,31 +98,25 @@ def calculate_total_score(selected_answers, correct_answers, question_scores):
     total = 0
     
     for q_num, correct_answer in correct_answers.items():
-        try:
-            q_num_int = int(q_num)
-            score = question_scores.get(q_num, 0)
-            # selected_answers는 정수 키를 사용하므로 q_num_int로 접근
-            student_answer = selected_answers.get(q_num_int, "미기입")
-            
+        if q_num in selected_answers:
+            student_answer = selected_answers[q_num]
             if student_answer == correct_answer:
+                score = question_scores.get(q_num, 0)
                 total += score
-                
-        except (ValueError, TypeError) as e:
-            continue
     
     return total
 
 def calculate_grade(total_score):
-    """등급 계산"""
+    """등급 계산 (총점 기준)"""
     if total_score >= 90:
         return 1
-    elif total_score >= 80:
+    elif total_score >= 85:
         return 2
-    elif total_score >= 70:
+    elif total_score >= 80:
         return 3
-    elif total_score >= 65:
+    elif total_score >= 75:
         return 4
-    elif total_score >= 60:
+    elif total_score >= 70:
         return 5
     elif total_score >= 55:
         return 6
@@ -141,7 +135,7 @@ def create_results_array(selected_answers, correct_answers, question_scores, que
     for q_num in sorted(correct_answers.keys(), key=lambda x: int(x)):
         try:
             q_num_int = int(q_num)
-            student_answer = selected_answers.get(q_num_int, "미기입")
+            student_answer = selected_answers.get(q_num, "미기입")  # 문자열 키로 접근
             correct_answer = correct_answers[q_num]
             score = question_scores.get(q_num, 0)
             question_type = question_types.get(q_num, "기타")
@@ -210,9 +204,14 @@ if __name__ == "__main__":
             sys.exit(1)
         
         image_path = sys.argv[1]
-        correct_answers = json.loads(sys.argv[2])
-        question_scores = json.loads(sys.argv[3])
-        question_types = json.loads(sys.argv[4])
+        # API에서 전달받은 JSON 문자열을 json.loads로 안전하게 파싱
+        try:
+            correct_answers = json.loads(sys.argv[2])
+            question_scores = json.loads(sys.argv[3])
+            question_types = json.loads(sys.argv[4])
+        except json.JSONDecodeError as e:
+            print(json.dumps({"error": f"JSON 파싱 오류: {str(e)}"}))
+            sys.exit(1)
         
         # OMR 채점 실행
         result = grade_omr(image_path, correct_answers, question_scores, question_types)

@@ -9,6 +9,7 @@ export const processOMR = async (input: OMRGradingInput): Promise<OMRProcessingR
     }
 
     // 2. OMR 채점 API 호출
+    // FormData에 객체를 전달할 때는 JSON.stringify()를 사용해야 함
     const formData = new FormData();
     formData.append('image', input.imageFile);
     formData.append('correctAnswers', JSON.stringify(input.correctAnswers));

@@ -5,12 +5,20 @@ export interface Exam {
   examId: number;
   examName: string;
   totalQuestions: number;
-  correctAnswers: any; // Json 타입
-  questionScores: any; // Json 타입
-  questionTypes: any; // Json 타입
+  correctAnswers: JSON; // Json 타입
+  questionScores: JSON; // Json 타입
+  questionTypes: JSON; // Json 타입
   createdAt: Date;
   updatedAt: Date;
   results: ExamResult[];
+}
+
+export interface ExamSummary {
+  examId: number;
+  examName: string;
+  totalQuestions: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // 시험 결과 엔티티
@@ -30,24 +38,19 @@ export interface ExamResult {
 // 시험 배열
 export interface ExamState {
   exams: ExamSummary[];
+  examDetail: Exam | null; // 개별 시험 상세 정보
   isLoading: boolean;
+  isDetailLoading: boolean;
 }
 
 // 시험 기본 액션 타입
 export interface ExamBasicActions {
-  readExams: (exams: Exam[]) => void;
-  createExam: (exam: Exam) => void;
+  readExamSummaries: (exams: ExamSummary[]) => void;
+  readExamDetail: (exam: Exam) => void;
+  createExam: (exam: ExamSummary) => void;
   deleteExam: (examId: number) => void;
   setLoading: (isLoading: boolean) => void;
-}
-
-// 시험 목록용 간단한 타입 (지연 데이터 fetch)
-export interface ExamSummary {
-  examId: number;
-  examName: string;
-  totalQuestions: number;
-  createdAt: Date;
-  updatedAt: Date;
+  setDetailLoading: (isDetailLoading: boolean) => void;
 }
 
 // 시험 생성 요청 타입
@@ -57,14 +60,4 @@ export interface CreateExamRequest {
   correctAnswers: any;
   questionScores: any;
   questionTypes: any;
-}
-
-// 시험 업데이트 요청 타입
-export interface UpdateExamRequest {
-  examName?: string;
-  totalQuestions?: number;
-  correctAnswers?: any;
-  questionScores?: any;
-  questionTypes?: any;
-  updatedAt: Date;
 }

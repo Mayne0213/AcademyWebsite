@@ -33,8 +33,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           onChange={() => setSidebarOpen(!sidebarOpen)}
         />
 
-        <div className="p-[20px] w-full flex-1 bg-gray-200">
-          <main className="h-full desktop:min-h-[calc(100vh-100px)] rounded-xl bg-white text-gray-800 p-4 tablet:p-6">
+        <div className="smalltablet:p-[20px] w-full flex-1 bg-gray-200">
+          <main className="h-full desktop:min-h-[calc(100vh-100px)] smalltablet:rounded-xl bg-white text-gray-800 smalltablet:p-4 tablet:p-6">
             {children}
           </main>
         </div>
