@@ -3,19 +3,34 @@ import { prisma } from "@/prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
-    // 시험 목록 조회 - 시험 이름만 반환 (지연 데이터 fetch)
-    const exams = await prisma.exam.findMany({
-      select: {
-        examId: true,
-        examName: true,
-        totalQuestions: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const pageSize = parseInt(searchParams.get("pageSize") || "6", 10);
 
-    return NextResponse.json({ success: true, data: exams }, { status: 200 });
+    // 페이지네이션 적용
+    const [exams, totalCount] = await prisma.$transaction([
+      prisma.exam.findMany({
+        select: {
+          examId: true,
+          examName: true,
+          totalQuestions: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.exam.count(),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        exams,
+        totalCount
+      }
+    }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { success: false, message: "시험 목록 조회에 실패했습니다." },

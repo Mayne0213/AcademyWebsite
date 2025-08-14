@@ -3,6 +3,7 @@ import { Modal } from "@/src/shared/ui/Modal";
 import { ExamSummary } from "@/src/entities/exam/model/types";
 import { Calendar, Pencil, BarChart3, FileText, CheckSquare } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useExamFeatureStore } from "../model";
 import { useExamStore } from "@/src/entities/exam/model/store";
 import { FORMATS } from "@/src/shared/lib/formats";
@@ -11,6 +12,7 @@ import ExamAnswers from "./ExamAnswers";
 export default function ExamItem({ 
   exam
 }: {exam: ExamSummary}) {
+  const router = useRouter();
   const { deleteExam, readExamDetail } = useExamFeatureStore();
   const { examDetail } = useExamStore(); 
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
@@ -53,7 +55,7 @@ export default function ExamItem({
         </div>
 
         <div className="border-t border-gray-200 rounded-b-xl p-4 bg-gray-50">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Button
               variant="outline"
               className="flex items-center gap-2 justify-center p-3 h-auto"
@@ -71,13 +73,6 @@ export default function ExamItem({
             >
               <FileText className="w-4 h-4" />
               <span className="text-sm">답안 보기</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 justify-center p-3 h-auto"
-            >
-              <CheckSquare className="w-4 h-4" />
-              <span className="text-sm">채점하기</span>
             </Button>
           </div>
         </div>

@@ -25,3 +25,10 @@ export interface OMRProcessingResult {
   data?: OMRGradingResult;
   error?: string;
 }
+
+// 여러 이미지 처리 결과를 담는 확장된 타입
+export interface ExtendedOMRGradingResult extends OMRGradingResult {
+  fileName: string;
+  success: boolean;
+  error?: string;
+}

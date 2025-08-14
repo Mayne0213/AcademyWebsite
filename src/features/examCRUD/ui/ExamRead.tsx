@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useExamFeatureStore } from "../model";
 import { useExamStore } from "@/src/entities/exam/model/store";
 import ExamItem from "./ExamItem";
+import { Pagination } from "@/src/shared/ui/pagination";
 
 const ExamSkeleton = () => {
   return (
@@ -47,13 +48,22 @@ const ExamSkeleton = () => {
 };
 
 export default function ExamRead() {
+  const [currentPage, setCurrentPage] = useState(1);
   const { readExamSummaries } = useExamFeatureStore();
-  const { exams, isLoading } = useExamStore();
+  const { exams, isLoading, totalCount } = useExamStore();
+
+  const itemsPerPage = 9;
 
   useEffect(() => {
-    readExamSummaries();
+    readExamSummaries(currentPage, itemsPerPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   if (isLoading) {
     return (
@@ -76,6 +86,8 @@ export default function ExamRead() {
   }
 
   return (
+    <div className="space-y-6">
+      {/* 시험 목록 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {exams.map((exam) => (
           <ExamItem
@@ -84,5 +96,15 @@ export default function ExamRead() {
           />
         ))}
       </div>
+
+      {/* Pagination */}
+        <div className="flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+    </div>
   );
 }

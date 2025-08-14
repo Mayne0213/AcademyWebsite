@@ -30,7 +30,7 @@ const tabs = [
         description: "",
       },
       {
-        label: "출석 관리",
+        label: "출석 관리X",
         icon: Calendar,
         href: "/main/attendance",
         description: "",
@@ -47,19 +47,19 @@ const tabs = [
         description: "",
       },
       {
-        label: "과제 관리",
+        label: "시험 채점",
         icon: LucideBookMarked,
-        href: "/main/assignments",
+        href: "/main/omr",
         description: "",
       },
       {
-        label: "학습 리포트",
+        label: "학습 리포트X",
         icon: FileText,
         href: "/main/studentReport",
         description: "",
       },
       {
-        label: "문자 전송",
+        label: "문자 전송X",
         icon: Mail,
         href: "/main/message",
         description: "",
@@ -99,13 +99,13 @@ const tabs = [
     label: "학원 정보",
     submenu: [
       {
-        label: "교재 관리",
+        label: "교재 관리X",
         icon : Book,
         href: "/main/textbookManagement",
         description: "",
       },
       {
-        label: "직원 관리",
+        label: "직원 관리X",
         icon: Users,
         href: "/main/employeeManagement",
         description: "",
@@ -122,7 +122,7 @@ const tabs = [
     label: "설정",
     submenu: [
       {
-        label: "프로필 수정",
+        label: "프로필 수정X",
         icon : UserRoundPen,
         href: "",
         description: "",

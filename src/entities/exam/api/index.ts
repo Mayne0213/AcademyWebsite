@@ -6,9 +6,11 @@ import { toast } from "sonner";
 // 시험 API 관련 함수들
 export const examApi = {
   // 시험 목록 조회 (간단한 정보만 - 지연 데이터 fetch)
-  readExamSummaries: async (): Promise<ExamSummary[]> => {
+  readExamSummaries: async (page: number = 1, itemsPerPage: number = 6): Promise<{ exams: ExamSummary[]; totalCount: number }> => {
     try {
-      return await apiGet<ExamSummary[]>(API_ENDPOINTS.EXAM.BASE);
+      const url = `${API_ENDPOINTS.EXAM.BASE}?page=${page}&pageSize=${itemsPerPage}`;
+      const result = await apiGet<{ exams: ExamSummary[]; totalCount: number }>(url);
+      return result;
     } catch (error) {
       throw error;
     }

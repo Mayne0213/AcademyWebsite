@@ -19,5 +19,8 @@ export {
   createTestResultData 
 } from './model/omrProcessor';
 
+// Hooks
+export { useOMRGrading } from './hooks/useOMRGrading';
+
 // UI Components
-export { OMRGradingForm, OMRResultDisplay } from './ui';
+export { OmrGradingForm, OmrResDisplay, OmrGradingSummaryModal, OmrProcessingProgressModal } from './ui';

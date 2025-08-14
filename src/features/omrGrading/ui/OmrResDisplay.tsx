@@ -3,13 +3,13 @@
 import React from 'react';
 import { OMRGradingResult } from '../model/types';
 
-interface OMRResultDisplayProps {
+interface OmrResDisplayProps {
   result: OMRGradingResult;
   studentName?: string;
   examName?: string;
 }
 
-export const OMRResultDisplay: React.FC<OMRResultDisplayProps> = ({
+export const OmrResDisplay: React.FC<OmrResDisplayProps> = ({
   result,
   studentName,
   examName
@@ -17,7 +17,7 @@ export const OMRResultDisplay: React.FC<OMRResultDisplayProps> = ({
   const { totalScore, grade, results } = result;
 
   // 디버깅을 위한 로그
-  console.log('OMRResultDisplay - 받은 데이터:', { result, totalScore, grade, results });
+  console.log('OmrResDisplay - 받은 데이터:', { result, totalScore, grade, results });
   console.log('results 배열 길이:', results?.length);
   console.log('results 내용:', results);
 

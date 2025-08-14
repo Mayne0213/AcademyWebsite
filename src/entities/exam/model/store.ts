@@ -7,20 +7,29 @@ export const useExamStore = create<ExamState & ExamBasicActions>((set) => ({
   examDetail: null,
   isLoading: true,
   isDetailLoading: true,
+  totalCount: 0,
+  currentPage: 1,
 
-  readExamSummaries: (exams: ExamSummary[]) => set({ exams }),
+  readExamSummaries: (exams: ExamSummary[], totalCount: number, currentPage: number = 1) => set({
+    exams,
+    totalCount,
+    currentPage
+  }),
 
   readExamDetail: (exam: Exam) => set({ examDetail: exam }),
 
   createExam: (newExam: ExamSummary) => set((state) => ({
-    exams: [newExam, ...state.exams]
+    exams: [newExam, ...state.exams],
+    totalCount: state.totalCount + 1
   })),
 
   deleteExam: (examId: number) => set((state) => ({
     exams: state.exams.filter(exam => exam.examId !== examId),
     examDetail: null,
+    totalCount: Math.max(0, state.totalCount - 1)
   })),
 
   setLoading: (isLoading: boolean) => set({ isLoading }),
   setDetailLoading: (isDetailLoading: boolean) => set({ isDetailLoading }),
+  setCurrentPage: (currentPage: number) => set({ currentPage }),
 }));

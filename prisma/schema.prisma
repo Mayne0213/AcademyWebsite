@@ -217,29 +217,44 @@ model Exam {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-
   results         ExamResult[] @relation("ExamToExamResult")
 
   @@map("exam")
 }
 
 model ExamResult {
-  examResultId         Int      @id @default(autoincrement())
+  examResultId Int      @id @default(autoincrement())
   examId      Int
   studentId   Int
   totalScore  Int
   grade       Int
-  results     Json
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
 
   exam        Exam     @relation("ExamToExamResult", fields: [examId], references: [examId], onDelete: Cascade)
   student     Student  @relation("StudentToExamResult", fields: [studentId], references: [memberId], onDelete: Cascade)
 
+  // 개별 문제 결과를 별도 테이블로 분리
+  questionResults ExamQuestionResult[]
+
   @@map("exam_results")
   @@index([examId])
   @@index([studentId])
+}
+
+model ExamQuestionResult {
+  id          Int      @id @default(autoincrement())
+  examResultId Int
+  questionNumber Int    // 문제 번호
+  isCorrect   Boolean  // 정답 여부
+  score       Int      // 해당 문제 점수
+
+  examResult  ExamResult @relation(fields: [examResultId], references: [examResultId], onDelete: Cascade)
+
+  @@unique([examResultId, questionNumber])
+  @@index([examResultId])
+  @@index([questionNumber])
+  @@index([isCorrect])
 }
 
 enum Role {
