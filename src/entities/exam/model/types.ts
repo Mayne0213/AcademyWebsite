@@ -41,16 +41,19 @@ export interface ExamState {
   examDetail: Exam | null; // 개별 시험 상세 정보
   isLoading: boolean;
   isDetailLoading: boolean;
+  totalCount: number;
+  currentPage: number;
 }
 
 // 시험 기본 액션 타입
 export interface ExamBasicActions {
-  readExamSummaries: (exams: ExamSummary[]) => void;
+  readExamSummaries: (exams: ExamSummary[], totalCount: number, currentPage?: number) => void;
   readExamDetail: (exam: Exam) => void;
   createExam: (exam: ExamSummary) => void;
   deleteExam: (examId: number) => void;
   setLoading: (isLoading: boolean) => void;
   setDetailLoading: (isDetailLoading: boolean) => void;
+  setCurrentPage: (currentPage: number) => void;
 }
 
 // 시험 생성 요청 타입

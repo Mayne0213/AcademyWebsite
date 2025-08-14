@@ -2,20 +2,25 @@ import { useCallback } from 'react';
 import { ExamSummary, CreateExamRequest, Exam } from "@/src/entities/exam/model/types";
 import { examApi } from '@/src/entities/exam/api';
 import { useExamStore } from "@/src/entities/exam/model/store";
+import { usePaginationStore } from '@/src/shared/model/pagination';
 
 // API 호출과 전역 상태 관리를 통합하는 훅
 export const useExamFeatureStore = () => {
   const entityStore = useExamStore.getState();
+  const paginationStore = usePaginationStore.getState();
 
-  const readExamSummaries = useCallback(async () => {
+  const readExamSummaries = useCallback(async (page: number = 1, itemsPerPage: number = 6) => {
     entityStore.setLoading(true);
     try {
-      const exams = await examApi.readExamSummaries();
-      entityStore.readExamSummaries(exams);
+      const result = await examApi.readExamSummaries(page, itemsPerPage);
+      entityStore.readExamSummaries(result.exams, result.totalCount, page);
+      paginationStore.setTotalCount(result.totalCount);
+      paginationStore.setItemsPerPage(itemsPerPage);
+      paginationStore.setCurrentPage(page);
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore]);
+  }, [entityStore, paginationStore]);
 
   const readExamDetail = useCallback(async (examId: number): Promise<Exam> => {
     entityStore.setDetailLoading(true);
@@ -41,20 +46,24 @@ export const useExamFeatureStore = () => {
         updatedAt: createdExam.updatedAt,
       };
       entityStore.createExam(examSummary);
+      // pagination store와 동기화
+      paginationStore.incrementTotalCount();
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore]);
+  }, [entityStore, paginationStore]);
 
   const deleteExam = useCallback(async (examId: number) => {
     entityStore.setLoading(true);
     try {
       await examApi.deleteExam(examId);
       entityStore.deleteExam(examId);
+      // pagination store와 동기화
+      paginationStore.decrementTotalCount();
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore]);
+  }, [entityStore, paginationStore]);
 
   return {
     readExamSummaries,

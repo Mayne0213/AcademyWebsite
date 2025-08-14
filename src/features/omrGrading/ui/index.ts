@@ -1,2 +1,4 @@
-export { OMRGradingForm } from './OMRGradingForm';
-export { OMRResultDisplay } from './OMRResultDisplay';
+export { OmrGradingForm } from './OmrGradeForm';
+export { OmrResDisplay } from './OmrResDisplay';
+export { OmrGradingSummaryModal } from './OmrGradingSummaryModal';
+export { OmrProcessingProgressModal } from './OmrProcessingProgressModal';
