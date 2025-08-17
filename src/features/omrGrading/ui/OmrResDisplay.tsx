@@ -14,7 +14,7 @@ export const OmrResDisplay: React.FC<OmrResDisplayProps> = ({
   studentName,
   examName
 }) => {
-  const { totalScore, grade, results } = result;
+  const { totalScore, grade, phoneNumber, results } = result;
 
   // 디버깅을 위한 로그
   console.log('OmrResDisplay - 받은 데이터:', { result, totalScore, grade, results });
@@ -102,8 +102,8 @@ export const OmrResDisplay: React.FC<OmrResDisplayProps> = ({
         )}
       </div>
 
-      {/* 총점 및 등급 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* 총점, 등급, 전화번호 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-blue-50 p-6 rounded-lg text-center">
           <h3 className="text-lg font-semibold text-blue-800 mb-2">총점</h3>
           <p className={`text-4xl font-bold ${getScoreColor(totalScore)}`}>
@@ -115,6 +115,13 @@ export const OmrResDisplay: React.FC<OmrResDisplayProps> = ({
           <h3 className="text-lg font-semibold text-green-800 mb-2">등급</h3>
           <p className={`text-4xl font-bold ${getGradeColor(grade)}`}>
             {getGradeText(grade)}
+          </p>
+        </div>
+
+        <div className="bg-purple-50 p-6 rounded-lg text-center">
+          <h3 className="text-lg font-semibold text-purple-800 mb-2">전화번호</h3>
+          <p className="text-2xl font-bold text-purple-700 font-mono">
+            {phoneNumber || '00000000'}
           </p>
         </div>
       </div>

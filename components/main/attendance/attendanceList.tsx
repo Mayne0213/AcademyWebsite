@@ -15,8 +15,8 @@ interface AttendanceListProps {
   searchTerm: string;
   currentPage: number;
   totalPages: number;
-  selectedAcademy: string;
-  onAcademyChange: (academy: string) => void;
+  selectedAcademyId: number | null;
+  onAcademyChange: (academyId: number | null) => void;
   onPageChange: (page: number) => void;
   onStatusChange: (
     studentId: number,
@@ -36,13 +36,22 @@ const AttendanceList = ({
   searchTerm,
   currentPage,
   totalPages,
-  selectedAcademy,
+  selectedAcademyId,
   onAcademyChange,
   onPageChange,
   onStatusChange,
   onAllChangeToAttend,
   onSearchTermChange,
 }: AttendanceListProps) => {
+  // academyList를 AcademyFilter에서 사용할 수 있는 형태로 변환
+  const academyList = [
+    { id: null, name: '전체' },
+    ...academies.map(academy => ({
+      id: academy.academyId,
+      name: academy.academyName
+    }))
+  ];
+
   return (
     <div className="min-h-[500px] flex flex-col bg-white rounded-xl p-6 shadow-md w-1/2">
       <div className="flex justify-between">
@@ -55,14 +64,12 @@ const AttendanceList = ({
       <div className="w-full flex justify-between mb-4">
         <div className="flex gap-2">
           <AcademyFilter
-            selectedAcademy={selectedAcademy}
-            onAcademyChange={(academy) => {
-              onAcademyChange(academy);
-            }}
-            academies={academies}
+            selectedAcademyId={selectedAcademyId}
+            academyList={academyList}
+            onAcademyChange={onAcademyChange}
           />
           <AllChangeToAttend
-            selectedAcademy={selectedAcademy}
+            selectedAcademyId={selectedAcademyId}
             onAllChangeToAttend={onAllChangeToAttend}
           />
         </div>

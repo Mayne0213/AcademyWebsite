@@ -8,6 +8,7 @@ import { useExamFeatureStore } from "../model";
 import { useExamStore } from "@/src/entities/exam/model/store";
 import { FORMATS } from "@/src/shared/lib/formats";
 import ExamAnswers from "./ExamAnswers";
+import Link from "next/link";
 
 export default function ExamItem({ 
   exam
@@ -56,13 +57,15 @@ export default function ExamItem({
 
         <div className="border-t border-gray-200 rounded-b-xl p-4 bg-gray-50">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 justify-center p-3 h-auto"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span className="text-sm">시험 통계</span>
-            </Button>
+            <Link href={`/main/exam/${exam.examId}/statistics`}>
+              <Button
+                variant="outline"
+                className="flex items-center w-full justify-center p-3 h-auto"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm">시험 통계</span>
+              </Button>
+            </Link>
             <Button
               variant="outline"
               className="flex items-center gap-2 justify-center p-3 h-auto"

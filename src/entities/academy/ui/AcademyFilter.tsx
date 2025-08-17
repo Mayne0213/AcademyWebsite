@@ -11,29 +11,44 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/src/shared/ui/dropdownMenu";
+import { X } from "lucide-react";
 
 interface AcademyFilterProps {
-  selectedAcademy: string;
-  onAcademyChange: (academy: string) => void;
-  academies: { academyName: string }[];
+  selectedAcademyId: number | null;
+  academyList: Array<{ id: number | null; name: string }>;
+  onAcademyChange: (academyId: number | null) => void;
+  resetFilter?: () => void;
+  isFiltered?: boolean;
 }
 
 const AcademyFilter: React.FC<AcademyFilterProps> = ({
-  selectedAcademy,
+  selectedAcademyId,
+  academyList,
   onAcademyChange,
-  academies,
+  resetFilter,
+  isFiltered,
 }) => {
-  const academyOptions = [
-    "전체",
-    ...new Set((academies || []).map((academy) => academy.academyName)),
-  ];
+  const handleAcademyChange = (academyName: string) => {
+    if (academyName === "전체") {
+      onAcademyChange(null);
+    } else {
+      const academy = academyList.find(a => a.name === academyName);
+      onAcademyChange(academy?.id || null);
+    }
+  };
+
+  const getSelectedAcademyName = () => {
+    if (selectedAcademyId === null) return "전체";
+    const academy = academyList.find(a => a.id === selectedAcademyId);
+    return academy?.name || "전체";
+  };
 
   return (
-    <div className="flex justify-between gap-2">
+    <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="font-sansKR-Regular">
-            {selectedAcademy}
+          <Button variant="outline" className="font-sansKR-Regular min-w-[120px]">
+            {getSelectedAcademyName()}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
@@ -42,16 +57,16 @@ const AcademyFilter: React.FC<AcademyFilterProps> = ({
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
-            value={selectedAcademy}
-            onValueChange={onAcademyChange}
+            value={getSelectedAcademyName()}
+            onValueChange={handleAcademyChange}
           >
-            {academyOptions.map((academy) => (
+            {academyList.map((academy) => (
               <DropdownMenuRadioItem
-                key={academy}
-                value={academy}
+                key={academy.id || 'all'}
+                value={academy.name}
                 className="font-sansKR-Light"
               >
-                {academy}
+                {academy.name}
               </DropdownMenuRadioItem>
             ))}
           </DropdownMenuRadioGroup>

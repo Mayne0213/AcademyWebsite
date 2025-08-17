@@ -246,6 +246,7 @@ model ExamQuestionResult {
   id          Int      @id @default(autoincrement())
   examResultId Int
   questionNumber Int    // 문제 번호
+  selectedChoice String? // 선택한 선지 (A, B, C, D 등)
   isCorrect   Boolean  // 정답 여부
   score       Int      // 해당 문제 점수
 
@@ -255,6 +256,7 @@ model ExamQuestionResult {
   @@index([examResultId])
   @@index([questionNumber])
   @@index([isCorrect])
+  @@index([selectedChoice])
 }
 
 enum Role {

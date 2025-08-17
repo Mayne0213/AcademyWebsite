@@ -20,10 +20,15 @@ const Attendance = () => {
     addAttendance,
   } = useAttendance();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [selectedAcademy, setSelectedAcademy] = useState<string>("전체");
+  const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState<null | "name" | "school">("name");
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+
+  // selectedAcademy를 selectedAcademyId로 변환하여 사용
+  const selectedAcademy = selectedAcademyId === null
+    ? "전체"
+    : academies.find(a => a.academyId === selectedAcademyId)?.academyName || "전체";
 
   useEffect(() => {
     loadInitialAttendances();
@@ -41,14 +46,16 @@ const Attendance = () => {
 
   // 전체 출석 처리
   const handleAllChangeToAttend = () => {
+    if (selectedAcademyId === null) return;
+
     const filteredStudents = students.filter(
-      (student) => student.academyId.toString() === selectedAcademy,
+      (student) => student.academyId === selectedAcademyId,
     );
     filteredStudents.forEach((student) => {
       addAttendance({
         attendanceId: 1,
         studentId: student.memberId,
-        academyId: selectedAcademy,
+        academyId: selectedAcademyId.toString(),
         attendanceDate: today,
         attendanceStatus: "출석",
       });
@@ -65,9 +72,11 @@ const Attendance = () => {
     currentStatus: string,
     newStatus: string,
   ) => {
+    if (selectedAcademyId === null) return;
+
     addAttendance({
       attendanceId: 1,
-      academyId: selectedAcademy,
+      academyId: selectedAcademyId.toString(),
       studentId,
       attendanceDate: today,
       attendanceStatus: newStatus,
@@ -98,9 +107,9 @@ const Attendance = () => {
         searchTerm={searchTerm}
         currentPage={currentPage}
         totalPages={totalPages}
-        selectedAcademy={selectedAcademy}
-        onAcademyChange={(academy: string) => {
-          setSelectedAcademy(academy);
+        selectedAcademyId={selectedAcademyId}
+        onAcademyChange={(academyId: number | null) => {
+          setSelectedAcademyId(academyId);
           setCurrentPage(1);
         }}
         onPageChange={handlePageChange}

@@ -31,6 +31,7 @@ export const examResultQuerySchema = z.object({
 export const examQuestionResultCreateSchema = z.object({
   examResultId: z.number().int().positive('시험 결과 ID는 양의 정수여야 합니다'),
   questionNumber: z.number().int().positive('문제 번호는 양의 정수여야 합니다'),
+  selectedChoice: z.string().optional(), // 선택한 선지 (A, B, C, D 등)
   isCorrect: z.boolean('정답 여부는 boolean 값이어야 합니다'),
   score: z.number().int().min(0, '문제 점수는 0 이상이어야 합니다'),
 });
