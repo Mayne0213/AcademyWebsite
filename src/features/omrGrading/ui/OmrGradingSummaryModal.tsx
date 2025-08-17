@@ -6,13 +6,15 @@ interface OmrGradingSummaryModalProps {
   onClose: () => void;
   results: ExtendedOMRGradingResult[];
   examName: string;
+  examId: number;
 }
 
 export const OmrGradingSummaryModal: React.FC<OmrGradingSummaryModalProps> = ({
   isOpen,
   onClose,
   results,
-  examName
+  examName,
+  examId
 }) => {
   if (!isOpen) return null;
 
@@ -26,11 +28,11 @@ export const OmrGradingSummaryModal: React.FC<OmrGradingSummaryModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* 헤더 */}
-        <div className="border-b bg-blue-50 p-4 rounded-t-lg">
+        <div className="border-b bg-green-50 p-4 rounded-t-lg">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900">채점 완료</h3>
-              <p className="text-sm text-blue-600 mt-1">{examName}</p>
+              <p className="text-sm text-green-600 mt-1">{examName}</p>
             </div>
             <button
               onClick={onClose}
@@ -40,6 +42,19 @@ export const OmrGradingSummaryModal: React.FC<OmrGradingSummaryModalProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+          </div>
+        </div>
+
+        {/* 자동 저장 안내 */}
+        <div className="p-4 border-b bg-blue-50">
+          <div className="flex items-center space-x-3">
+            <span className="text-blue-600 text-lg">💾</span>
+            <div>
+              <p className="text-sm font-medium text-blue-800">자동 데이터베이스 저장 완료</p>
+              <p className="text-xs text-blue-600 mt-1">
+                채점이 완료된 모든 결과가 자동으로 데이터베이스에 저장되었습니다.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -98,6 +113,9 @@ export const OmrGradingSummaryModal: React.FC<OmrGradingSummaryModalProps> = ({
                         <span className="text-gray-600">
                           등급: <span className="font-semibold text-purple-600">{result.grade}등급</span>
                         </span>
+                        <span className="text-green-600 text-xs">
+                          💾 DB 저장됨
+                        </span>
                       </div>
                     ) : (
                       <div className="mt-2 text-sm text-red-600">
@@ -113,7 +131,10 @@ export const OmrGradingSummaryModal: React.FC<OmrGradingSummaryModalProps> = ({
 
         {/* 푸터 */}
         <div className="border-t p-4 bg-gray-50 rounded-b-lg">
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              시험 ID: {examId}
+            </div>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm font-medium"

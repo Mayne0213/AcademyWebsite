@@ -2,8 +2,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const phone = searchParams.get('phone');
+
+    if (phone) {
+      // 전화번호로 특정 학생 검색
+      const student = await prisma.student.findUnique({
+        where: { studentPhone: phone },
+        include: {
+          academy: true,
+          user: {
+            select: {
+              memberId: true,
+              userId: true,
+              role: true
+            }
+          }
+        },
+      });
+
+      if (!student) {
+        return NextResponse.json(
+          { success: false, message: "해당 전화번호의 학생을 찾을 수 없습니다." },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ success: true, data: student });
+    }
+
+    // 모든 학생 목록 조회
     const students = await prisma.student.findMany({
       include: {
         academy: true,

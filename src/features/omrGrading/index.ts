@@ -3,7 +3,9 @@ export type {
   OMRGradingResult, 
   OMRResult, 
   OMRGradingInput, 
-  OMRProcessingResult 
+  OMRProcessingResult,
+  OMRDatabaseSaveInput,
+  OMRDatabaseSaveResult
 } from './model/types';
 
 // Validation
@@ -16,7 +18,9 @@ export {
 // Processing
 export { 
   processOMR, 
-  createTestResultData 
+  createTestResultData,
+  findStudentByPhone,
+  saveOMRResultsToDatabase
 } from './model/omrProcessor';
 
 // Hooks

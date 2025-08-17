@@ -1,6 +1,6 @@
 // entities/student/api/index.ts
 import { Student } from "@/src/entities/student/model/types";
-import { apiGet, apiPost, apiPut, apiDelete } from "@/src/shared/api/http";
+import { apiGet, apiPut, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
 import { toast } from "sonner";
 
@@ -15,12 +15,13 @@ export const studentApi = {
     }
   },
 
-  createStudent: async (newStudent: Omit<Student, "memberId" | "createdAt" | "updatedAt" | "studentQnas" | "academy">): Promise<Student> => {
+  findStudentByPhone: async (phoneNumber: string): Promise<Student> => {
     try {
-      const result = await apiPost<Student>(API_ENDPOINTS.STUDENT.BASE, newStudent);
-      toast.success("학생이 성공적으로 생성되었습니다.");
+      const result = await apiGet<Student>(`${API_ENDPOINTS.STUDENT.BASE}?phone=${phoneNumber}`);
+      toast.success("학생이 성공적으로 조회되었습니다.");
 
       return result;
+
     } catch (error) {
       throw error;
     }

@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-
+import React, { useEffect, useState } from "react";
+import { StudentRead } from "@/src/features/studentCRUD/ui/StudentRead";
 import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
 import { useStudentStore } from "@/src/entities/student/model/store";
-import { StudentRead } from "@/src/features/studentCRUD/ui/StudentRead";
 import { SearchInput, SortControls, Pagination } from "@/src/shared/ui";
 
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
@@ -21,7 +20,21 @@ const Student = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [selectedAcademy, setSelectedAcademy] = useState<string>("전체");
+  const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
+
+  // academyList를 AcademyFilter에서 사용할 수 있는 형태로 변환
+  const academyList = [
+    { id: null, name: '전체' },
+    ...academies.map(academy => ({
+      id: academy.academyId,
+      name: academy.academyName
+    }))
+  ];
+
+  // selectedAcademy를 selectedAcademyId로 변환하여 사용
+  const selectedAcademy = selectedAcademyId === null
+    ? "전체"
+    : academies.find(a => a.academyId === selectedAcademyId)?.academyName || "전체";
 
   const { paginatedUsers, totalPages, totalUsers } = useFilteredSortedPaginatedUsers({
     students,
@@ -38,6 +51,11 @@ const Student = () => {
     setSortKey("name");
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleAcademyChange = (academyId: number | null) => {
+    setSelectedAcademyId(academyId);
+    setCurrentPage(1);
+  };
 
   return (
     <main className="h-full flex flex-col p-4">
@@ -64,12 +82,9 @@ const Student = () => {
       <div className="w-full flex flex-col smalltablet:flex-row smalltablet:justify-between gap-3 smalltablet:gap-4 mb-4 smalltablet:mb-6">
         <div className="w-full smalltablet:w-auto">
           <AcademyFilter
-            selectedAcademy={selectedAcademy}
-            onAcademyChange={(academy) => {
-              setSelectedAcademy(academy);
-              setCurrentPage(1);
-            }}
-            academies={academies}
+            selectedAcademyId={selectedAcademyId}
+            academyList={academyList}
+            onAcademyChange={handleAcademyChange}
           />
         </div>
 

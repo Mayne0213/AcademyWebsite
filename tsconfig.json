@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "next.config.mjs"
-  ],
+    , "src/features/omrGrading/hooks/useOMRGrading"  ],
   "exclude": ["node_modules"]
 }

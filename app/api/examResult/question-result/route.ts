@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       data: questionResult,
     });
   } catch (error) {
-    console.error('Error creating question result:', error);
+    console.error('Error creating exam question result:', error);
     return NextResponse.json(
       { success: false, message: '문제별 결과 생성 중 오류가 발생했습니다.' },
       { status: 500 }

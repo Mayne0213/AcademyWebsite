@@ -1,6 +1,7 @@
 export interface OMRGradingResult {
   totalScore: number;
   grade: number;
+  phoneNumber: string;
   results: OMRResult[];
 }
 
@@ -31,4 +32,16 @@ export interface ExtendedOMRGradingResult extends OMRGradingResult {
   fileName: string;
   success: boolean;
   error?: string;
+}
+
+// 데이터베이스 저장을 위한 타입들
+export interface OMRDatabaseSaveInput {
+  examId: number;
+  gradingResults: ExtendedOMRGradingResult[];
+}
+
+export interface OMRDatabaseSaveResult {
+  success: boolean;
+  savedCount: number;
+  errors: string[];
 }

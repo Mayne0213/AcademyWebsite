@@ -3,6 +3,7 @@ import {
   ExamResult, 
   ExamResultWithRelations,
   ExamQuestionResult,
+  ExamStatistics
 } from '../model/types';
 
 import { 
@@ -65,20 +66,22 @@ export const examResultApi = {
     return apiGet(url);
   },
 
-  // 시험별 결과 조회
-  readByExam: async (examId: number, params?: ExamResultQueryInput): Promise<{ success: boolean; data: ExamResultWithRelations[] }> => {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
-      });
-    }
+  // // 시험별 결과 조회
+  // readByExam: async (examId: number, params?: ExamResultQueryInput): Promise<{ success: boolean; data: ExamResultWithRelations[] }> => {
+  //   const searchParams = new URLSearchParams();
+  //   if (params) {
+  //     Object.entries(params).forEach(([key, value]) => {
+  //       if (value !== undefined) {
+  //         searchParams.append(key, value.toString());
+  //       }
+  //     });
+  //   }
     
-    const url = params ? `${BASE_URL}/exam/${examId}?${searchParams.toString()}` : `${BASE_URL}/exam/${examId}`;
-    return apiGet(url);
-  },
+  //   const url = params ? `${BASE_URL}/exam/${examId}?${searchParams.toString()}` : `${BASE_URL}/exam/${examId}`;
+  //   return apiGet(url);
+  // },
+
+
 
   // 문제별 결과 생성
   createQuestionResult: async (data: ExamQuestionResultCreateInput): Promise<{ success: boolean; data: ExamQuestionResult }> => {
@@ -93,5 +96,18 @@ export const examResultApi = {
   // 문제별 결과 삭제
   deleteQuestionResult: async (id: number): Promise<{ success: boolean; message: string }> => {
     return apiDelete(`${BASE_URL}/question-result/${id}`);
+  },
+
+  // 시험 통계 조회
+  getExamStatistics: async (examId: number): Promise<ExamStatistics> => {
+    return apiGet(`${BASE_URL}/exam/${examId}/statistics`);
+  },
+
+  // 학원별 시험 통계 조회
+  getExamStatisticsByAcademy: async (examId: number, academyId?: number): Promise<ExamStatistics> => {
+    const url = academyId
+      ? `${BASE_URL}/exam/${examId}/statistics?academyId=${academyId}`
+      : `${BASE_URL}/exam/${examId}/statistics`;
+    return apiGet(url);
   },
 };
