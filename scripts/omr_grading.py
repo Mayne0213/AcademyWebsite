@@ -394,7 +394,7 @@ def estimate_selected_answers_with_density(img, answer_positions, min_density=0.
     # 모든 답안 문제 처리 (1-45번)
     for q_num, choices in answer_positions.items():
         if not choices:
-            selected[str(q_num)] = "미기입"
+            selected[str(q_num)] = "무효"
             continue
 
         # 각 선지의 밀도 계산
@@ -425,15 +425,15 @@ def estimate_selected_answers_with_density(img, answer_positions, min_density=0.
                 if highest_density >= min_density + 0.1:  # 더 높은 임계값 요구
                     selected[str(q_num)] = highest_choice
                 else:
-                    selected[str(q_num)] = "미기입"
+                    selected[str(q_num)] = "무효"
         elif len(sorted_choices) == 1:
             choice, density = sorted_choices[0]
             if density >= min_density + 0.1:  # 단일 선지도 더 엄격한 기준
                 selected[str(q_num)] = choice
             else:
-                selected[str(q_num)] = "미기입"
+                selected[str(q_num)] = "무효"
         else:
-            selected[str(q_num)] = "미기입"
+            selected[str(q_num)] = "무효"
 
     return selected
 
@@ -448,7 +448,7 @@ def extract_phone_number(phone_selected):
         if i in phone_selected:
             digit = phone_selected[i]
             # 유효한 숫자인지 확인 (0-9 범위)
-            if digit and digit != "무효" and digit != "미기입":
+            if digit and digit != "무효":
                 try:
                     digit_int = int(digit)
                     if 0 <= digit_int <= 9:
@@ -458,7 +458,7 @@ def extract_phone_number(phone_selected):
                 except ValueError:
                     phone_digits.append("0")  # 변환 실패시 0으로 처리
             else:
-                phone_digits.append("0")  # 무효하거나 미기입시 0으로 처리
+                phone_digits.append("0")  # 무효시 0으로 처리
         else:
             phone_digits.append("0")  # 답안이 없으면 0으로 처리
 
@@ -508,7 +508,7 @@ def create_results_array(selected_answers, correct_answers, question_scores, que
     for q_num in sorted(correct_answers.keys(), key=lambda x: int(x)):
         try:
             q_num_int = int(q_num)
-            student_answer = selected_answers.get(q_num, "미기입")  # 문자열 키로 접근
+            student_answer = selected_answers.get(q_num, "무효")  # 문자열 키로 접근
             correct_answer = correct_answers[q_num]
             score = question_scores.get(q_num, 0)
             question_type = question_types.get(q_num, "기타")
@@ -675,7 +675,7 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
             try:
                 q_num_int = int(q_num)
                 if (q_num_int in answer_positions and
-                    student_answer not in ["미기입", "무효"] and
+                    student_answer not in ["무효"] and
                     student_answer in answer_positions[q_num_int]):
 
                     coord = answer_positions[q_num_int][student_answer]

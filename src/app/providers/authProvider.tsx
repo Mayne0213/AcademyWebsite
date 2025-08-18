@@ -20,7 +20,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: string | null;
   login: (userId: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
 }
 
 // 인증 컨텍스트 생성
@@ -43,13 +43,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [authFeatureStore, authRouting],
   );
 
-  const logout = useCallback(async () => {
-    try {
-      await authFeatureStore.logout();
-      authRouting.handleLogout();
-    } finally {
-      // 로그아웃 완료 후 로딩 상태는 자동으로 리셋됨 (페이지 리다이렉트로 인해)
-    }
+  const logout = useCallback(() => {
+    // 즉시 로컬 상태 초기화 및 리다이렉트 (await 없이)
+    authFeatureStore.logout(); // 백그라운드에서 API 호출
+    authRouting.handleLogout(); // 즉시 리다이렉트
   }, [authFeatureStore, authRouting]);
 
   // 페이지 로드 시 사용자 정보 확인

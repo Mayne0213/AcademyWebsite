@@ -27,6 +27,14 @@ export const studentApi = {
     }
   },
 
+  getStudentById: async (studentId: number): Promise<Student> => {
+    try {
+      return await apiGet<Student>(API_ENDPOINTS.STUDENT.BY_ID(studentId));
+    } catch (error) {
+      throw error;
+    }
+  },
+
   updateStudent: async (studentId: number, updatedStudent: Student): Promise<Student> => {
     try {
       const result = await apiPut<Student>(API_ENDPOINTS.STUDENT.BY_ID(studentId), updatedStudent);

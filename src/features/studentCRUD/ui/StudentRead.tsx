@@ -21,7 +21,6 @@ const StudentReadSkeleton = () => {
             <th className="py-3 text-center w-1/6">전화번호</th>
             <th className="py-3 text-center w-1/6">고등학교</th>
             <th className="py-3 text-center w-1/6">생년</th>
-            <th className="py-3 text-center w-1/6">메모</th>
           </tr>
         </thead>
         <tbody>
@@ -41,9 +40,6 @@ const StudentReadSkeleton = () => {
               </td>
               <td className="py-3 text-center w-1/6">
                 <div className="h-4 bg-gray-200 rounded-xl animate-pulse mx-auto w-20"></div>
-              </td>
-              <td className="py-3 text-center w-1/6">
-                <div className="h-4 bg-gray-200 rounded-xl animate-pulse mx-auto w-48"></div>
               </td>
             </tr>
           ))}
@@ -81,20 +77,20 @@ const StudentRead: React.FC<StudentReadProps> = ({ users, isLoading = true, tota
             <th className="py-3 text-center w-1/6">전화번호</th>
             <th className="py-3 text-center w-1/6">고등학교</th>
             <th className="py-3 text-center w-1/6">생년</th>
-            <th className="py-3 text-center w-1/6">메모</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.memberId} className="text-sm bg-white text-gray-800 border-b border-gray-200 hover:bg-gray-50 transition">
-              <td className="py-3 text-center cursor-pointer w-1/6" onClick={() => router.push(`/main/student/${user.memberId}`)}>
-                {user.studentName}
-              </td>
-              <td className="py-3 text-center w-1/6">{user.academy?.academyName || "없음"}</td>
-              <td className="py-3 text-center w-1/6">{user.studentPhone}</td>
-              <td className="py-3 text-center w-1/6">{user.studentHighschool}</td>
-              <td className="py-3 text-center w-1/6">{user.studentBirthYear}년({currentYear - user.studentBirthYear + 1}세)</td>
-              <td className="py-3 text-center w-1/6">{user.studentMemo}</td>
+            <tr key={user.memberId}
+                className="text-sm bg-white text-gray-800 border-b border-gray-200 hover:bg-gray-50 transition cursor-pointer"
+                onClick={() => router.push(`/main/student/${user.memberId}`)}>
+                  <td className="py-3 text-center w-1/6" >
+                    {user.studentName}
+                  </td>
+                  <td className="py-3 text-center w-1/6">{user.academy?.academyName || "없음"}</td>
+                  <td className="py-3 text-center w-1/6">{user.studentPhone}</td>
+                  <td className="py-3 text-center w-1/6">{user.studentHighschool}</td>
+                  <td className="py-3 text-center w-1/6">{user.studentBirthYear}년({currentYear - user.studentBirthYear + 1}세)</td>
             </tr>
           ))}
         </tbody>

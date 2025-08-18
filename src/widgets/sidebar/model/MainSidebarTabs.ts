@@ -21,7 +21,7 @@ import {
 
 const tabs = [
   {
-    label: "수강생",
+    label: "유저 관리",
     submenu: [
       {
         label: "수강생 관리",
@@ -30,9 +30,9 @@ const tabs = [
         description: "",
       },
       {
-        label: "출석 관리X",
-        icon: Calendar,
-        href: "/main/attendance",
+        label: "직원 관리X",
+        icon: Users,
+        href: "/main/employeeManagement",
         description: "",
       },
     ],
@@ -43,7 +43,7 @@ const tabs = [
       {
         label: "성적 관리",
         icon: GraduationCap,
-        href: "/main/grading",
+        href: "/main/exam",
         description: "",
       },
       {
@@ -105,32 +105,9 @@ const tabs = [
         description: "",
       },
       {
-        label: "직원 관리X",
-        icon: Users,
-        href: "/main/employeeManagement",
-        description: "",
-      },
-      {
         label: "단과 관리",
         icon: Building,
         href: "/main/academyManagement",
-        description: "",
-      },
-    ],
-  },
-  {
-    label: "설정",
-    submenu: [
-      {
-        label: "프로필 수정X",
-        icon : UserRoundPen,
-        href: "",
-        description: "",
-      },
-      {
-        label: "로그아웃",
-        icon : LogOut,
-        href: "logout",
         description: "",
       },
     ],

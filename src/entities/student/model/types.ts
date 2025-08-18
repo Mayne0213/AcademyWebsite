@@ -17,12 +17,14 @@ export interface Student extends UserInfo {
 // 학생 배열
 export interface StudentState {
   students: Student[];
+  studentDetail: Student | null;
   isLoading: boolean;
 }
 
 // 학생 기본 타입
 export interface StudentBasicActions {
   readStudents: (students: Student[]) => void;
+  readStudentById: (student: Student) => void;
   updateStudent: (updatedStudent: Student) => void;
   setLoading: (isLoading: boolean) => void;
 }

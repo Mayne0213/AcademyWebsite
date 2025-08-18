@@ -55,7 +55,9 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {/* 로그아웃 버튼 */}
             <button
-              onClick={logout}
+              onClick={() => {
+                logout();
+              }}
               className="hidden sm:block text-sm text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-50 transition"
             >
               로그아웃

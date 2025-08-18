@@ -57,7 +57,7 @@ export default function ExamItem({
 
         <div className="border-t border-gray-200 rounded-b-xl p-4 bg-gray-50">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Link href={`/main/exam/${exam.examId}/statistics`}>
+            <Link href={`/main/exam/${exam.examId}`}>
               <Button
                 variant="outline"
                 className="flex items-center w-full justify-center p-3 h-auto"

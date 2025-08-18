@@ -22,14 +22,7 @@ const Student = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
 
-  // academyList를 AcademyFilter에서 사용할 수 있는 형태로 변환
-  const academyList = [
-    { id: null, name: '전체' },
-    ...academies.map(academy => ({
-      id: academy.academyId,
-      name: academy.academyName
-    }))
-  ];
+
 
   // selectedAcademy를 selectedAcademyId로 변환하여 사용
   const selectedAcademy = selectedAcademyId === null
@@ -83,7 +76,7 @@ const Student = () => {
         <div className="w-full smalltablet:w-auto">
           <AcademyFilter
             selectedAcademyId={selectedAcademyId}
-            academyList={academyList}
+            academies={academies}
             onAcademyChange={handleAcademyChange}
           />
         </div>

@@ -39,10 +39,10 @@ model Admin {
 model Student {
   academyId         Int
   studentName       String
-  studentPhone      String  @unique
+  studentPhone      String            @unique
   studentHighschool String?
   studentBirthYear  Int
-  studentMemo       String?
+  studentMemo       String?           @db.Text
   qnas              QnABoard[]        @relation("StudentToQnA")
   qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
   counselingReservations CounselingReservation[] @relation("StudentToCounselingReservation")

@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { examResultApi } from "@/src/entities/examResult/api";
-import { academyApi } from "@/src/entities/academy/api";
+import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
+import { useAcademyStore } from "@/src/entities/academy/model/store";
 import type { ExamStatistics as ExamStatisticsType } from "@/src/entities/examResult/model/types";
 import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
 import { 
@@ -12,7 +13,6 @@ import {
   Target, 
   TrendingUp, 
   TrendingDown,
-  CheckCircle,
   AlertCircle,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, ResponsiveContainer, LabelList, CartesianGrid } from 'recharts';
@@ -25,58 +25,62 @@ export default function ExamStatistics() {
   const [error, setError] = useState<string | null>(null);
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
   const [isFiltered, setIsFiltered] = useState(false);
-  const [academyList, setAcademyList] = useState<Array<{ id: number | null; name: string }>>([]);
+  const [academyStatistics, setAcademyStatistics] = useState<Map<number, ExamStatisticsType>>(new Map());
 
-  // 학원 목록 가져오기
-  const fetchAcademyList = async () => {
-    try {
-      const academiesData = await academyApi.getAcademies();
-      const academiesWithAll = [
-        { id: null, name: '전체 학원' },
-        ...academiesData.map(academy => ({ 
-          id: academy.academyId, 
-          name: academy.academyName 
-        }))
-      ];
-      setAcademyList(academiesWithAll);
-    } catch (err) {
-      console.error('Error fetching academy list:', err);
-      // 에러 발생 시 기본값 사용
-      setAcademyList([
-        { id: null, name: '전체 학원' },
-        { id: 1, name: '목동학원' },
-        { id: 2, name: '강남학원' }
-      ]);
+  // academy feature store와 entity store 사용
+  const { readAcademies } = useAcademyFeatureStore();
+  const { academies } = useAcademyStore();
+
+
+
+  // 모든 학원의 통계 데이터 가져오기
+  const fetchAllAcademyStatistics = async () => {
+    const statisticsMap = new Map<number, ExamStatisticsType>();
+
+    // 각 학원별로 순차적으로 통계 데이터 가져오기
+    for (const academy of academies) {
+      try {
+        const academyStats = await examResultApi.getExamStatisticsByAcademy(examId, academy.academyId);
+        if (academyStats) {
+          statisticsMap.set(academy.academyId, academyStats);
+        }
+      } catch (error) {
+      }
     }
+
+    setAcademyStatistics(statisticsMap);
   };
 
-  // 컴포넌트 마운트 시 학원 목록 가져오기
   useEffect(() => {
-    fetchAcademyList();
+    readAcademies();
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 학원 데이터가 로드된 후 모든 학원의 통계 가져오기
+  useEffect(() => {
+    if (academies.length > 0 && examId) {
+      fetchAllAcademyStatistics();
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [academies, examId]);
 
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
         setIsLoading(true);
-        console.log('Fetching statistics for examId:', examId, 'academyId:', selectedAcademyId);
         
         const result = selectedAcademyId 
           ? await examResultApi.getExamStatisticsByAcademy(examId, selectedAcademyId)
           : await examResultApi.getExamStatistics(examId);
         
-        console.log('API response:', result);
         
         if (result && result.examId) {
-          console.log('Setting statistics:', result);
           setStatistics(result);
           setError(null);
         } else {
-          console.log('API call failed or no data:', result);
           setError('통계 데이터를 불러올 수 없습니다.');
         }
       } catch (err) {
-        console.error('Error fetching exam statistics:', err);
         setError('통계 데이터를 불러오는 중 오류가 발생했습니다.');
       } finally {
         setIsLoading(false);
@@ -105,7 +109,7 @@ export default function ExamStatistics() {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto mb-4"></div>
           <p className="text-gray-600">
             {isFiltered 
-              ? `${academyList.find(a => a.id === selectedAcademyId)?.name} 통계를 불러오는 중...`
+              ? `${academies.find(a => a.academyId === selectedAcademyId)?.academyName} 통계를 불러오는 중...`
               : '전체 통계를 불러오는 중...'
             }
           </p>
@@ -135,10 +139,10 @@ export default function ExamStatistics() {
         
         {/* 학원 선택 필터 */}
         <div className="mt-6 flex items-center justify-end gap-4">
-          {academyList.length > 0 ? (
+          {academies.length > 0 ? (
             <AcademyFilter
               selectedAcademyId={selectedAcademyId}
-              academyList={academyList}
+              academies={academies}
               onAcademyChange={handleAcademyChange}
               resetFilter={resetFilter}
               isFiltered={isFiltered}
@@ -151,73 +155,32 @@ export default function ExamStatistics() {
         </div>
       </div>
 
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* 전체 통계 요약 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">응시자 수</h3>
-            <Users className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="mt-2">
-            <div className="text-2xl font-sansKR-Bold">{statistics.totalParticipants}명</div>
-            <p className="text-xs text-gray-500">총 응시 학생</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">평균 점수</h3>
-            <Target className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="mt-2">
-            <div className="text-2xl text-green-600 font-sansKR-Bold">{statistics.averageScore.toFixed(1)}점</div>
-            <p className="text-xs text-gray-500">전체 평균</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">정답률</h3>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </div>
-          <div className="mt-2">
-            <div className="text-2xl font-sansKR-Bold text-green-600">
-              {(statistics.overallCorrectRate * 100).toFixed(1)}%
+      <div className="space-y-6 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-gray-900">응시자 수</h3>
+              <Users className="h-4 w-4 text-gray-400" />
             </div>
-            <p className="text-xs text-gray-500">전체 정답률</p>
+            <div className="mt-2">
+              <div className="text-2xl font-sansKR-Bold">{statistics.totalParticipants}명</div>
+              <p className="text-xs text-gray-500">총 응시 학생</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium text-gray-900">평균 점수</h3>
+              <Target className="h-4 w-4 text-gray-400" />
+            </div>
+            <div className="mt-2">
+              <div className="text-2xl text-green-600 font-sansKR-Bold">{statistics.averageScore.toFixed(1)}점</div>
+              <p className="text-xs text-gray-500">전체 평균</p>
+            </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">학원</h3>
-            <CheckCircle className="h-4 w-4 text-red-600" />
-          </div>
-          <div className="mt-2">
-            {isFiltered ? (
-              <>
-                <div className="text-2xl font-sansKR-Bold text-red-600">
-                  {selectedAcademyId === null 
-                    ? '전체 학원' 
-                    : academyList.find(a => a.id === selectedAcademyId)?.name
-                  }
-                </div>
-                <p className="text-xs text-gray-500">선택된 학원</p>
-              </>
-            ) : (
-              <>
-                <div className="text-2xl font-sansKR-Bold text-black">
-                  전체 통계
-                </div>
-                <p className="text-xs text-gray-500">위에서 학원을 선택하면 상세 정보가 표시됩니다</p>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 점수 분포 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
@@ -244,40 +207,45 @@ export default function ExamStatistics() {
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            오답률 TOP5
-          </h3>
-          <div className="flex justify-center gap-4">
-            {statistics.questionStatistics
-              .sort((a, b) => b.incorrectAnswers - a.incorrectAnswers)
-              .slice(0, 5)
-              .map((question, index) => (
-                <div 
-                  key={question.questionNumber}
-                  className="text-center"
-                >
-                  <div className={`text-3xl ${
-                    index === 0 
-                      ? 'text-red-800' 
-                      : index === 1 
-                      ? 'text-orange-800'
-                      : index === 2
-                      ? 'text-yellow-800'
-                      : 'text-gray-800'
-                  }`}>
-                    {question.questionNumber}번
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    정답률 {(question.correctRate * 100).toFixed(0)}%
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
       </div>
+
+             {/* 오답률 분포 */}
+       <div className="bg-white w-full rounded-lg border border-gray-200 p-6">
+         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+           <Target className="h-5 w-5" />
+           오답률 TOP10
+         </h3>
+         <div className="grid grid-cols-2 smalltablet:grid-cols-3 tablet:grid-cols-5 desktop:grid-cols-5 gap-4">
+           {statistics.questionStatistics
+             .sort((a, b) => b.incorrectAnswers - a.incorrectAnswers)
+             .slice(0, 10)
+             .map((question, index) => (
+               <div
+                 key={question.questionNumber}
+                 className="flex flex-col items-center justify-center text-center h-24"
+               >
+                 <div className={`text-3xl font-bold ${
+                   index === 0
+                     ? 'text-red-800'
+                     : index === 1
+                     ? 'text-orange-800'
+                     : index === 2
+                     ? 'text-yellow-800'
+                     : index < 5
+                     ? 'text-gray-700'
+                     : 'text-gray-600'
+                 }`}>
+                   {question.questionNumber}번
+                 </div>
+                 <div className="text-xs text-gray-500 mt-1">
+                   정답률 {(question.correctRate * 100).toFixed(0)}%
+                 </div>
+               </div>
+             ))}
+         </div>
+       </div>
+
+    </div>
 
       {/* 등급별 학생 분포와 문제 유형별 정답률을 한 row에 배치 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -346,7 +314,7 @@ export default function ExamStatistics() {
       </div>
 
       {/* 학원별 비교 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 hidden">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <BarChart3 className="h-5 w-5" />
           학원별 성취도 비교
@@ -358,56 +326,41 @@ export default function ExamStatistics() {
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">학원명</th>
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">응시자 수</th>
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">평균점수</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">정답률</th>
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">1등급 비율</th>
               </tr>
             </thead>
             <tbody>
-              {academyList
-                .filter(academy => academy.id !== null) // '전체 학원' 제외
+              {academies
                 .map((academy, index) => {
-                  const isSelected = selectedAcademyId === academy.id;
-                  
+                  const isSelected = selectedAcademyId === academy.academyId;
+                  const academyStats = academyStatistics.get(academy.academyId);
+
                   return (
-                    <tr 
-                      key={academy.id} 
+                    <tr
+                      key={academy.academyId}
                       className={`border-b border-gray-100 hover:bg-gray-50 text-center ${
                         isSelected ? 'bg-blue-50' : ''
                       }`}
                     >
                       <td className="py-2 px-3 font-sansKR-Bold">
-                        {academy.name}
+                        {academy.academyName}
                       </td>
                       <td className="py-2 px-3">
-                        {isSelected && statistics 
-                          ? `${statistics.totalParticipants}명`
+                        {academyStats && academyStats.totalParticipants > 0
+                          ? `${academyStats.totalParticipants}명`
                           : '응시자 없음'
                         }
                       </td>
                       <td className="py-2 px-3">
-                        {isSelected && statistics 
-                          ? `${statistics.averageScore.toFixed(1)}점`
+                        {academyStats && academyStats.totalParticipants > 0
+                          ? `${academyStats.averageScore.toFixed(1)}점`
                           : '평균 점수 없음'
                         }
                       </td>
                       <td className="py-2 px-3">
-                        {isSelected && statistics ? (
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs ${
-                            (statistics.overallCorrectRate * 100) >= 85 ? 'bg-green-100 text-green-800' :
-                            (statistics.overallCorrectRate * 100) >= 80 ? 'bg-blue-100 text-blue-800' :
-                            (statistics.overallCorrectRate * 100) >= 75 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {(statistics.overallCorrectRate * 100).toFixed(1)}%
-                          </span>
-                        ) : (
-                          '정답률 없음'
-                        )}
-                      </td>
-                      <td className="py-2 px-3">
-                        {isSelected && statistics 
-                          ? `${statistics.gradeDistribution.find(g => g.grade === 1)?.count || 0}명 (${statistics.gradeDistribution.find(g => g.grade === 1)?.count && 
-                              ((statistics.gradeDistribution.find(g => g.grade === 1)?.count || 0) / statistics.totalParticipants * 100).toFixed(1)
+                        {academyStats && academyStats.totalParticipants > 0
+                          ? `${academyStats.gradeDistribution.find(g => g.grade === 1)?.count || 0}명 (${academyStats.gradeDistribution.find(g => g.grade === 1)?.count &&
+                              ((academyStats.gradeDistribution.find(g => g.grade === 1)?.count || 0) / academyStats.totalParticipants * 100).toFixed(1)
                             }%)`
                           : '시험 결과 없음'
                         }
@@ -418,25 +371,13 @@ export default function ExamStatistics() {
             </tbody>
           </table>
         </div>
-        
-        {academyList.length === 1 && (
-          <div className="mt-4 text-center text-sm text-gray-500">
-            학원 목록을 불러오는 중입니다...
-          </div>
-        )}
-        
-        {academyList.length > 1 && !isFiltered && (
-          <div className="mt-4 text-center text-sm text-gray-500">
-            위에서 학원을 선택하면 해당 학원의 상세 통계를 볼 수 있습니다.
-          </div>
-        )}
       </div>
 
       {/* 문제별 통계 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <BarChart3 className="h-5 w-5" />
-          {isFiltered ? '선택된 학원 문제별 상세 통계' : '문제별 상세 통계'}
+          문제별 상세 통계
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -450,11 +391,14 @@ export default function ExamStatistics() {
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">3</th>
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">4</th>
                 <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">5</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">미기입</th>
+                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">무효</th>
               </tr>
             </thead>
             <tbody>
-              {statistics.questionStatistics.map((question) => {
+              {/* {statistics.questionStatistics.map((question) => { */}
+              {[...statistics.questionStatistics]
+                .sort((a, b) => a.questionNumber - b.questionNumber)
+                .map((question) => {
                 // 정답 선지 찾기 (가장 많이 선택된 선지 중 정답인 것)
                 const correctChoice = question.choiceStatistics?.find(c => c.isCorrect)?.choice || 'N/A';
                 
@@ -465,7 +409,7 @@ export default function ExamStatistics() {
                     <td className="py-2 px-3 text-green-600 font-sansKR-Bold">
                       {question.actualScore}
                     </td>
-                    {['1', '2', '3', '4', '5', '미기입'].map((choiceNumber) => {
+                    {['1', '2', '3', '4', '5', '무효'].map((choiceNumber) => {
                       const choiceData = question.choiceStatistics?.find(c => c.choice === choiceNumber);
                       const selectionRate = choiceData ? choiceData.selectionRate : 0;
                       const isCorrect = choiceData ? choiceData.isCorrect : false;

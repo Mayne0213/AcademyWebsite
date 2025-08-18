@@ -39,15 +39,15 @@ export const useAuthFeatureStore = create<AuthFeatureState & AuthFeatureActions>
     }
   },
 
-  // 로그아웃 기능
-  logout: async () => {
-    try {
-      await apiPost<ApiResponse>(API_ENDPOINTS.AUTH.SIGN_OUT, {});
-      set({ user: null, error: null });
-    } catch (error) {
-      console.error("Logout API failed", error);
-      set({ isAuthenticating: false });
-    }
+  // 로그아웃 기능 - 성능 최적화: 즉시 로컬 상태 초기화
+  logout: () => {
+    // 즉시 로컬 상태 초기화 (사용자 경험 향상)
+    set({ user: null, error: null, isAuthenticating: false });
+
+    // API 호출은 백그라운드에서 처리 (완전히 비동기)
+    apiPost<ApiResponse>(API_ENDPOINTS.AUTH.SIGN_OUT, {}).catch(error => {
+      console.error("Background logout API failed", error);
+    });
   },
 
   // 현재 사용자 정보 가져오기
@@ -123,7 +123,6 @@ export const useAuthRouting = () => {
   };
 
   const handleLogout = () => {
-    router.refresh();
     router.push("/home");
   };
 

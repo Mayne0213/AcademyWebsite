@@ -11,7 +11,7 @@ export interface AuthFeatureState {
 // 인증 기능 액션 타입
 export interface AuthFeatureActions {
   login: (userId: string, password: string) => Promise<UserInfo | null>;
-  logout: () => Promise<void>;
+  logout: () => void;
   getCurrentUser: () => Promise<UserInfo | null>;
   initializeAuth: () => Promise<void>;
   setUser: (user: UserInfo | null) => void;
