@@ -10,6 +10,23 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/home", req.url));
   }
 
+  // /home 경로는 JWT 검증 없이 즉시 통과 (로그아웃 성능 최적화)
+  if (pathname === "/home" || pathname.startsWith("/home/")) {
+    // 로그인 페이지에서만 토큰 체크 (리다이렉트용)
+    if (pathname.startsWith("/home/signIn") || pathname.startsWith("/home/signUp")) {
+      const token = req.cookies.get("token")?.value;
+      if (token) {
+        try {
+          await jwtVerify(token, JWT_SECRET);
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+        } catch {
+          // 토큰이 유효하지 않으면 그대로 진행
+        }
+      }
+    }
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/main")) {
     const token = req.cookies.get("token")?.value;
 
@@ -59,16 +76,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  if (
-    pathname.startsWith("/home/signIn") ||
-    pathname.startsWith("/home/signUp")
-  ) {
-    const token = req.cookies.get("token")?.value;
 
-    if (token) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-  }
 
   return NextResponse.next();
 }

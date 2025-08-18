@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Button } from "@/src/shared/ui/button";
 import {
   DropdownMenu,
@@ -11,11 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/src/shared/ui/dropdownMenu";
-import { X } from "lucide-react";
+import { Academy } from "../model/types";
 
 interface AcademyFilterProps {
   selectedAcademyId: number | null;
-  academyList: Array<{ id: number | null; name: string }>;
+  academies: Academy[];
   onAcademyChange: (academyId: number | null) => void;
   resetFilter?: () => void;
   isFiltered?: boolean;
@@ -23,11 +23,19 @@ interface AcademyFilterProps {
 
 const AcademyFilter: React.FC<AcademyFilterProps> = ({
   selectedAcademyId,
-  academyList,
+  academies,
   onAcademyChange,
   resetFilter,
   isFiltered,
 }) => {
+  // academies를 필터링용 형식으로 변환하고 "전체 학원" 옵션 추가
+  const academyList = useMemo(() => [
+    { id: null, name: '전체 학원' },
+    ...academies.map(academy => ({
+      id: academy.academyId,
+      name: academy.academyName
+    }))
+  ], [academies]);
   const handleAcademyChange = (academyName: string) => {
     if (academyName === "전체") {
       onAcademyChange(null);

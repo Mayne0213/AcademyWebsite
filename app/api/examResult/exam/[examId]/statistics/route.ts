@@ -222,7 +222,6 @@ export async function GET(
     // return NextResponse.json(statistics);
 
   } catch (error) {
-    console.error("GET /api/examResult/exam/[examId]/statistics error:", error);
     return NextResponse.json(
       { success: false, message: "시험 통계 조회에 실패했습니다." },
       { status: 500 }

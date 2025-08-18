@@ -16,6 +16,15 @@ export const useStudentFeatureStore = () => {
     }
   }, [entityStore]);
 
+  const readStudentById = useCallback(async (studentId: number) => {
+    entityStore.setLoading(true);
+    try {
+      entityStore.readStudentById(await studentApi.getStudentById(studentId));
+    } finally {
+      entityStore.setLoading(false);
+    }
+  }, [entityStore]);
+
   const updateStudent = useCallback(async (updatedStudent: Student) => {
     entityStore.setLoading(true);
     try {
@@ -28,5 +37,6 @@ export const useStudentFeatureStore = () => {
   return {
     readStudents,
     updateStudent,
+    readStudentById,
   };
 };
