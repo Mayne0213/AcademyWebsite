@@ -1,163 +1,296 @@
-# Academy QnA/Announcement/Asset Board Frontend
+# OMR Grading Application
 
-## 프로젝트 소개
+Next.js + Python OMR 채점 애플리케이션을 위한 Docker 기반 배포 환경입니다.
 
-이 프로젝트는 학원용 QnA 게시판, 공지사항, 자료실(Asset) 기능을 제공하는 **Next.js 기반 프론트엔드**입니다.
-Zustand를 활용한 전역 상태 관리, Prisma ORM, S3 파일 업로드, 반응형 UI, 관리자/학생 권한 분리 등
-실제 서비스 운영에 필요한 다양한 기능을 갖추고 있습니다.
+## 🚀 Features
 
----
+- **Next.js Frontend**: React 기반 사용자 인터페이스
+- **Python OMR Processing**: OpenCV를 사용한 OMR 채점 엔진
+- **MySQL Database**: AWS RDS (프로덕션) / 로컬 MySQL (개발)
+- **AWS S3 Integration**: 파일 업로드/다운로드
+- **Docker Containerization**: 일관된 배포 환경
 
-## 주요 기능
+## 🏗️ Architecture
 
-- **QnA 게시판**
-  - 질문 목록, 상세, 댓글(등록/삭제), 이미지 첨부, 페이징
-  - 질문/댓글은 zustand store에서 전역 관리, 상세 fetch는 on-demand
-- **공지사항/자료실**
-  - 공지/자료 목록, 상세, 파일 첨부, 관리자만 작성/수정/삭제
-- **학생/관리자 권한 분리**
-  - 학생은 본인 QnA만, 관리자는 전체 QnA/공지/자료 관리
-- **반응형 UI**
-  - 모바일/PC 모두 최적화
-- **S3 파일 업로드**
-  - 이미지/파일 첨부 및 미리보기
-- **Prisma ORM + MySQL**
-  - schema.prisma 참고
+```text
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │   Backend       │    │   Python        │
+│   (Next.js)     │◄──►│   (API Routes)  │◄──►│   (OMR Script)  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Static Files  │    │   Database      │    │   File Storage  │
+│   (Public)      │    │   (MySQL)       │    │   (AWS S3)      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
----
+## 📋 Prerequisites
 
-## 폴더 구조
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **Git**: 코드 버전 관리
+- **Node.js**: 18+ (로컬 개발용)
+- **Python**: 3.8+ (로컬 개발용)
+
+## 🐳 Quick Start
+
+### 1. 프로젝트 클론
+```bash
+git clone <your-repository>
+cd frontend
+```
+
+### 2. 환경변수 설정
+```bash
+# .env 파일 생성
+cp .env.example .env
+
+# 환경변수 편집
+nano .env
+```
+
+### 3. 도커 실행
+```bash
+# 프로덕션 환경
+docker-compose up -d
+
+# 개발 환경
+docker-compose -f docker-compose.dev.yml up -d
+```
+
+### 4. 애플리케이션 접속
+```text
+http://localhost:3000
+```
+
+## 🔧 Development
+
+### 로컬 개발 환경
+```bash
+# 의존성 설치
+npm install
+pip install -r scripts/requirements.txt
+
+# 개발 서버 실행
+npm run dev
+```
+
+### 도커 개발 환경
+```bash
+# 개발용 컨테이너 실행
+docker-compose -f docker-compose.dev.yml up -d
+
+# 로그 확인
+docker-compose -f docker-compose.dev.yml logs -f app
+
+# 컨테이너 중지
+docker-compose -f docker-compose.dev.yml down
+```
+
+## 🚀 Production Deployment
+
+### 자동 배포 스크립트 사용
+```bash
+# 배포 스크립트 실행 권한 부여
+chmod +x deploy.sh
+
+# 배포 실행
+./deploy.sh
+```
+
+### 수동 배포
+```bash
+# 이미지 빌드
+docker-compose build --no-cache
+
+# 컨테이너 실행
+docker-compose up -d
+
+# 상태 확인
+docker-compose ps
+```
+
+## 📁 Project Structure
 
 ```text
 frontend/
-  app/
-    dashboard/
-      qna/              # QnA 게시판 (목록, 상세, 추가, 수정)
-      announcement/     # 공지사항
-      assets/           # 자료실
-    api/                # Next.js API routes (백엔드)
-  components/
-    hooks/              # zustand 등 커스텀 훅
-    type/               # 타입 정의 (QnA, 댓글 등)
-    ui/                 # 공통 UI 컴포넌트
-  contexts/             # 인증 등 context
-  lib/                  # prisma, utils
-  prisma/
-    schema.prisma       # DB 스키마
-  public/               # 정적 파일, 이미지
+├── app/                    # Next.js App Router
+│   ├── api/               # API 엔드포인트
+│   │   └── omr/           # OMR 채점 API
+│   └── ...
+├── scripts/                # Python 스크립트
+│   ├── omr_grading.py     # OMR 채점 엔진
+│   └── requirements.txt    # Python 의존성
+├── src/                    # 소스 코드
+│   ├── entities/           # 도메인 엔티티
+│   ├── features/           # 비즈니스 로직
+│   └── shared/             # 공통 유틸리티
+├── prisma/                 # 데이터베이스 스키마
+├── Dockerfile              # 도커 이미지 빌드
+├── docker-compose.yml      # 프로덕션 환경
+├── docker-compose.dev.yml  # 개발 환경
+└── deploy.sh               # 배포 자동화
 ```
 
----
+## 🔐 Environment Variables
 
-## 기술 스택
+### 필수 환경변수
+```bash
+# 데이터베이스
+DATABASE_URL="mysql://username:password@host:port/database"
 
-- **Next.js 14**
-- **React 18**
-- **TypeScript**
-- **Zustand** (상태 관리)
-- **Prisma ORM** (DB)
-- **MySQL**
-- **AWS S3** (파일 업로드)
-- **Tailwind CSS**
-- **Sonner** (toast)
-- 기타: react-hook-form, radix-ui, etc.
+# JWT 인증
+JWT_SECRET="your-secret-key"
 
----
-
-## 개발/실행 방법
-
-1. **환경 변수 설정**
-   - `.env` 파일에 DB, S3, JWT 등 환경 변수 입력
-2. **의존성 설치**
-   ```bash
-   npm install
-   ```
-3. **DB 마이그레이션**
-   ```bash
-   npx prisma migrate deploy
-   ```
-4. **개발 서버 실행**
-   ```bash
-   npm run dev
-   ```
-   - [http://localhost:3000](http://localhost:3000) 접속
-
-5. **빌드/배포**
-   ```bash
-   npm run build
-   npm start
-   ```
-
----
-
-## 상태 관리 (Zustand)
-
-- **QnA/댓글/상세**는 모두 `useQna` 커스텀 훅에서 전역 관리
-- 컴포넌트에서는 zustand의 상태만 사용, 직접 setState 금지
-- 댓글 추가/삭제/수정 시 store에서 QnA/상세 모두 자동 동기화
-
-```typescript
-const {
-  Qnas,
-  addComment,
-  deleteCommentFromQna,
-  expandedDetails,
-  setExpandedDetails,
-  // ...
-} = useQna();
+# AWS S3
+AWS_ACCESS_KEY_ID="your-access-key"
+AWS_SECRET_ACCESS_KEY="your-secret-key"
+AWS_REGION="ap-northeast-2"
+AWS_S3_BUCKET_NAME="your-bucket-name"
+AWS_S3_BUCKET_URL="https://your-bucket.s3.region.amazonaws.com"
 ```
 
----
-
-## QnA/댓글 데이터 구조
-
-- **Qna**
-  ```typescript
-interface Qna {
-  qnaId: number;
-  qnaTitle: string;
-  qnaContent: string;
-  qnaImageUrl: string | null;
-  qnaUserId: number;
-  createdAt: string;
-  updatedAt: string;
-  comments?: QnaComment[];
-  user?: { memberId: number; userId: string; role: ...; student?: { studentName: string } }
-}
-```text
-- **QnaComment**
-  ```typescript
-interface QnaComment {
-  commentId: number;
-  commentContent: string;
-  commentMemberId: number;
-  qnaId: number;
-  createdAt: string;
-  updatedAt: string;
-  user: any;
-}
+### 개발 환경 추가 변수
+```bash
+# 로컬 MySQL
+MYSQL_DATABASE=AcademyDB
+MYSQL_USER=root
+MYSQL_PASSWORD=your-password
+MYSQL_ROOT_PASSWORD=your-root-password
 ```
 
----
+## 🐳 Docker Commands
 
-## 환경 변수 예시 (.env)
+### 컨테이너 관리
+```bash
+# 컨테이너 상태 확인
+docker-compose ps
 
-```text
-DATABASE_URL=mysql://user:password@host:3306/dbname
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
-AWS_S3_BUCKET=...
-JWT_SECRET=...
+# 로그 확인
+docker-compose logs -f app
+
+# 컨테이너 재시작
+docker-compose restart app
+
+# 컨테이너 중지
+docker-compose down
 ```
 
----
+### 이미지 관리
+```bash
+# 이미지 목록
+docker images
 
-## 기타
+# 이미지 삭제
+docker rmi omr-grading-app:latest
 
-- **코드 컨벤션**: TypeScript, 함수형 컴포넌트, 커스텀 훅 적극 활용
-- **테스트/배포**: Vercel, AWS 등 어디서든 배포 가능
-- **문의/기여**: PR/이슈 환영
+# 이미지 히스토리
+docker history omr-grading-app:latest
+```
 
----
+### 볼륨 관리
+```bash
+# 볼륨 목록
+docker volume ls
 
-(자세한 사용법/구현 문의는 코드 주석 및 각 page.tsx 참고)
+# 볼륨 삭제
+docker volume rm frontend_mysql_data_dev
+```
+
+## 🔍 Troubleshooting
+
+### 일반적인 문제들
+
+#### 1. 포트 충돌
+```bash
+# 포트 사용 확인
+lsof -i :3000
+
+# 다른 포트 사용
+docker-compose up -d -p 3001:3000
+```
+
+#### 2. 권한 문제
+```bash
+# 도커 그룹에 사용자 추가
+sudo usermod -aG docker $USER
+
+# 로그아웃 후 재로그인
+```
+
+#### 3. 메모리 부족
+```bash
+# 도커 메모리 제한 확인
+docker stats
+
+# 도커 데몬 재시작
+sudo systemctl restart docker
+```
+
+### 로그 확인
+```bash
+# 애플리케이션 로그
+docker-compose logs app
+
+# 데이터베이스 로그
+docker-compose logs db
+
+# 실시간 로그
+docker-compose logs -f
+```
+
+## 📊 Monitoring
+
+### 헬스 체크
+```bash
+# 애플리케이션 상태 확인
+curl http://localhost:3000/api/health
+
+# 데이터베이스 연결 확인
+docker-compose exec db mysql -u root -p -e "SELECT 1"
+```
+
+### 리소스 사용량
+```bash
+# 컨테이너 리소스 사용량
+docker stats
+
+# 시스템 리소스
+htop
+```
+
+## 🔄 CI/CD
+
+### GitHub Actions (선택사항)
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to EC2
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to EC2
+        run: |
+          # 배포 스크립트 실행
+```
+
+## 📚 Additional Resources
+
+- [Docker Documentation](https://docs.docker.com/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [OpenCV Python Documentation](https://docs.opencv.org/4.x/)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
