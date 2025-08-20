@@ -4,19 +4,44 @@ import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const type = url.searchParams.get("type") || "summary";
+
     const admins = await prisma.admin.findMany({
       include: {
         user: true,
+        announcements: type === "detail",
+        academies: type === "detail",
       },
       orderBy: { memberId: "desc" },
     });
-    const result = admins.map((a) => ({
-      memberId: a.memberId,
-      userId: a.user.userId,
-      adminName: a.adminName,
-      adminPhone: a.adminPhone,
-    }));
-    return NextResponse.json({ success: true, data: result }, { status: 200 });
+
+    if (type === "summary") {
+      // AdminSummary 형태로 응답
+      const result = admins.map((a) => ({
+        memberId: a.memberId,
+        adminName: a.adminName,
+        adminPosition: a.adminPosition,
+      }));
+      return NextResponse.json({ success: true, data: result }, { status: 200 });
+    } else {
+      // Admin 전체 정보로 응답
+      const result = admins.map((a) => ({
+        memberId: a.memberId,
+        name: a.adminName,
+        userId: a.user.userId,
+        role: a.user.role,
+        createdAt: a.user.createdAt,
+        updatedAt: a.user.updatedAt,
+        adminName: a.adminName,
+        adminPhone: a.adminPhone,
+        adminPosition: a.adminPosition,
+        adminMemo: a.adminMemo,
+        announcements: a.announcements || [],
+        academies: a.academies || [],
+      }));
+      return NextResponse.json({ success: true, data: result }, { status: 200 });
+    }
   } catch (error) {
     return NextResponse.json({ success: false, message: "관리자 목록 조회에 실패했습니다." }, { status: 500 });
   }
@@ -30,10 +55,11 @@ export async function POST(req: Request) {
       userCheckPassword,
       adminName,
       adminPhone,
+      adminPosition,
     } = await req.json();
 
     // 유효성 검사
-    if (!userId || !userPassword || !userCheckPassword || !adminName || !adminPhone) {
+    if (!userId || !userPassword || !userCheckPassword || !adminName || !adminPhone || !adminPosition) {
       return NextResponse.json(
         { success: false, message: "필수 정보를 모두 입력해주세요." },
         { status: 400 },
@@ -88,6 +114,7 @@ export async function POST(req: Request) {
             create: {
               adminName,
               adminPhone,
+              adminPosition,
             },
           },
         },
@@ -97,8 +124,21 @@ export async function POST(req: Request) {
       });
     });
 
+    // Admin 전체 정보로 응답
+    const adminData = {
+      memberId: createdUser.memberId,
+      userId: createdUser.userId,
+      role: createdUser.role,
+      adminName: createdUser.admin!.adminName,
+      adminPhone: createdUser.admin!.adminPhone,
+      adminPosition: createdUser.admin!.adminPosition || "ADMIN",
+      adminMemo: createdUser.admin!.adminMemo,
+      announcements: [],
+      academies: [],
+    };
+
     return NextResponse.json(
-      { success: true, user: createdUser },
+      { success: true, data: adminData },
       { status: 201 },
     );
   } catch (error) {
@@ -155,7 +195,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ success: false, message: "memberId가 필요합니다." }, { status: 400 });
     }
     const body = await req.json();
-    const { adminName, adminPhone, userPassword } = body;
+    const { adminName, adminPhone, adminPosition, userPassword } = body;
     // 전화번호 중복 체크
     if (adminPhone) {
       const existing = await prisma.admin.findFirst({ where: { adminPhone, memberId: { not: memberId } } });
@@ -168,17 +208,42 @@ export async function PUT(req: NextRequest) {
     if (userPassword) {
       userUpdate.userPassword = await bcrypt.hash(userPassword, 10);
     }
-    await prisma.admin.update({
+    const updatedAdmin = await prisma.admin.update({
       where: { memberId },
       data: {
         adminName: adminName ?? undefined,
         adminPhone: adminPhone ?? undefined,
+        adminPosition: adminPosition ?? undefined,
+      },
+      include: {
+        user: true,
+        announcements: true,
+        academies: true,
       },
     });
+
     if (Object.keys(userUpdate).length > 0) {
       await prisma.user.update({ where: { memberId }, data: userUpdate });
     }
-    return NextResponse.json({ success: true, message: "관리자 정보가 성공적으로 수정되었습니다." });
+
+    // Admin 타입에 맞는 형태로 응답 데이터 구성
+    const result = {
+      memberId: updatedAdmin.memberId,
+      userId: updatedAdmin.user.userId,
+      role: updatedAdmin.user.role,
+      adminName: updatedAdmin.adminName,
+      adminPhone: updatedAdmin.adminPhone,
+      adminPosition: updatedAdmin.adminPosition || "ADMIN",
+      adminMemo: updatedAdmin.adminMemo,
+      announcements: updatedAdmin.announcements,
+      academies: updatedAdmin.academies,
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: result,
+      message: "관리자 정보가 성공적으로 수정되었습니다."
+    });
   } catch (error) {
     return NextResponse.json({ success: false, message: "관리자 수정에 실패했습니다." }, { status: 500 });
   }

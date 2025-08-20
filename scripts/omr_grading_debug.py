@@ -150,7 +150,15 @@ def find_top_black_rectangles(img):
     img_height = img.shape[0]
     top_area_threshold = img_height * 0.15
 
+    # 디버깅용 이미지들 생성
+    debug_img = img.copy()
+    thresh_colored = cv2.cvtColor(thresh, cv2.COLOR_GRAY2BGR)
 
+    # 모든 컨투어를 초록색으로 표시
+    cv2.drawContours(debug_img, contours, -1, (0, 255, 0), 2)
+
+    # 상단 영역 임계선을 빨간색으로 표시
+    cv2.line(debug_img, (0, int(top_area_threshold)), (img.shape[1], int(top_area_threshold)), (0, 0, 255), 2)
 
     for i, contour in enumerate(contours):
         # 컨투어의 경계 사각형
@@ -171,7 +179,8 @@ def find_top_black_rectangles(img):
                 'area': w * h
             })
         else:
-            pass
+            # 필터링된 사각형을 빨간색으로 표시
+            cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 0, 255), 1)
 
     # 노이즈 제거를 위한 Y축 정렬 후 선택
     # Y축 정렬 → 가장 위쪽 23개 선택 (상단 바코드들)
@@ -179,7 +188,11 @@ def find_top_black_rectangles(img):
     selected_rectangles = top_rectangles[:23]  # 가장 위쪽 23개
     selected_rectangles.sort(key=lambda x: x['center'][0])  # 최종 X축 정렬 (왼쪽에서 오른쪽으로)
 
-
+    # 선택된 23 사각형을 파란색으로 표시 (디버깅 이미지에 추가)
+    for i, rect in enumerate(selected_rectangles):
+        x, y, w, h = rect['bbox']
+        cv2.rectangle(debug_img, (x, y), (x + w, y + h), (255, 0, 0), 3)
+        cv2.putText(debug_img, f"Selected{i+1}", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
 
     return selected_rectangles
 
@@ -246,7 +259,7 @@ def find_side_black_rectangles(img):
     right_selected = right_rectangles[-20:] if len(right_rectangles) >= 20 else right_rectangles  # 가장 오른쪽 20개
     right_selected.sort(key=lambda x: x['center'][1])  # 최종 Y축 정렬
 
-
+    # print(f"선택된 좌측 사각형: {len(left_selected)}개")
 
     return left_selected, right_selected
 
@@ -374,7 +387,7 @@ def estimate_phone_number_with_density(img, phone_positions, min_density=0.05):
 
     return phone_selected
 
-def estimate_selected_answers_with_density(img, answer_positions, min_density=0.05):
+def estimate_selected_answers_with_density(img, answer_positions, min_density=0.1):
     """밀도 기반 답안 추정 (상대적 분석 + 밀도 분석)"""
     selected = {}
 
@@ -537,7 +550,8 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         # 이미지 전처리 강화 적용
         preprocessed_img = preprocess_omr_image(resized_img)
 
-
+        # 디버깅용 이미지 시각화 (전처리된 이미지 기준)
+        debug_img = preprocessed_img.copy()
 
 
 
@@ -556,13 +570,132 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         # 답안 위치 계산 (9-23번 사각형, 1-45번 문제)
         answer_positions = define_answer_positions(resized_w, resized_h, top_rectangles, left_rectangles, right_rectangles)
 
+        # 디버깅용: 영역 경계선 표시
+        # 좌측 영역 경계선 (전화번호용 - 5% 라인)
+        left_area_threshold = int(resized_w * 0.15)
+        cv2.line(debug_img, (left_area_threshold, 0), (left_area_threshold, resized_h), (0, 255, 255), 3)  # 노란색 세로선
+        cv2.putText(debug_img, "", (left_area_threshold + 5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 4)
+
+        # 우측 영역 경계선 (답안용 - 95% 라인)
+        right_area_start = int(resized_w * 0.85)
+        cv2.line(debug_img, (right_area_start, 0), (right_area_start, resized_h), (0, 225, 255), 3)  # 마젠타 세로선
+        cv2.putText(debug_img, "", (right_area_start + 5, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 4)
 
 
 
+        # 상단 영역 경계선 (5% 라인)
+        top_area_threshold = int(resized_h * 0.15)
+        cv2.line(debug_img, (0, top_area_threshold), (resized_w, top_area_threshold), (0, 225, 255), 3)  # 빨간색 가로선
+        cv2.putText(debug_img, "", (10, top_area_threshold + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 4)
+
+        # 디버깅용: 전화번호 위치를 노란색 원으로 표시 + 밀도값 출력
+        print("\n=== 전화번호 위치별 기본 밀도값 ===")
+        for digit_pos, digit_choices in phone_positions.items():
+            print(f"전화번호 {digit_pos}번째 자리:")
+            for digit, coord in digit_choices.items():
+                # 현재 좌표의 밀도 계산
+                density = calculate_marking_density(preprocessed_img, coord[0], coord[1])
+                cv2.circle(debug_img, coord, 8, (255, 0, 0), 2)  # 파란색 원 (전화번호)
+                print(f"  숫자 {digit}: 밀도 {density:.4f} (좌표: {coord})")
+
+        # 디버깅용: 모든 답안 위치를 파란색 원으로 표시 + 밀도값 출력
+        print("\n=== 답안 위치별 기본 밀도값 ===")
+        all_densities = []  # 모든 밀도값 저장
+        max_min_diffs = []  # 각 문제별 최대-최소 밀도 차이 저장
+        
+        for q_num, choices in answer_positions.items():
+            print(f"문제 {q_num}번:")
+            question_densities = []
+            for choice, coord in choices.items():
+                # 현재 좌표의 밀도 계산
+                density = calculate_marking_density(preprocessed_img, coord[0], coord[1])
+                cv2.circle(debug_img, coord, 10, (255, 0, 0), 2)  # 파란색 원 (답안)
+                print(f"  선지 {choice}: 밀도 {density:.4f} (좌표: {coord})")
+                all_densities.append(density)
+                question_densities.append(density)
+            
+            # 각 문제별 최대-최소 밀도 차이 계산
+            if question_densities:
+                max_density = max(question_densities)
+                min_density = min(question_densities)
+                diff = max_density - min_density
+                max_min_diffs.append(diff)
+                print(f"  → 문제 {q_num}번 밀도 차이: {diff:.4f} (최대: {max_density:.4f}, 최소: {min_density:.4f})")
+        
+        # 전체 밀도 통계 출력
+        if all_densities:
+            avg_density = sum(all_densities) / len(all_densities)
+            max_overall = max(all_densities)
+            min_overall = min(all_densities)
+            overall_diff = max_overall - min_overall
+            
+            print(f"\n=== 전체 밀도 분석 (선지 1~45번) ===")
+            print(f"총 선지 개수: {len(all_densities)}개")
+            print(f"평균 밀도: {avg_density:.4f}")
+            print(f"최대 밀도: {max_overall:.4f}")
+            print(f"최소 밀도: {min_overall:.4f}")
+            print(f"전체 밀도 차이: {overall_diff:.4f}")
+        
+        # 문제별 밀도 차이 평균 출력
+        if max_min_diffs:
+            avg_diff = sum(max_min_diffs) / len(max_min_diffs)
+            max_diff = max(max_min_diffs)
+            min_diff = min(max_min_diffs)
+            
+            print(f"\n=== 문제별 밀도 차이 분석 ===")
+            print(f"문제별 밀도 차이 평균: {avg_diff:.4f}")
+            print(f"문제별 밀도 차이 최대값: {max_diff:.4f}")
+            print(f"문제별 밀도 차이 최소값: {min_diff:.4f}")
+            print(f"분석된 문제 수: {len(max_min_diffs)}개")
+
+        # 디버깅용: 상단 검은색 사각형들을 표시
+        # - 좌표 인식에 사용된 사각형: 파란색 테두리
+        # - 사용되지 않은 사각형: 빨간색 테두리
+        for i, rect in enumerate(top_rectangles):
+            x, y, w, h = rect['bbox']
+            if i < 23:  # 사용된 상위 23개 사각형
+                cv2.rectangle(debug_img, (x, y), (x + w, y + h), (255, 0, 0), 3)  # 파란색 테두리 (두께 3)
+                cv2.putText(debug_img, f"Top{i+1}", (x, y-5),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+            else:  # 사용되지 않은 사각형
+                cv2.rectangle(debug_img, (x, y), (x + w, y + h), (0, 0, 255), 2)  # 빨간색 테두리
+                cv2.putText(debug_img, f"Unused{i+1}", (x, y-5),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+        # 디버깅용: 좌측 사각형들을 표시 (전화번호 Y축용)
+        for i, rect in enumerate(left_rectangles):
+            x, y, w, h = rect['bbox']
+            cv2.rectangle(debug_img, (x, y), (x + w, y + h), (255, 0, 0), 3)  # 노란색 테두리
+            cv2.putText(debug_img, f"L{i+1}", (x, y-5),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+
+        # 디버깅용: 우측 사각형들을 표시 (선지 Y축용)
+        for i, rect in enumerate(right_rectangles):
+            x, y, w, h = rect['bbox']
+            cv2.rectangle(debug_img, (x, y), (x + w, y + h), (255, 0, 0), 3)  # 청록색 테두리
+            cv2.putText(debug_img, f"R{i+1}", (x, y-5),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+
+        # 사각형 감지 과정 시각화를 위한 추가 디버깅 이미지들
+        gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+
+        
+        # 모든 컨투어를 초록색으로 표시
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contour_img = resized_img.copy()
 
 
+        # 디버깅용: 모든 답안 위치를 파란색 원으로 표시 (1번부터 45번까지)
+        for q_num in range(1, 46):
+            if q_num in answer_positions:
+                for choice, coord in answer_positions[q_num].items():
+                    cv2.circle(debug_img, coord, 12, (255, 0, 0), 2)  # 파란색 원 (답안 위치)
 
-
+        # 디버깅용: 모든 전화번호 위치를 파란색 원으로 표시 (1-8자리, 0-9숫자)
+        for digit_pos, digit_choices in phone_positions.items():
+            for digit, coord in digit_choices.items():
+                cv2.circle(debug_img, coord, 8, (255, 0, 0), 1)  # 파란색 원 (전화번호 위치)
 
 
 
@@ -572,8 +705,48 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
 
         # 학생 답안 추정 (1-45번 문제) - 밀도 기반 방식, 전처리된 이미지 사용
         selected_answers = estimate_selected_answers_with_density(preprocessed_img, answer_positions)
+        
+        # 인식된 답안 요약 출력
+        print("\n=== 인식된 답안 요약 ===")
+        recognized_count = 0
+        for q_num, answer in selected_answers.items():
+            if answer != "무효":
+                recognized_count += 1
+                print(f"문제 {q_num}번: 선지 {answer} 인식됨")
+        
+        if recognized_count == 0:
+            print("인식된 답안이 없습니다 (모두 무효)")
+        else:
+            print(f"\n총 {recognized_count}개 문제에서 답안 인식됨")
 
+        # 학생이 선택한 전화번호를 빨간색 원으로 표시
+        for digit_pos, selected_digit in phone_selected.items():
+            try:
+                if (digit_pos in phone_positions and
+                    selected_digit != "0" and  # 기본값이 아닌 경우만
+                    selected_digit in phone_positions[digit_pos]):
 
+                    coord = phone_positions[digit_pos][selected_digit]
+                    cv2.circle(debug_img, coord, 12, (0, 0, 255), 3)  # 빨간색 원 (크기 12, 두께 3)
+                    cv2.putText(debug_img, f"P{digit_pos}:{selected_digit}",
+                               (coord[0]-15, coord[1]-20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 2)
+            except (ValueError, KeyError):
+                continue
+
+        # 학생이 선택한 답을 빨간색 원으로 표시
+        for q_num, student_answer in selected_answers.items():
+            try:
+                q_num_int = int(q_num)
+                if (q_num_int in answer_positions and
+                    student_answer not in ["무효"] and
+                    student_answer in answer_positions[q_num_int]):
+
+                    coord = answer_positions[q_num_int][student_answer]
+                    cv2.circle(debug_img, coord, 15, (0, 0, 255), 3)  # 빨간색 원 (크기 15, 두께 3)
+                    cv2.putText(debug_img, f"Q{q_num}:{student_answer}",
+                               (coord[0]-20, coord[1]-25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+            except (ValueError, KeyError):
+                continue
 
         # 정답과 학생 답안 비교 (모든 문제)
         correct_count = 0
@@ -592,7 +765,12 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         # 결과 배열 생성
         results = create_results_array(selected_answers, correct_answers, question_scores, question_types)
 
-
+        # 디버깅용 이미지 표시 (전처리된 이미지 + 인식 결과)
+        cv2.imshow("OMR Debug - Blue=All positions (Phone & Answer), Red=All selections (Phone & Answer)",
+                   cv2.resize(debug_img, (1200, 900), interpolation=cv2.INTER_CUBIC))
+        
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
         final_result = {
             "totalScore": total_score,
@@ -618,6 +796,7 @@ if __name__ == "__main__":
     try:
         # 커맨드라인 인자 파싱
         if len(sys.argv) != 5:
+            # print(json.dumps({"error": "인자 개수가 올바르지 않습니다. 이미지경로, 정답, 배점, 문제유형이 필요합니다."}))
             sys.exit(1)
         
         image_path = sys.argv[1]
@@ -627,6 +806,7 @@ if __name__ == "__main__":
             question_scores = json.loads(sys.argv[3])
             question_types = json.loads(sys.argv[4])
         except json.JSONDecodeError as e:
+            # print(json.dumps({"error": f"JSON 파싱 오류: {str(e)}"}))
             sys.exit(1)
         
         # OMR 채점 실행
@@ -636,4 +816,5 @@ if __name__ == "__main__":
         print(json.dumps(result, ensure_ascii=False))
         
     except Exception as e:
+        # print(json.dumps({"error": str(e)}))
         sys.exit(1)

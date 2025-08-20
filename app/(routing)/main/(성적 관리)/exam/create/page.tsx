@@ -84,8 +84,7 @@ const Grading = () => {
                 questionScores: {},
                 questionTypes: {}
             });
-
-            alert("시험이 성공적으로 생성되었습니다!");
+            window.location.href = "/main/exam";
         } catch (error) {
             console.error("시험 생성 실패:", error);
             alert("시험 생성에 실패했습니다.");

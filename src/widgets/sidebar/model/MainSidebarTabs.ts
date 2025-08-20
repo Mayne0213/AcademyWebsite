@@ -30,9 +30,9 @@ const tabs = [
         description: "",
       },
       {
-        label: "직원 관리X",
+        label: "직원 관리",
         icon: Users,
-        href: "/main/employeeManagement",
+        href: "/main/admin",
         description: "",
       },
     ],
@@ -55,7 +55,7 @@ const tabs = [
       {
         label: "학습 리포트X",
         icon: FileText,
-        href: "/main/studentReport",
+        href: "/main/report",
         description: "",
       },
       {

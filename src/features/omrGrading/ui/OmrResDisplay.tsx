@@ -16,11 +16,6 @@ export const OmrResDisplay: React.FC<OmrResDisplayProps> = ({
 }) => {
   const { totalScore, grade, phoneNumber, results } = result;
 
-  // 디버깅을 위한 로그
-  console.log('OmrResDisplay - 받은 데이터:', { result, totalScore, grade, results });
-  console.log('results 배열 길이:', results?.length);
-  console.log('results 내용:', results);
-
   // results가 없거나 빈 배열인 경우 처리
   if (!results || results.length === 0) {
     return (

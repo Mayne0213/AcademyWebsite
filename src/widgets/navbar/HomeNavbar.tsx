@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/src/shared/ui/button";
 import Link from "next/link";
 import tabs from "@/src/widgets/navbar/model/HomeNavbarTabs";
+import { usePathname } from "next/navigation";
 
 import { MenuIcon, X, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -269,8 +270,18 @@ const Navbar: React.FC = () => {
   const isScrolled = useScrollEffect();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSubMenuTab, setOpenSubMenuTab] = useState<number>(-1);
+  const pathname = usePathname();
   const Hamburger = isMenuOpen ? X : MenuIcon;
   const backgroundShouldBeWhite = isScrolled || isMenuOpen
+  const isHomePage = pathname === '/home';
+
+  // useEffect(() => {
+  //   if (isHomePage) {
+  //     document.body.style.background = backgroundShouldBeWhite ? 'white' : '#cce6ff';
+  //   } else {
+  //     document.body.style.background = 'white';
+  //   }
+  // }, [backgroundShouldBeWhite, isHomePage]);
 
   const handleSubmenuTab = (index: number) => {
     setOpenSubMenuTab(index);
