@@ -30,7 +30,7 @@ const Modal: React.FC<ModalProps> = ({
         {/* 헤더 */}
         {(title || true) && (
           <div className="flex items-center justify-between p-4 border-b">
-            {title && <h3 className="text-lg font-semibold">{title}</h3>}
+            {title && <h3 className="text-lg font-sansKR-SemiBold">{title}</h3>}
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-xl font-bold"
