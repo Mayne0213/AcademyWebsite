@@ -1,8 +1,8 @@
 import React from 'react';
-import { Admin } from '@/src/entities/admin/model/types';
+import { Admin, AdminSummary } from '@/src/entities/admin/model/types';
 
 interface AdminCardProps {
-  admin: Admin;
+  admin: Admin | AdminSummary;
   variant?: 'default' | 'compact' | 'detailed';
   onClick?: () => void;
   className?: string;
@@ -31,9 +31,6 @@ export const AdminCard: React.FC<AdminCardProps> = ({
           <p className="text-sm font-medium text-gray-900 truncate">
             {displayName}
           </p>
-          <p className="text-xs text-gray-500">
-            {admin.adminPhone}
-          </p>
         </div>
       </div>
     );
@@ -56,18 +53,8 @@ export const AdminCard: React.FC<AdminCardProps> = ({
               {displayName}
             </h3>
             <p className="text-sm text-gray-600">
-              전화번호: {admin.adminPhone}
+              {admin.adminPosition}
             </p>
-            {admin.adminPosition && (
-              <p className="text-sm text-gray-600">
-                직책: {admin.adminPosition}
-              </p>
-            )}
-            {admin.adminMemo && (
-              <p className="text-sm text-gray-600">
-                메모: {admin.adminMemo}
-              </p>
-            )}
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             관리자
@@ -94,9 +81,6 @@ export const AdminCard: React.FC<AdminCardProps> = ({
             <h3 className="text-sm font-medium text-gray-900">
               {displayName}
             </h3>
-            <p className="text-xs text-gray-500">
-              {admin.adminPhone}
-            </p>
           </div>
         </div>
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
