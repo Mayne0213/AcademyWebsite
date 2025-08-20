@@ -12,7 +12,7 @@ export default function GradingPage() {
         <div className="text-2xl desktop:text-3xl font-sansKR-Bold">
           📊 성적 관리
         </div>
-        <Link href="/main/grading/create">
+        <Link href="/main/exam/create">
           <Plus />
         </Link>
       </div>
