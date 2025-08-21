@@ -2,7 +2,6 @@ import json
 import sys
 import cv2
 import numpy as np
-from math import hypot
 
 # --- 상수 및 설정 ---
 TARGET_WIDTH = 2480
@@ -152,10 +151,9 @@ def find_top_black_rectangles(img):
 
 
 
-    for i, contour in enumerate(contours):
+    for contour in enumerate(contours):
         # 컨투어의 경계 사각형
         x, y, w, h = cv2.boundingRect(contour)
-        area = w * h
 
         # 상단 영역에 있고, 적절한 크기인 사각형만 선택
         if (y < top_area_threshold and
@@ -510,7 +508,7 @@ def create_results_array(selected_answers, correct_answers, question_scores, que
                 "earnedScore": earned_score,
                 "questionType": question_type
             })
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError):
             continue
     
     return results
@@ -609,8 +607,8 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
 
         return final_result
 
-    except Exception as e:
-        raise Exception(f"OMR 채점 실패: {str(e)}")
+    except Exception as err:
+        raise Exception("OMR 채점 실패") from err
 
 # --- 메인 실행 부분 ---
 
@@ -626,7 +624,7 @@ if __name__ == "__main__":
             correct_answers = json.loads(sys.argv[2])
             question_scores = json.loads(sys.argv[3])
             question_types = json.loads(sys.argv[4])
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             sys.exit(1)
         
         # OMR 채점 실행
@@ -635,5 +633,5 @@ if __name__ == "__main__":
         # JSON 결과 출력 (디버그 메시지 없이)
         print(json.dumps(result, ensure_ascii=False))
         
-    except Exception as e:
+    except Exception:
         sys.exit(1)
