@@ -108,24 +108,6 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
           </div>
             {/* Navigation Tabs */}
             <div className="bg-white w-full h-full space-y-4">
-              <div className="flex justify-end border-b border-gray-200">
-                <button className="flex items-center gap-2 px-6 py-4 text-blue-600 bg-blue-50 border-b-2 border-blue-600 transition-colors">
-                  <User className="w-4 h-4" />
-                  <span>상담</span>
-                </button>
-                <button className="flex items-center gap-2 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors">
-                  <LampDesk className="w-4 h-4" />
-                  <span>성적</span>
-                </button>
-                <button className="flex items-center gap-2 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors">
-                  <Smartphone className="w-4 h-4" />
-                  <span>Qna</span>
-                </button>
-                <button className="rounded-t-lg flex items-center gap-2 px-6 py-4 text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors">
-                  <Settings className="w-4 h-4" />
-                  <span>설정</span>
-                </button>
-              </div>
               {children}
             </div>
 

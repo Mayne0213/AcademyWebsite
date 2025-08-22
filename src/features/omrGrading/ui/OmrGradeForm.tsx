@@ -106,10 +106,34 @@ export const OmrGradingForm: React.FC<OmrGradingFormProps> = ({
       <div className="bg-white rounded-lg shadow-sm border h-full">
         <div className="border-b bg-gray-50 p-3 smalltablet:p-4 tablet:p-6 flex justify-between items-center">
           <h2 className="font-semibold text-base smalltablet:text-lg tablet:text-xl">OMR 업로드</h2>
-          <div className="text-right">
-            <p className="text-sm font-medium text-blue-600">{examInfo.examName}</p>
-            <p className="text-xs text-gray-500">총 {examInfo.totalQuestions}문제</p>
-          </div>
+            <button
+              type="button"
+              onClick={() => {
+                const examData = {
+                  correctAnswers: examInfo.correctAnswers,
+                  questionScores: examInfo.questionScores,
+                  questionTypes: examInfo.questionTypes
+                };
+                const jsonStr = JSON.stringify(examData, null, 2);
+
+                // JSON 파일 다운로드
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `answer.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert('답지 정보가 JSON 파일로 다운로드되었습니다!');
+              }}
+              className="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            >
+              <span>📥</span>
+              <span>답지 다운로드</span>
+            </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 p-4 smalltablet:space-y-6">

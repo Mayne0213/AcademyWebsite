@@ -53,6 +53,12 @@ const tabs = [
         description: "",
       },
       {
+        label: "시험 채점(임시)",
+        icon: LucideBookMarked,
+        href: "/main/omrTemp",
+        description: "",
+      },
+      {
         label: "학습 리포트X",
         icon: FileText,
         href: "/main/report",
