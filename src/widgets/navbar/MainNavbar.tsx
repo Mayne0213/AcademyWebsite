@@ -1,5 +1,5 @@
-import { Menu, User, LogOut, Settings } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Menu, User, LogOut } from "lucide-react";
+import { useState } from "react";
 import { useAuth } from "@/src/app/providers";
 import { FORMATS } from "@/src/shared/lib/formats";
 import { Avatar, AvatarFallback } from "@/src/shared/ui/avatar";
@@ -40,7 +40,7 @@ const Navbar = ({ onChange }: { onChange: () => void }) => {
 
   return (
     <>
-      <div className="w-full h-[60px] bg-white flex items-center justify-between px-8 border-b shadow-sm fixed top-0 left-0 z-10">
+      <div className="w-full h-[60px] bg-white flex items-center justify-between px-8 border-b shadow-sm fixed top-0 left-0 z-20">
         <div className="flex items-center">
           <Menu
             className="cursor-pointer block desktop:hidden"

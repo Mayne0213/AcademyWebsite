@@ -40,6 +40,7 @@ export interface ExamQuestionResult {
   id: number;
   examResultId: number;
   questionNumber: number;
+  selectedChoice?: string; // 학생이 선택한 답
   isCorrect: boolean;
   score: number;
 }
