@@ -102,46 +102,12 @@ const createExamResult = async (data: any): Promise<{ success: boolean; data?: a
   }
 };
 
-// ExamQuestionResult 생성 함수
-const createExamQuestionResult = async (data: any): Promise<{ success: boolean; data?: any; error?: string }> => {
-  try {
-    const response = await fetch('/api/examResult/question-result', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (!result.success) {
-      return { success: false, error: result.message || 'ExamQuestionResult 생성에 실패했습니다' };
-    }
-    return { success: true, data: result.data };
-  } catch (error) {
-    console.error('ExamQuestionResult 생성 오류:', error);
-    return { success: false, error: 'ExamQuestionResult 생성 중 오류가 발생했습니다' };
-  }
-};
-
 // OMR 채점 결과를 데이터베이스에 저장하는 함수 (배치 처리로 최적화)
 export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Promise<OMRDatabaseSaveResult> => {
   const errors: string[] = [];
   let savedCount = 0;
 
   try {
-    // 전화번호로 학생 찾기 (임시로 하드코딩된 전화번호 사용)
-    const studentPhone = '01012341234';
-    const studentResult = await findStudentByPhone(studentPhone);
-    if (!studentResult.success || !studentResult.data) {
-      return {
-        success: false,
-        savedCount: 0,
-        errors: [`학생을 찾을 수 없습니다: ${studentPhone}`]
-      };
-    }
-
-    const student = studentResult.data;
-
     // 성공한 OMR 결과만 필터링
     const successfulResults = input.gradingResults.filter(result => result.success);
 
@@ -153,57 +119,53 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
       };
     }
 
-    // 배치 API를 사용하여 모든 결과를 한 번에 저장
-    const batchData = {
-      examId: input.examId,
-      studentId: student.memberId,
-      omrResults: successfulResults.map(result => ({
-        totalScore: result.totalScore,
-        grade: result.grade,
-        results: result.results
-      }))
-    };
-
-    console.log(`배치 저장 시작: ${successfulResults.length}개 파일, 학생 ID: ${student.memberId}`);
-
-    const batchResponse = await fetch('/api/examResult/batch', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(batchData),
-    });
-
-    if (!batchResponse.ok) {
-      const errorText = await batchResponse.text();
-      let errorMessage = errorText;
-
+    // 각 OMR 결과마다 개별적으로 처리 (각각 다른 학생일 수 있음)
+    for (const result of successfulResults) {
       try {
-        const errorJson = JSON.parse(errorText);
-        if (errorJson.message) {
-          errorMessage = errorJson.message;
+        // 각 결과에서 전화번호 추출
+        // const studentPhone = result.phoneNumber;
+        const studentPhone = "01088705364";
+
+        if (!studentPhone) {
+          errors.push(`파일 ${result.fileName}: 전화번호를 찾을 수 없습니다`);
+          continue;
         }
-      } catch (parseError) {}
 
-      return {
-        success: false,
-        savedCount: 0,
-        errors: [`배치 저장 실패: ${errorMessage}`]
-      };
+        // 전화번호로 학생 찾기
+        const studentResult = await findStudentByPhone(studentPhone);
+        if (!studentResult.success || !studentResult.data) {
+          errors.push(`파일 ${result.fileName}: 학생을 찾을 수 없습니다 (전화번호: ${studentPhone})`);
+          continue;
+        }
+
+        const student = studentResult.data;
+
+        // 개별 결과를 데이터베이스에 저장
+        const examResultData = {
+          examId: input.examId,
+          studentId: student.memberId,
+          totalScore: result.totalScore,
+          grade: result.grade,
+          results: result.results
+        };
+
+        // ExamResult 생성
+        const examResultResponse = await createExamResult(examResultData);
+        if (!examResultResponse.success) {
+          errors.push(`파일 ${result.fileName}: ExamResult 생성 실패 - ${examResultResponse.error}`);
+          continue;
+        }
+
+        savedCount++;
+        console.log(`파일 ${result.fileName} 처리 완료: 학생 ID ${student.memberId}, 점수 ${result.totalScore}`);
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+        errors.push(`파일 ${result.fileName}: 처리 중 오류 발생 - ${errorMessage}`);
+      }
     }
 
-    const batchResult = await batchResponse.json();
-
-    if (!batchResult.success) {
-      return {
-        success: false,
-        savedCount: 0,
-        errors: [batchResult.message || '배치 저장에 실패했습니다']
-      };
-    }
-
-    savedCount = batchResult.data.savedCount;
-    console.log(`배치 저장 완료: ${savedCount}개 파일 저장됨`);
+    console.log(`개별 처리 완료: ${savedCount}개 파일 저장됨`);
 
     // 실패한 결과들에 대한 에러 메시지 추가
     const failedResults = input.gradingResults.filter(result => !result.success);
