@@ -84,7 +84,7 @@ def preprocess_omr_image(img):
 
 
 
-def calculate_marking_density(img, x, y, width=30, height=60):
+def calculate_marking_density(img, x, y, width=40, height=40):
     """특정 좌표 주변 영역의 마킹 밀도 계산"""
     # 영역 경계 확인
     h, w = img.shape[:2]
@@ -468,19 +468,19 @@ def calculate_grade(total_score):
     """등급 계산 (총점 기준)"""
     if total_score >= 90:
         return 1
-    elif total_score >= 80:
+    elif total_score >= 85:
         return 2
-    elif total_score >= 70:
+    elif total_score >= 80:
         return 3
-    elif total_score >= 60:
+    elif total_score >= 75:
         return 4
-    elif total_score >= 50:
+    elif total_score >= 70:
         return 5
-    elif total_score >= 40:
+    elif total_score >= 55:
         return 6
-    elif total_score >= 30:
+    elif total_score >= 50:
         return 7
-    elif total_score >= 20:
+    elif total_score >= 40:
         return 8
     else:
         return 9

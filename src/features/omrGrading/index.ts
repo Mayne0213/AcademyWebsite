@@ -27,4 +27,4 @@ export {
 export { useOMRGrading } from './hooks/useOMRGrading';
 
 // UI Components
-export { OmrGradingForm, OmrResDisplay, OmrGradingSummaryModal, OmrProcessingProgressModal } from './ui';
+export { OmrGradingForm, OmrGradingSummaryModal, OmrProcessingProgressModal } from './ui';
