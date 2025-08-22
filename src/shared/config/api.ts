@@ -86,6 +86,14 @@ export const API_ENDPOINTS = {
     BY_ID: (id: number) => `/api/exam/${id}`,
   },
 
+  // 시험 결과 관련 엔드포인트
+  EXAM_RESULT: {
+    BASE: "/api/examResult",
+    BY_ID: (id: number) => `/api/examResult/${id}`,
+    STATISTICS: (examId: number) => `/api/examResult/statistics/${examId}`,
+    STATISTICS_BY_ACADEMY: (examId: number, academyId: number) => `/api/examResult/statistics/${examId}/academy/${academyId}`,
+  },
+
 } as const;
 
 // S3 설정

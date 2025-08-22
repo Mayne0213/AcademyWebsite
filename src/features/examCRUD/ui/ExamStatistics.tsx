@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { examResultApi } from "@/src/entities/examResult/api";
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
 import { useAcademyStore } from "@/src/entities/academy/model/store";
+import { useExamFeatureStore } from "@/src/features/examCRUD/model/store";
 import type { ExamStatistics as ExamStatisticsType } from "@/src/entities/examResult/model/types";
 import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
 import { 
@@ -26,12 +27,31 @@ export default function ExamStatistics() {
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
   const [isFiltered, setIsFiltered] = useState(false);
   const [academyStatistics, setAcademyStatistics] = useState<Map<number, ExamStatisticsType>>(new Map());
+  const [correctAnswers, setCorrectAnswers] = useState<Record<string, string>>({});
 
   // academy feature store와 entity store 사용
   const { readAcademies } = useAcademyFeatureStore();
   const { academies } = useAcademyStore();
+  const { readExamDetail } = useExamFeatureStore();
 
+  // 정답 데이터 가져오기
+  const fetchCorrectAnswers = async () => {
+    try {
+      // ExamAnswers.tsx와 동일한 방식으로 examDetail 가져오기
+      const exam = await readExamDetail(examId);
 
+      if (exam && exam.correctAnswers) {
+        const parsedAnswers = typeof exam.correctAnswers === 'string'
+          ? JSON.parse(exam.correctAnswers)
+          : exam.correctAnswers;
+        setCorrectAnswers(parsedAnswers);
+      } else {
+        setCorrectAnswers({});
+      }
+    } catch (error) {
+      setCorrectAnswers({});
+    }
+  };
 
   // 모든 학원의 통계 데이터 가져오기
   const fetchAllAcademyStatistics = async () => {
@@ -45,6 +65,8 @@ export default function ExamStatistics() {
           statisticsMap.set(academy.academyId, academyStats);
         }
       } catch (error) {
+        // 에러가 발생해도 계속 진행
+        console.warn(`학원 ${academy.academyName} 통계 로딩 실패:`, error);
       }
     }
 
@@ -64,10 +86,19 @@ export default function ExamStatistics() {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [academies, examId]);
 
+  // 정답 데이터 가져오기
+  useEffect(() => {
+    if (examId) {
+      fetchCorrectAnswers();
+    }
+  }, [examId]);
+
+  // correctAnswers 상태 변화 추적
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
         setIsLoading(true);
+        setError(null);
         
         const result = selectedAcademyId 
           ? await examResultApi.getExamStatisticsByAcademy(examId, selectedAcademyId)
@@ -78,10 +109,17 @@ export default function ExamStatistics() {
           setStatistics(result);
           setError(null);
         } else {
-          setError('통계 데이터를 불러올 수 없습니다.');
+          setError('통계 데이터를 불러올 수 없습니다. 응답 데이터가 올바르지 않습니다.');
         }
-      } catch (err) {
-        setError('통계 데이터를 불러오는 중 오류가 발생했습니다.');
+      } catch (err: any) {
+        console.error('시험 통계 로딩 오류:', err);
+        if (err.response?.status === 404) {
+          setError('해당 시험의 통계 데이터를 찾을 수 없습니다.');
+        } else if (err.response?.status === 500) {
+          setError('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        } else {
+          setError(`통계 데이터를 불러오는 중 오류가 발생했습니다: ${err.message || '알 수 없는 오류'}`);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -399,13 +437,15 @@ export default function ExamStatistics() {
               {[...statistics.questionStatistics]
                 .sort((a, b) => a.questionNumber - b.questionNumber)
                 .map((question) => {
-                // 정답 선지 찾기 (가장 많이 선택된 선지 중 정답인 것)
-                const correctChoice = question.choiceStatistics?.find(c => c.isCorrect)?.choice || 'N/A';
+                // 정답 선지 찾기 - correctAnswers에서 확정적으로 가져오기
+                const questionNumber = question.questionNumber.toString();
+                const correctChoice = correctAnswers[questionNumber] || 'N/A';
+
                 
                 return (
                   <tr key={question.questionNumber} className="border-b border-gray-100 hover:bg-gray-50 text-center">
                     <td className="py-2 px-3">{question.questionNumber}</td>
-                    <td className="py-2 px-3 text-blue-600">{correctChoice}</td>
+                    <td className="py-2 px-3 text-blue-600 font-sansKR-Bold">{correctChoice}</td>
                     <td className="py-2 px-3 text-green-600 font-sansKR-Bold">
                       {question.actualScore}
                     </td>
