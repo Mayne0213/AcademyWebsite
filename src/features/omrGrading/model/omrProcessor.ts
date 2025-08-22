@@ -80,15 +80,26 @@ export const findStudentByPhone = async (phoneNumber: string): Promise<{ success
   }
 };
 
-// ExamResult 생성 함수
+// ExamResult 생성 함수 (배치 API 사용)
 const createExamResult = async (data: any): Promise<{ success: boolean; data?: any; error?: string }> => {
   try {
-    const response = await fetch('/api/examResult', {
+    // 배치 API를 사용하여 ExamResult와 ExamQuestionResult를 함께 생성
+    const batchData = {
+      examId: data.examId,
+      studentId: data.studentId,
+      omrResults: [{
+        totalScore: data.totalScore,
+        grade: data.grade,
+        results: data.results
+      }]
+    };
+
+    const response = await fetch('/api/examResult/batch', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(batchData),
     });
 
     const result = await response.json();
@@ -123,7 +134,7 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
     for (const result of successfulResults) {
       try {
         // 각 결과에서 전화번호 추출
-        // const studentPhone = result.phoneNumber;
+        // const studentPhone = "010" + result.phoneNumber;
         const studentPhone = "01088705364";
 
         if (!studentPhone) {
