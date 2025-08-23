@@ -81,9 +81,6 @@ def preprocess_omr_image(img):
     return result
 
 
-
-
-
 def calculate_marking_density(img, x, y, width=30, height=60):
     """특정 좌표 주변 영역의 마킹 밀도 계산"""
     # 영역 경계 확인
@@ -372,7 +369,7 @@ def estimate_phone_number_with_density(img, phone_positions, min_density=0.05):
 
     return phone_selected
 
-def estimate_selected_answers_with_density(img, answer_positions, min_density=0.05):
+def estimate_selected_answers_with_density(img, answer_positions, min_density=0.07):
     """밀도 기반 답안 추정 (상대적 분석 + 밀도 분석)"""
     selected = {}
 
@@ -571,7 +568,19 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         # 학생 답안 추정 (1-45번 문제) - 밀도 기반 방식, 전처리된 이미지 사용
         selected_answers = estimate_selected_answers_with_density(preprocessed_img, answer_positions)
 
-
+        # 디버깅 함수 호출
+        debug(
+            isActive=False,
+            # isActive=True,
+            phone_positions=phone_positions,
+            answer_positions=answer_positions,
+            preprocessed_img=preprocessed_img,
+            selected_answers=selected_answers,
+            resized_w=resized_w,
+            resized_h=resized_h,
+            scale_x=scale_x,
+            scale_y=scale_y
+        )
 
         # 정답과 학생 답안 비교 (모든 문제)
         correct_count = 0
@@ -611,6 +620,122 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         raise Exception("OMR 채점 실패") from None
 
 # --- 메인 실행 부분 ---
+
+def debug(isActive=True, **kwargs):
+    """디버깅 전용 함수 - isActive가 True일 때만 작동"""
+    if not isActive:
+        return
+    # 전화번호 위치별 기본 밀도값 출력
+    if 'phone_positions' in kwargs and 'preprocessed_img' in kwargs:
+        print("\n=== 전화번호 위치별 기본 밀도값 ===")
+        for digit_pos, digit_choices in kwargs['phone_positions'].items():
+            print(f"전화번호 {digit_pos}번째 자리:")
+            for digit, coord in digit_choices.items():
+                density = calculate_marking_density(kwargs['preprocessed_img'], coord[0], coord[1])
+                print(f"  숫자 {digit}: 밀도 {density:.4f} (좌표: {coord})")
+
+    # 답안 위치별 기본 밀도값 출력
+    if 'answer_positions' in kwargs and 'preprocessed_img' in kwargs:
+        print("\n=== 답안 위치별 기본 밀도값 ===")
+        max_min_diffs = []
+        first_second_diffs = []  # 1-2위 밀도 차이를 저장할 리스트
+
+        for q_num, choices in kwargs['answer_positions'].items():
+            print(f"문제 {q_num}번:")
+            question_densities = []
+            for choice, coord in choices.items():
+                density = calculate_marking_density(kwargs['preprocessed_img'], coord[0], coord[1])
+                print(f"  선지 {choice}: 밀도 {density:.4f} (좌표: {coord})")
+                question_densities.append(density)
+
+            # 각 문제별 최대-최소 밀도 차이 계산
+            if question_densities:
+                # 밀도가 높은 순으로 정렬
+                sorted_densities = sorted(question_densities, reverse=True)
+                max_density = sorted_densities[0]  # 1위
+                min_density = sorted_densities[-1]  # 5위
+                diff = max_density - min_density
+                max_min_diffs.append(diff)
+
+                # 밀도 순위별로 출력
+                print("→ 밀도 순위:")
+                for i, density in enumerate(sorted_densities, 1):
+                    print(f"    {i}위: {density:.4f}")
+
+                # 1위와 2위의 차이 계산
+                if len(sorted_densities) >= 2:
+                    first_second_diff = sorted_densities[0] - sorted_densities[1]
+                    first_second_diffs.append((int(q_num), first_second_diff))  # (문제번호, 차이값) 튜플로 저장
+                    print(f"  → 1위-2위 밀도 차이: {first_second_diff:.4f} (1위: {sorted_densities[0]:.4f}, 2위: {sorted_densities[1]:.4f})")
+
+                print(f"  → 전체 밀도 범위: {diff:.4f} (최대: {max_density:.4f}, 최소: {min_density:.4f})")
+                print()  # 문제 간 구분을 위한 빈 줄
+
+        # 1-2위 밀도 차이를 오름차순으로 정렬하여 한 번에 출력
+        if first_second_diffs:
+            print("\n" + "="*60)
+            print("📊 모든 문제 1-2위 밀도 차이 (오름차순)")
+            print("="*60)
+
+            # 차이값만 추출하여 오름차순 정렬
+            diff_values = sorted([diff for _, diff in first_second_diffs])
+
+            # 배열 형태로 출력
+            print("[" + ", ".join([f"{diff:.4f}" for diff in diff_values]) + "]")
+
+            # 파일에 저장
+            try:
+                import os
+                # 현재 스크립트 파일의 디렉토리 경로
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                file_path = os.path.join(script_dir, "res.txt")
+
+                # 기존 파일이 있으면 추가 모드, 없으면 새로 생성
+                mode = 'a' if os.path.exists(file_path) else 'w'
+                with open(file_path, mode, encoding='utf-8') as f:
+                    # 구분선과 타임스탬프 추가
+                    if mode == 'a':
+                        pass
+
+                    # 밀도 차이와 채점 결과를 함께 저장
+                    result_with_answers = []
+                    for q_num, diff in first_second_diffs:
+                        # selected_answers는 딕셔너리 형태: {"1": "1", "2": "무효", ...}
+                        answer = kwargs.get('selected_answers', {}).get(str(q_num), "무효")
+                        result_with_answers.append(f"{diff:.4f}[{answer}]")
+
+                    # 오름차순으로 정렬하여 저장
+                    sorted_results = sorted(result_with_answers, key=lambda x: float(x.split('[')[0]))
+                    f.write(", ".join(sorted_results))
+                    f.write("\n")
+
+                print(f"💾 파일 저장 완료: {file_path}")
+            except Exception as e:
+                print(f"❌ 파일 저장 실패: {e}")
+
+            # 통계 정보 추가
+            all_diffs = [diff for _, diff in first_second_diffs]
+            avg_diff = sum(all_diffs) / len(all_diffs)
+            min_diff = min(all_diffs)
+            max_diff = max(all_diffs)
+
+            print(f"📈 통계: 평균 {avg_diff:.4f}, 최소 {min_diff:.4f}, 최대 {max_diff:.4f}")
+            print("="*60)
+
+    # 인식된 답안 요약 출력
+    if 'selected_answers' in kwargs:
+        print("\n=== 인식된 답안 요약 ===")
+        recognized_count = 0
+        for q_num, answer in kwargs['selected_answers'].items():
+            if answer != "무효":
+                recognized_count += 1
+                print(f"문제 {q_num}번: 선지 {answer} 인식됨")
+
+        if recognized_count == 0:
+            print("인식된 답안이 없습니다 (모두 무효)")
+        else:
+            print(f"\n총 {recognized_count}개 문제에서 답안 인식됨")
+
 
 if __name__ == "__main__":
     try:
