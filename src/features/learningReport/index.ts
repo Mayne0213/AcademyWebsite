@@ -17,4 +17,6 @@ export type {
 export { LearningReportPage } from '@/src/features/learningReport/ui/LearningReportPage';
 export { StudentReportCard } from '@/src/features/learningReport/ui/StudentReportCard';
 export { PerformanceMetrics } from '@/src/features/learningReport/ui/PerformanceMetrics';
+export { ExamHistoryChart } from '@/src/features/learningReport/ui/ExamHistoryChart';
+export { default as StudentReportJPG } from '@/src/features/learningReport/ui/StudentReportJPG';
 

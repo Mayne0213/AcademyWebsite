@@ -61,14 +61,6 @@ export const ExamHistoryChart: React.FC<ExamHistoryChartProps> = ({ examHistory 
       : '0'
   }));
 
-  // 점수 변화 방향 계산 (차트 데이터에서 이미 계산됨)
-  const scoreChanges = chartData.slice(1).map((data, index) => ({
-    exam: sortedExams[index + 1],
-    change: data.change,
-    isImprovement: data.change > 0,
-    changePercent: data.changePercent
-  }));
-
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6 h-full">
       <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-800 mb-4">
