@@ -28,14 +28,15 @@ export default function ExamStatistics() {
   const [isFiltered, setIsFiltered] = useState(false);
   const [academyStatistics, setAcademyStatistics] = useState<Map<number, ExamStatisticsType>>(new Map());
   const [correctAnswers, setCorrectAnswers] = useState<Record<string, string>>({});
+  const [questionTypes, setQuestionTypes] = useState<Record<number, string> | null>(null);
 
   // academy feature store와 entity store 사용
   const { readAcademies } = useAcademyFeatureStore();
   const { academies } = useAcademyStore();
   const { readExamDetail } = useExamFeatureStore();
 
-  // 정답 데이터 가져오기
-  const fetchCorrectAnswers = async () => {
+  // 정답 데이터와 문제 유형 데이터 가져오기
+  const fetchExamData = async () => {
     try {
       // ExamAnswers.tsx와 동일한 방식으로 examDetail 가져오기
       const exam = await readExamDetail(examId);
@@ -47,6 +48,16 @@ export default function ExamStatistics() {
         setCorrectAnswers(parsedAnswers);
       } else {
         setCorrectAnswers({});
+      }
+
+      // 문제 유형 정보 파싱 및 저장
+      if (exam && exam.questionTypes) {
+        const types = typeof exam.questionTypes === 'string'
+          ? JSON.parse(exam.questionTypes)
+          : exam.questionTypes;
+        setQuestionTypes(types);
+      } else {
+        setQuestionTypes(null);
       }
     } catch (error) {
       setCorrectAnswers({});
@@ -73,6 +84,54 @@ export default function ExamStatistics() {
     setAcademyStatistics(statisticsMap);
   };
 
+  // 문제 유형별 정답률 계산
+  const calculateQuestionTypeStatistics = () => {
+    if (!statistics || !questionTypes) return [];
+
+    const typeStats = new Map<string, { correct: number; total: number; questions: number[] }>();
+
+    statistics.questionStatistics.forEach((question) => {
+      // 데이터베이스에서 가져온 문제 유형 사용
+      const questionType = questionTypes[question.questionNumber] || '기타';
+
+      if (!typeStats.has(questionType)) {
+        typeStats.set(questionType, { correct: 0, total: 0, questions: [] });
+      }
+
+      const stats = typeStats.get(questionType)!;
+      stats.total += question.totalAttempts;
+      stats.correct += question.correctAnswers;
+      stats.questions.push(question.questionNumber);
+    });
+
+    // 문제 유형을 문제 번호 순서대로 정렬
+    return Array.from(typeStats.entries())
+      .map(([type, stats]) => ({
+        type,
+        correctRate: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
+        count: stats.questions.length,
+        minQuestionNumber: Math.min(...stats.questions) // 정렬을 위한 최소 문제 번호
+      }))
+      .sort((a, b) => a.minQuestionNumber - b.minQuestionNumber) // 문제 번호 순서대로 정렬
+      .map(({ type, correctRate, count }) => ({ type, correctRate, count })); // 정렬 후 필요한 속성만 반환
+  };
+
+  // 오답률 TOP10 계산 (정답 정보 활용)
+  const getTopIncorrectQuestions = () => {
+    if (!statistics || !correctAnswers) return [];
+
+    return [...statistics.questionStatistics]
+      .sort((a, b) => b.incorrectAnswers - a.incorrectAnswers)
+      .slice(0, 10)
+      .map((question) => {
+        return {
+          ...question,
+          correctRate: question.correctRate * 100,
+          incorrectRate: question.incorrectRate * 100
+        };
+      });
+  };
+
   useEffect(() => {
     readAcademies();
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,10 +145,10 @@ export default function ExamStatistics() {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [academies, examId]);
 
-  // 정답 데이터 가져오기
+  // 정답 데이터와 문제 유형 데이터 가져오기
   useEffect(() => {
     if (examId) {
-      fetchCorrectAnswers();
+      fetchExamData();
     }
   }, [examId]);
 
@@ -254,32 +313,29 @@ export default function ExamStatistics() {
            오답률 TOP10
          </h3>
          <div className="grid grid-cols-2 smalltablet:grid-cols-3 tablet:grid-cols-5 desktop:grid-cols-5 gap-4">
-           {statistics.questionStatistics
-             .sort((a, b) => b.incorrectAnswers - a.incorrectAnswers)
-             .slice(0, 10)
-             .map((question, index) => (
-               <div
-                 key={question.questionNumber}
-                 className="flex flex-col items-center justify-center text-center h-24"
-               >
-                 <div className={`text-3xl font-bold ${
-                   index === 0
-                     ? 'text-red-800'
-                     : index === 1
-                     ? 'text-orange-800'
-                     : index === 2
-                     ? 'text-yellow-800'
-                     : index < 5
-                     ? 'text-gray-700'
-                     : 'text-gray-600'
-                 }`}>
-                   {question.questionNumber}번
-                 </div>
-                 <div className="text-xs text-gray-500 mt-1">
-                   정답률 {(question.correctRate * 100).toFixed(0)}%
-                 </div>
+           {getTopIncorrectQuestions().map((question, index) => (
+             <div
+               key={question.questionNumber}
+               className="flex flex-col items-center justify-center text-center h-24"
+             >
+               <div className={`text-3xl font-bold ${
+                 index === 0
+                   ? 'text-red-800'
+                   : index === 1
+                   ? 'text-orange-800'
+                   : index === 2
+                   ? 'text-yellow-800'
+                   : index < 5
+                   ? 'text-gray-700'
+                   : 'text-gray-600'
+               }`}>
+                 {question.questionNumber}번
                </div>
-             ))}
+               <div className="text-xs text-gray-500 mt-1">
+                 정답률 {question.correctRate.toFixed(0)}%
+               </div>
+             </div>
+           ))}
          </div>
        </div>
 
@@ -324,29 +380,42 @@ export default function ExamStatistics() {
             문제 유형별 정답률
           </h3>
           <div className="space-y-4">
-            {[
-              { type: '듣기', correctRate: 85, count: 15, color: 'bg-blue-500' },
-              { type: '읽기', correctRate: 72, count: 20, color: 'bg-green-500' },
-              { type: '문법', correctRate: 68, count: 10, color: 'bg-yellow-500' }
-            ].map((item, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-700">{item.type}</span>
-                  <span className="text-sm text-gray-600">{item.count}문제</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 bg-gray-200 rounded-full h-4">
-                    <div 
-                      className={`h-4 rounded-full ${item.color} transition-all duration-300`}
-                      style={{ width: `${item.correctRate}%` }}
-                    />
+            {(() => {
+              if (!questionTypes) {
+                return (
+                  <div className="text-gray-500 text-center py-4">
+                    문제 유형 정보를 불러올 수 없습니다.
                   </div>
-                  <span className="text-sm font-sansKR-Bold text-gray-900 w-12 text-right">
-                    {item.correctRate}%
-                  </span>
-                </div>
-              </div>
-            ))}
+                );
+              }
+
+              const typeStatistics = calculateQuestionTypeStatistics();
+              const colors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
+
+              return typeStatistics.map((item, index) => {
+                const color = colors[index % colors.length];
+
+                return (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">{item.type}</span>
+                      <span className="text-sm text-gray-600">{item.count}문제</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 bg-gray-200 rounded-full h-4">
+                        <div
+                          className={`h-4 rounded-full ${color} transition-all duration-300`}
+                          style={{ width: `${item.correctRate}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-sansKR-Bold text-gray-900 w-12 text-right">
+                        {item.correctRate.toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>
@@ -472,3 +541,22 @@ export default function ExamStatistics() {
     </div>
   );
 }
+
+// 오답률 TOP10 계산 함수를 외부에서 사용할 수 있도록 export
+export const calculateTopIncorrectQuestions = (
+  statistics: ExamStatisticsType | null,
+  correctAnswers: Record<string, string>
+) => {
+  if (!statistics || !correctAnswers) return [];
+
+  return [...statistics.questionStatistics]
+    .sort((a, b) => b.incorrectAnswers - a.incorrectAnswers)
+    .slice(0, 10)
+    .map((question) => {
+      return {
+        ...question,
+        correctRate: question.correctRate * 100,
+        incorrectRate: question.incorrectRate * 100
+      };
+    });
+};

@@ -66,20 +66,20 @@ export const examResultApi = {
     return apiGet(url);
   },
 
-  // // 시험별 결과 조회
-  // readByExam: async (examId: number, params?: ExamResultQueryInput): Promise<{ success: boolean; data: ExamResultWithRelations[] }> => {
-  //   const searchParams = new URLSearchParams();
-  //   if (params) {
-  //     Object.entries(params).forEach(([key, value]) => {
-  //       if (value !== undefined) {
-  //         searchParams.append(key, value.toString());
-  //       }
-  //     });
-  //   }
+  // 시험별 결과 조회
+  readByExam: async (examId: number, params?: ExamResultQueryInput): Promise<{ success: boolean; data: ExamResultWithRelations[] }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
     
-  //   const url = params ? `${BASE_URL}/exam/${examId}?${searchParams.toString()}` : `${BASE_URL}/exam/${examId}`;
-  //   return apiGet(url);
-  // },
+    const url = params ? `${BASE_URL}/exam/${examId}?${searchParams.toString()}` : `${BASE_URL}/exam/${examId}`;
+    return apiGet(url);
+  },
 
 
 
