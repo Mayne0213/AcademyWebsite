@@ -2,6 +2,7 @@ import { apiDelete, apiGet, apiPost, apiPut } from '@/src/shared/api/http';
 import { 
   ExamResult, 
   ExamResultWithRelations,
+  ExamResultWithAcademyInfo,
   ExamQuestionResult,
   ExamStatistics
 } from '../model/types';
@@ -108,6 +109,21 @@ export const examResultApi = {
     const url = academyId
       ? `${BASE_URL}/exam/${examId}/statistics?academyId=${academyId}`
       : `${BASE_URL}/exam/${examId}/statistics`;
+    return apiGet(url);
+  },
+
+  // 시험 결과와 학원 정보를 한 번에 조회 (리포트용)
+  readWithAcademyInfo: async (params?: ExamResultQueryInput): Promise<{ success: boolean; data: ExamResultWithAcademyInfo[] }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const url = params ? `${BASE_URL}/with-academy?${searchParams.toString()}` : `${BASE_URL}/with-academy`;
     return apiGet(url);
   },
 };

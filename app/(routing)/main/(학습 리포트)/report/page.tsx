@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ExamSummary } from '@/src/entities/exam/model/types';
 import { ExamList } from '@/src/entities/exam/ui';
 import { examResultApi } from '@/src/entities/examResult/api';
-import { ExamQuestionResult } from '@/src/entities/examResult/model/types';
+import { ExamQuestionResult, ExamResultWithAcademyInfo } from '@/src/entities/examResult/model/types';
 import StudentReportJPG, { generateStudentReportJPG } from '@/src/features/learningReport/ui/StudentReportJPG';
 import { learningReportApi } from '@/src/features/learningReport/api/learningReportApi';
 import { Academy } from '@/src/entities/academy/model/types';
@@ -111,89 +111,52 @@ export default function ReportPage() {
   }, [selectedAcademyId, studentExamResultsMap, academies]);
 
   const fetchStudentResults = async (examId: number) => {
-    setIsLoading(true);
-    try {
-      // 시험을 응시한 학생들의 기본 정보만 조회 (lazy loading)
-      const response = await examResultApi.read({ examId, limit: 100 });
+  setIsLoading(true);
+  try {
+    // 시험 결과와 학원 정보를 한 번에 조회 (새로운 API 사용)
+    const response = await examResultApi.readWithAcademyInfo({ examId, limit: 300 });
 
-      // 학생 학원 정보를 가져오는 헬퍼 함수
-      const getStudentAcademyInfo = async (studentId: number) => {
-        try {
-          const studentInfo = await studentApi.getStudentById(studentId);
-          return studentInfo.academy?.academyName || '학원 정보 없음';
-        } catch (error) {
-          console.error(`학생 ${studentId}의 학원 정보 조회 실패:`, error);
-          return '학원 정보 조회 실패';
-        }
-      };
+    // API 응답이 배열을 직접 반환하는 경우와 객체를 반환하는 경우 모두 처리
+    let examResults: ExamResultWithAcademyInfo[] = [];
 
-      // API 응답이 배열을 직접 반환하는 경우 처리
-      if (Array.isArray(response)) {
-        const newStudentExamResultsMap: StudentExamResultsMap = {};
-
-        // 병렬로 학원 정보 조회
-        const studentsWithAcademyInfo = await Promise.all(
-          response.map(async (examResult) => {
-            const academyName = await getStudentAcademyInfo(examResult.studentId);
-            return {
-              examResult,
-              academyName
-            };
-          })
-        );
-
-        studentsWithAcademyInfo.forEach(({ examResult, academyName }) => {
-          newStudentExamResultsMap[examResult.examResultId] = {
-            examId: examResult.examId,
-            studentId: examResult.studentId,
-            examResultId: examResult.examResultId,
-            studentName: examResult.student?.studentName || 'Unknown',
-            academyName,
-            totalScore: examResult.totalScore,
-            grade: examResult.grade.toString()
-          };
-        });
-
-        setStudentExamResultsMap(newStudentExamResultsMap);
-
-      } else if (response.success && response.data) {
-        const newStudentExamResultsMap: StudentExamResultsMap = {};
-
-        // 병렬로 학원 정보 조회
-        const studentsWithAcademyInfo = await Promise.all(
-          response.data.map(async (examResult) => {
-            const academyName = await getStudentAcademyInfo(examResult.studentId);
-            return {
-              examResult,
-              academyName
-            };
-          })
-        );
-
-        studentsWithAcademyInfo.forEach(({ examResult, academyName }) => {
-          newStudentExamResultsMap[examResult.examResultId] = {
-            examId: examResult.examId,
-            studentId: examResult.studentId,
-            examResultId: examResult.examResultId,
-            studentName: examResult.student?.studentName || 'Unknown',
-            academyName,
-            totalScore: examResult.totalScore,
-            grade: examResult.grade.toString()
-          };
-        });
-
-        setStudentExamResultsMap(newStudentExamResultsMap);
-
-      } else {
-        setStudentExamResultsMap({});
-      }
-    } catch (error) {
-      console.error('학생 결과 조회 실패:', error);
+    if (Array.isArray(response)) {
+      // 배열을 직접 반환하는 경우
+      examResults = response;
+    } else if (response.success && response.data) {
+      // 객체 형태 응답 처리
+      examResults = response.data;
+    } else {
       setStudentExamResultsMap({});
-    } finally {
-      setIsLoading(false);
+      return;
     }
-  };
+
+    if (examResults.length > 0) {
+      const newStudentExamResultsMap: StudentExamResultsMap = {};
+
+      // 학원 정보가 이미 포함된 데이터를 사용
+      examResults.forEach((examResult) => {
+        newStudentExamResultsMap[examResult.examResultId] = {
+          examId: examResult.examId,
+          studentId: examResult.studentId,
+          examResultId: examResult.examResultId,
+          studentName: examResult.student?.studentName || 'Unknown',
+          academyName: examResult.student?.academy?.academyName || '학원 정보 없음',
+          totalScore: examResult.totalScore,
+          grade: examResult.grade.toString()
+        };
+      });
+
+      setStudentExamResultsMap(newStudentExamResultsMap);
+    } else {
+      setStudentExamResultsMap({});
+    }
+  } catch (error) {
+    console.error('학생 결과 조회 실패:', error);
+    setStudentExamResultsMap({});
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // 문제 유형별 정답률 계산 함수
   const calculateQuestionTypeStatistics = (questionResults: ExamQuestionResult[], questionTypes: Record<number, string>) => {
