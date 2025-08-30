@@ -23,7 +23,7 @@ export const examResultQuerySchema = z.object({
   studentId: z.number().int().positive().optional(),
   grade: z.number().int().min(1).max(9).optional(),
   page: z.number().int().min(1).optional(),
-  limit: z.number().int().min(1).max(100).optional(),
+  limit: z.number().int().min(1).max(300).optional(),
   sortBy: z.enum(['createdAt', 'totalScore', 'grade']).optional(),
   sortOrder: z.enum(['asc', 'desc']).optional(),
 });

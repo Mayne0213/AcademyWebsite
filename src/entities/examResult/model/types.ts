@@ -36,6 +36,24 @@ export interface ExamResultWithRelations extends ExamResult {
   questionResults?: ExamQuestionResult[];
 }
 
+export interface ExamResultWithAcademyInfo extends ExamResult {
+  exam?: {
+    examId: number;
+    examName: string;
+    totalQuestions: number;
+  };
+  student?: {
+    memberId: number;
+    studentName: string;
+    studentPhone: string;
+    academy?: {
+      academyId: number;
+      academyName: string;
+    };
+  };
+  questionResults?: ExamQuestionResult[];
+}
+
 export interface ExamQuestionResult {
   id: number;
   examResultId: number;
