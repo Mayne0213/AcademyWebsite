@@ -1,19 +1,38 @@
 "use client";
 
 import { useStudentStore } from "@/src/entities/student/model/store";
+import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
+import { useRouter } from "next/navigation";
 import {
   User,
   Smartphone,
   GraduationCap,
   Calendar,
   Building2,
-  FileText
+  Trash2
 } from "lucide-react";
 
 export function StudentCard() {
   const { studentDetail } = useStudentStore();
+  const { deleteStudent } = useStudentFeatureStore();
+  const router = useRouter();
   const currentYear = new Date().getFullYear();
   const age = currentYear - (studentDetail?.studentBirthYear || 0);
+
+  // 학생 삭제 함수
+  const handleDeleteStudent = async () => {
+    if (!studentDetail) return;
+
+    const confirmMessage = `정말로 ${studentDetail.studentName} 학생을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 학생의 모든 데이터(시험 결과, QnA, 상담 기록 등)가 함께 삭제됩니다.`;
+    if (confirm(confirmMessage)) {
+      try {
+        router.push('/main/student');
+        await deleteStudent(studentDetail.memberId);
+      } catch (error) {
+        console.error('학생 삭제 실패:', error);
+      }
+    }
+  };
 
   return (
     <div className="w-full max-w-lg bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
@@ -23,15 +42,21 @@ export function StudentCard() {
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
             <User className="w-8 h-8 text-white" />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-1 truncate">
               {studentDetail?.studentName}
             </h3>
-            <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full mb-2">
-              {studentDetail?.role}
-            </span>
             <p className="text-sm text-gray-500">ID: {studentDetail?.userId}</p>
+
           </div>
+          <button
+                onClick={handleDeleteStudent}
+                className="flex items-center space-x-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                title="학생 삭제"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>삭제</span>
+              </button>
         </div>
 
         {/* Student information */}

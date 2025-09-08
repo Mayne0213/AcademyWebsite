@@ -34,9 +34,22 @@ export const useStudentFeatureStore = () => {
     }
   }, [entityStore]);
 
+  const deleteStudent = useCallback(async (studentId: number) => {
+    entityStore.setLoading(true);
+    try {
+      await studentApi.deleteStudent(studentId);
+      // 삭제 후 학생 목록에서 제거
+      const currentStudents = entityStore.students;
+      entityStore.readStudents(currentStudents.filter(student => student.memberId !== studentId));
+    } finally {
+      entityStore.setLoading(false);
+    }
+  }, [entityStore]);
+
   return {
     readStudents,
     updateStudent,
     readStudentById,
+    deleteStudent,
   };
 };

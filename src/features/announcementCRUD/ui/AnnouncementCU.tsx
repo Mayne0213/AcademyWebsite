@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/src/shared/ui/button";
-import { AnnouncementDetail } from "@/src/entities/announcement/model/types";
+import { Announcement } from "@/src/entities/announcement/model/types";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import { File as FileEntity } from "@/src/entities/file/model/types";
 import { convertAnnouncementFileToEntity } from "@/src/features/announcementCRUD/model/utils";
@@ -10,17 +10,19 @@ import { useAcademyStore } from "@/src/entities/academy/model/store";
 import { useAnnouncementFeatureStore } from "../model/store";
 import { useAuth } from "@/src/app/providers";
 import { toast } from "sonner";
+import { Academy } from "@/src/entities/academy/model/types";
 
 interface AnnouncementFormInput {
   announcementTitle: string;
   announcementContent: string;
   isItAssetAnnouncement: boolean;
+  announcementAcademies?: Academy[];
 }
 
 interface AnnouncementCUProps {
   onClose: () => void;
   isAssetOnly?: boolean;
-  announcement?: AnnouncementDetail; // 기존 데이터 (수정 시 사용)
+  announcement?: Announcement; // 기존 데이터 (수정 시 사용)
 }
 
 const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
@@ -58,13 +60,14 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
         announcementTitle: announcement.announcementTitle,
         announcementContent: announcement.announcementContent,
         isItAssetAnnouncement: announcement.isItAssetAnnouncement,
+        announcementAcademies: announcement.announcementAcademies,
       });
       
       const convertedFiles = announcement.announcementFiles?.map(convertAnnouncementFileToEntity) || [];
       setFiles(convertedFiles);
 
       // 선택된 학원들 설정
-      const academyIds = announcement.academies?.map((academy: { academyId: number }) => academy.academyId) || [];
+      const academyIds = announcement.announcementAcademies?.map((academy: { academyId: number }) => academy.academyId) || [];
       setSelectedAcademies(academyIds);
     } else if (mode === 'create') {
       // 생성 모드에서 기본값 설정

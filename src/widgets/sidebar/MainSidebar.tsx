@@ -38,7 +38,7 @@ const Sidebar = ({ deviceCondition, isOpen, onClose }: SidebarProps) => {
         <SidebarHeader isMobile={isMobile} onClose={onClose} />
 
         {/* 메뉴 목록 */}
-        <SidebarMenu />
+        <SidebarMenu onClose={onClose} />
       </div>
     </>
   );
@@ -63,7 +63,7 @@ const SidebarHeader = ({ isMobile, onClose }: { isMobile: boolean; onClose: () =
 );
 
 // 메뉴 컴포넌트
-const SidebarMenu = () => (
+const SidebarMenu = ({ onClose }: { onClose: () => void }) => (
   <div className="p-4">
     {tabs.map((tab, index) => (
       <div key={index}>
@@ -72,7 +72,7 @@ const SidebarMenu = () => (
         </div>
 
         {tab.submenu.map((subtab, index2) => (
-          <MenuItem key={index2} subtab={subtab} />
+          <MenuItem key={index2} subtab={subtab} onClose={onClose} />
         ))}
       </div>
     ))}
@@ -81,14 +81,16 @@ const SidebarMenu = () => (
 
 // 개별 메뉴 아이템 컴포넌트
 const MenuItem = ({
-  subtab
+  subtab,
+  onClose
 }: {
   subtab: any;
+  onClose: () => void;
 }) => {
   const commonClasses = "flex items-center pb-4 text-gray-500 hover:text-blue-300 transition-all duration-200";
 
   return (
-    <Link href={subtab.href} className={commonClasses}>
+    <Link href={subtab.href} className={commonClasses} onClick={() => onClose()}>
       <subtab.icon
         className="mr-2 items-center justify-center flex"
         size={20}

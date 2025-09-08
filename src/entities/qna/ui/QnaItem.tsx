@@ -66,7 +66,7 @@ export default function QnaItem({
 
   if (isDetailLoading) {
     return (
-      <div className="bg-white border rounded-lg shadow-sm p-8 text-center">
+      <div className="bg-white border rounded-lg shadow-sm p-8 flex justify-center items-center text-lg text-center">
         <div className="text-gray-500">로딩 중...</div>
       </div>
     );

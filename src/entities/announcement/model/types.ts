@@ -1,8 +1,20 @@
 import { Admin } from "@/src/entities/admin/model";
 import { Academy } from "@/src/entities/academy/model";
-import { File } from "@/src/entities/file/model/types";
 
-// 공지 엔티티
+// 공지 요약 정보 (목록용)
+export interface AnnouncementSummary {
+  announcementId: number;
+  announcementTitle: string;
+  isItAssetAnnouncement: boolean;
+  isItImportantAnnouncement: boolean;
+  fileCount?: number;
+  authorId?: number;
+  author?: Admin;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 공지 엔티티 (상세 정보)
 export interface Announcement  {
   announcementId: number;
   announcementTitle: string;
@@ -19,23 +31,28 @@ export interface Announcement  {
 }
 
 export interface AnnouncementFile {
-  announcementId: number;
   fileId: number;
-  announcement: Announcement;
-  file: File;
+  fileType: string;
+  originalName: string;
+  key: string;
 }
 
 export interface AnnouncementState {
-  announcements: Announcement[];
+  announcements: (Announcement | AnnouncementSummary)[];
   isLoading: boolean;
+  isDetailLoading: { [announcementId: number]: boolean };
 }
 
 export interface AnnouncementBasicActions {
+  readAnnouncementSummaries: (announcementSummaries: AnnouncementSummary[]) => void;
   readAnnouncements: (announcements: Announcement[]) => void;
+  getAnnouncementSummary: (announcementSummary: AnnouncementSummary) => void;
+  getAnnouncement: (announcement: Announcement) => void;
   createAnnouncement: (announcement: Announcement) => void;
   updateAnnouncement: (updatedAnnouncement: Announcement) => void;
   deleteAnnouncement: (announcementId: number) => void;
   setLoading: (isLoading: boolean) => void;
+  setDetailLoading: (announcementId: number, isLoading: boolean) => void;
 }
 
 // 공지 업데이트 요청 타입
@@ -62,22 +79,4 @@ export interface CreateAnnouncementRequest {
 // 파일 아이템 타입
 export interface FileItem {
   fileId: number;
-}
-
-// 공지사항 상세 정보 타입
-export interface AnnouncementDetail {
-  announcementId: number;
-  announcementTitle: string;
-  announcementContent: string;
-  isItAssetAnnouncement: boolean;
-  isItImportantAnnouncement: boolean;
-  authorId: number;
-  announcementFiles: {
-    fileId: number;
-    key: string;
-    originalName: string;
-    fileType: string;
-    fileSize: number;
-  }[];
-  academies: { academyId: number; academyName: string }[];
 }

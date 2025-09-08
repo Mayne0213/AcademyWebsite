@@ -4,7 +4,7 @@ import { PaginationStore } from './types';
 // Pagination 전용 zustand store
 export const usePaginationStore = create<PaginationStore>((set) => ({
   currentPage: 1,
-  itemsPerPage: 10, // 기본값을 10으로 변경
+  itemsPerPage: 6, // 기본값을 10으로 변경
   totalCount: 0,
 
   setCurrentPage: (currentPage: number) => set({ currentPage }),

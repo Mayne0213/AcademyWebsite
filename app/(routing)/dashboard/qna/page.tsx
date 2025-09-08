@@ -159,32 +159,9 @@ const QnaComments: React.FC<{
           <p className="whitespace-pre-wrap">
             {comment.commentContent}
           </p>
-          <Trash2
-            className={`cursor-pointer ${isCompact ? "w-4 h-4" : "w-5 h-5"}`}
-            onClick={() => onDeleteComment(qnaId, comment.commentId)}
-          />
         </li>
       ))}
     </ul>
-
-    {/* 댓글 입력 */}
-    {user && (
-      <div className="flex flex-col sm:flex-row gap-2 mt-4">
-        <textarea
-          rows={2}
-          placeholder="댓글을 입력하세요"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
-          value={commentInputs[qnaId] || ""}
-          onChange={(e) => onCommentChange(qnaId, e.target.value)}
-        />
-        <button
-          onClick={() => onCommentSubmit(qnaId)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition text-sm shrink-0"
-        >
-          등록
-        </button>
-      </div>
-    )}
   </div>
 );
 
@@ -242,7 +219,9 @@ const QnaBoard: React.FC = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
   useEffect(() => {
-    if (!user?.memberId) return;
+    if (!user?.memberId) {
+      return;
+    }
 
     if (user.role === "ADMIN" || user.role === "DEVELOPER") {
       readQnAs();

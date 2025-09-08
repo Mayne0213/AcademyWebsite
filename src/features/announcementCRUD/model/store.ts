@@ -14,8 +14,23 @@ export const useAnnouncementFeatureStore = () => {
   const readAnnouncements = useCallback(async (page: number, itemsPerPage: number, isAssetOnly: boolean = false) => {
     entityStore.setLoading(true);
     try {
-      const result = await announcementApi.getAnnouncements(page, itemsPerPage, isAssetOnly);
+      const result = await announcementApi.readAnnouncements(page, itemsPerPage, isAssetOnly);
       entityStore.readAnnouncements(result.announcements);
+      paginationStore.setTotalCount(result.totalCount);
+      paginationStore.setCurrentPage(page);
+      paginationStore.setItemsPerPage(itemsPerPage);
+      return result;
+    } finally {
+      entityStore.setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const readAnnouncementSummaries = useCallback(async (page: number, itemsPerPage: number, isAssetOnly: boolean = false) => {
+    entityStore.setLoading(true);
+    try {
+      const result = await announcementApi.readAnnouncementSummaries(page, itemsPerPage, isAssetOnly);
+      entityStore.readAnnouncementSummaries(result.announcements);
       paginationStore.setTotalCount(result.totalCount);
       paginationStore.setCurrentPage(page);
       paginationStore.setItemsPerPage(itemsPerPage);
@@ -63,7 +78,7 @@ export const useAnnouncementFeatureStore = () => {
     entityStore.setLoading(true);
     try {
       const announcement = entityStore.announcements.find(a => a.announcementId === announcementId);
-      if (announcement && announcement.announcementFiles && announcement.announcementFiles.length > 0) {
+      if (announcement && 'announcementFiles' in announcement && announcement.announcementFiles && announcement.announcementFiles.length > 0) {
         await deleteAnnouncementFiles(announcement.announcementFiles);
       }
 
@@ -91,8 +106,15 @@ export const useAnnouncementFeatureStore = () => {
   }, [deleteAnnouncementFiles, entityStore, paginationStore]);
 
   const readAnnouncementById = useCallback(async (announcementId: number) => {
-    return await announcementApi.getAnnouncementById(announcementId);
-  }, []);
+    entityStore.setDetailLoading(announcementId, true);
+    try {
+      const result = await announcementApi.getAnnouncement(announcementId);
+      entityStore.getAnnouncement(result);
+      return result;
+    } finally {
+      entityStore.setDetailLoading(announcementId, false);
+    }
+  }, [entityStore]);
 
   const toggleImportantAnnouncement = useCallback(async (announcementId: number, isItImportantAnnouncement: boolean) => {
     entityStore.setLoading(true);
@@ -107,6 +129,7 @@ export const useAnnouncementFeatureStore = () => {
 
   return {
     readAnnouncements,
+    readAnnouncementSummaries,
     readAnnouncementById,
     createAnnouncement,
     updateAnnouncement,

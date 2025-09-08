@@ -1,22 +1,17 @@
 import {
   IdCard,
-  Calendar,
   Megaphone,
-  File,
-  FileX,
   FileText,
   Users,
   LucideBookMarked,
   GraduationCap,
   MessageCircle,
-  Coins,
-  Mail,
-  LogOut,
-  UserRoundPen,
   Book,
   Building,
   MessageCircleQuestion,
-  Paperclip
+  Paperclip,
+  Headphones,
+  FileWarning
 } from "lucide-react";
 
 const tabs = [
@@ -53,21 +48,21 @@ const tabs = [
         description: "",
       },
       {
-        label: "시험 채점(임시)",
-        icon: LucideBookMarked,
-        href: "/main/omrTemp",
-        description: "",
-      },
-      {
-        label: "학습 리포트X",
+        label: "학습 리포트",
         icon: FileText,
         href: "/main/report",
         description: "",
       },
+      // {
+      //   label: "문자 전송X",
+      //   icon: Mail,
+      //   href: "/main/message",
+      //   description: "",
+      // },
       {
-        label: "문자 전송X",
-        icon: Mail,
-        href: "/main/message",
+        label: "리스닝 생성",
+        icon: Headphones,
+        href: "/main/listening",
         description: "",
       },
     ],
@@ -114,6 +109,17 @@ const tabs = [
         label: "단과 관리",
         icon: Building,
         href: "/main/academyManagement",
+        description: "",
+      },
+    ],
+  },
+  {
+    label: "임시",
+    submenu: [
+      {
+        label: "시험 채점",
+        icon: FileWarning,
+        href: "/main/omrTemp",
         description: "",
       },
     ],
