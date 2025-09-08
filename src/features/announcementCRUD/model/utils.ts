@@ -1,7 +1,7 @@
 import { File as FileEntity } from "@/src/entities/file/model/types";
 
 /**
- * AnnouncementDetail의 파일을 FileEntity로 변환
+ * Announcement의 파일을 FileEntity로 변환
  */
 export const convertAnnouncementFileToEntity = (file: any): FileEntity => ({
   fileId: file.fileId,

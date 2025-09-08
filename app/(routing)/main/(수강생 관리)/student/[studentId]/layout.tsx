@@ -5,12 +5,6 @@ import { ReactNode, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import studentInformationBackground from "@/public/main/student/studentInformationBackground.jpg";
 import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
-import {
-  Settings,
-  User,
-  Smartphone,
-  LampDesk,
-} from "lucide-react";
 import { StudentCard, StudentMemo, useStudentStore } from "@/src/entities/student";
 
 interface StudentLayoutProps {

@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const isItAssetAnnouncement = searchParams.get("isItAssetAnnouncement");
     const isItImportantAnnouncement = searchParams.get("isItImportantAnnouncement");
+    const type = searchParams.get("type"); // summary 또는 detail
     const page = parseInt(searchParams.get("page") || "1", 10);
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
 
@@ -64,6 +65,55 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // type에 따라 select 조건을 다르게 설정
+    const isSummary = type === "summary";
+
+    const selectFields: any = {
+      announcementId: true,
+      announcementTitle: true,
+      createdAt: true,
+      updatedAt: true,
+      isItAssetAnnouncement: true,
+      isItImportantAnnouncement: true,
+      authorId: true,
+      author: {
+        select: {
+          memberId: true,
+          adminName: true,
+        },
+      },
+      // 파일 개수만 가져오기 (상세 정보는 필요시에만)
+      _count: {
+        select: {
+          announcementFiles: true,
+        },
+      },
+    };
+
+    // summary가 아닌 경우에만 content, academies, files 포함
+    if (!isSummary) {
+      selectFields.announcementContent = true;
+      selectFields.academies = {
+        select: {
+          academyId: true,
+          academyName: true,
+        },
+      };
+      selectFields.announcementFiles = {
+        include: {
+          file: {
+            select: {
+              fileId: true,
+              fileName: true,
+              originalName: true,
+              fileUrl: true,
+              fileType: true,
+            },
+          },
+        },
+      };
+    }
+
     // 페이지네이션 적용 - 최적화된 쿼리
     const [announcements, totalCount] = await prisma.$transaction([
       prisma.announcement.findMany({
@@ -74,54 +124,43 @@ export async function GET(req: NextRequest) {
         ],
         skip: (page - 1) * pageSize,
         take: pageSize,
-        select: {
-          announcementId: true,
-          announcementTitle: true,
-          announcementContent: true,
-          createdAt: true,
-          updatedAt: true,
-          isItAssetAnnouncement: true,
-          isItImportantAnnouncement: true,
-          authorId: true,
-          author: {
-            select: {
-              memberId: true,
-              adminName: true,
-            },
-          },
-          // 파일 개수만 가져오기 (상세 정보는 필요시에만)
-          _count: {
-            select: {
-              announcementFiles: true,
-            },
-          },
-          // 학원 정보는 필요한 경우에만
-          academies: {
-            select: {
-              academyId: true,
-              academyName: true,
-            },
-          },
-        },
+        select: selectFields,
       }),
       prisma.announcement.count({ where: whereCondition }),
     ]);
 
     // 프론트엔드에서 기대하는 형식으로 데이터 변환 - 최적화
-    const transformedAnnouncements = announcements.map(announcement => ({
-      announcementId: announcement.announcementId,
-      announcementTitle: announcement.announcementTitle,
-      announcementContent: announcement.announcementContent,
-      createdAt: announcement.createdAt,
-      updatedAt: announcement.updatedAt,
-      isItAssetAnnouncement: announcement.isItAssetAnnouncement,
-      isItImportantAnnouncement: announcement.isItImportantAnnouncement,
-      authorId: announcement.authorId,
-      author: announcement.author,
-      // 파일 개수만 포함 (상세 정보는 필요시에만 로드)
-      fileCount: announcement._count.announcementFiles,
-      announcementAcademies: announcement.academies,
-    }));
+    const transformedAnnouncements = announcements.map((announcement: any) => {
+      const baseData = {
+        announcementId: announcement.announcementId,
+        announcementTitle: announcement.announcementTitle,
+        createdAt: announcement.createdAt,
+        updatedAt: announcement.updatedAt,
+        isItAssetAnnouncement: announcement.isItAssetAnnouncement,
+        isItImportantAnnouncement: announcement.isItImportantAnnouncement,
+        authorId: announcement.authorId,
+        author: announcement.author,
+        // 파일 개수만 포함 (상세 정보는 필요시에만 로드)
+        fileCount: announcement._count.announcementFiles,
+      };
+
+      // summary가 아닌 경우에만 content, academies, files 포함
+      if (!isSummary) {
+        return {
+          ...baseData,
+          announcementContent: announcement.announcementContent,
+          announcementAcademies: announcement.academies,
+          announcementFiles: announcement.announcementFiles?.map((af: any) => ({
+            fileId: af.fileId,
+            key: af.file.fileUrl,
+            originalName: af.file.originalName,
+            fileType: af.file.fileType,
+          })) || [],
+        };
+      }
+
+      return baseData;
+    });
 
     return NextResponse.json({
       success: true,

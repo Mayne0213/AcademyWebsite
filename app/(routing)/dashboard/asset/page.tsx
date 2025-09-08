@@ -1,14 +1,10 @@
 "use client";
-import Link from "next/link";
 import { useEffect } from "react";
 import Header from "@/src/widgets/header/DashboardHeader";
-import { useAuth } from "@/src/app/providers";
-import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
 import { AnnouncementCard } from "@/src/entities/announcement/ui";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { usePaginationStore } from "@/src/shared/model/pagination";
-import { Announcement } from "@/src/entities/announcement/model/types";
 import { Pagination } from "@/src/shared/ui";
 import { Calendar } from "lucide-react";
 
@@ -56,29 +52,16 @@ const EmptyState = () => (
 );
 
   const Assets: React.FC = () => {
-  const { user } = useAuth();
-  const deviceType = useDeviceDetect();
-  const isCompact = deviceType ? deviceType <= DeviceType.SMALLTABLET : false;
 
   const ITEMS_PER_PAGE = 10;
 
   const { announcements, isLoading } = useAnnouncementStore();
-  const { totalCount, currentPage, setCurrentPage } = usePaginationStore();
-  const { readAnnouncements, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
+  const { currentPage, setCurrentPage, totalCount } = usePaginationStore();
+  const { readAnnouncements } = useAnnouncementFeatureStore();
 
   useEffect(() => {
     readAnnouncements(currentPage, ITEMS_PER_PAGE, true);
   }, [currentPage, readAnnouncements]);
-
-  const handleToggleImportant = async (announcement: Announcement) => {
-    await toggleImportantAnnouncement(announcement.announcementId, !announcement.isItImportantAnnouncement);
-  };
-
-  const handleDelete = async (id: number) => {
-    if (confirm("정말로 이 자료를 삭제하시겠습니까?")) {
-      await deleteAnnouncement(id);
-    }
-  };
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -97,8 +80,6 @@ const EmptyState = () => (
               <AnnouncementCard
                 key={announcement.announcementId}
                 announcement={announcement}
-                onToggleImportant={handleToggleImportant}
-                onDelete={handleDelete}
               />
             ))
           )}
@@ -114,21 +95,6 @@ const EmptyState = () => (
           )}
         </div>
       </div>
-
-      {/* 작성 버튼 */}
-      {user?.role === "ADMIN" && (
-        <div className="max-w-6xl mx-auto px-4 flex justify-end">
-          <Link href="announcement/add">
-            <button
-              className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition ${
-                isCompact ? "text-sm px-3 py-1.5" : ""
-              }`}
-            >
-              자료 업로드
-            </button>
-          </Link>
-        </div>
-      )}
     </div>
   );
 };

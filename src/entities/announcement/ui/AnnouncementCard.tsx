@@ -1,72 +1,21 @@
 import React, { useState } from 'react';
-import { Announcement } from '@/src/entities/announcement/model/types';
+import { Announcement, AnnouncementSummary } from '@/src/entities/announcement/model/types';
 import { ChevronDown, ChevronUp, Calendar, User, Edit, Trash2, Pin, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/src/app/providers';
 import { FileItem } from '@/src/entities/file/ui';
 import { extractYouTubeVideoId } from '@/src/shared/lib/utils';
 import { announcementApi } from '../api';
-
-// 관리자 버튼 컴포넌트
-const AdminButtons = ({ 
-  announcement, 
-  onToggleImportant, 
-  onDelete, 
-  router 
-}: {
-  announcement: Announcement;
-  onToggleImportant: (announcement: Announcement) => void;
-  onDelete: (id: number) => void;
-  router: any;
-}) => (
-  <div
-    className="flex items-center gap-1 sm:gap-2"
-    onClick={(e) => e.stopPropagation()}
-  >
-    <button
-      onClick={() => onToggleImportant(announcement)}
-      className="p-1 sm:p-2 text-gray-500 hover:text-blue-600"
-      title="고정"
-    >
-      <Pin
-        className={announcement.isItImportantAnnouncement ? "text-red-500 w-5 h-5" : "w-5 h-5"}
-      />
-    </button>
-    <button
-      onClick={() =>
-        router.push(`/dashboard/announcement/edit/${announcement.announcementId}`)
-      }
-      className="p-1 sm:p-2 text-gray-500 hover:text-blue-600"
-      title="수정"
-    >
-      <Edit className="w-5 h-5" />
-    </button>
-    <button
-      onClick={() => onDelete(announcement.announcementId)}
-      className="p-1 sm:p-2 text-gray-500 hover:text-red-600"
-      title="삭제"
-    >
-      <Trash2 className="w-5 h-5" />
-    </button>
-  </div>
-);
 
 // 공지사항 헤더 컴포넌트
 const AnnouncementHeader = ({ 
   announcement, 
   isExpanded, 
   onExpand, 
-  user, 
-  onToggleImportant, 
-  onDelete, 
   router 
 }: {
   announcement: Announcement;
   isExpanded: boolean;
   onExpand: (announcementId: number) => void;
-  user: any;
-  onToggleImportant: (announcement: Announcement) => void;
-  onDelete: (id: number) => void;
   router: any;
 }) => (
   <div
@@ -97,14 +46,7 @@ const AnnouncementHeader = ({
         </div>
       </div>
 
-      {user?.role === "ADMIN" ? (
-        <AdminButtons
-          announcement={announcement}
-          onToggleImportant={onToggleImportant}
-          onDelete={onDelete}
-          router={router}
-        />
-      ) : isExpanded ? (
+      {isExpanded ? (
         <ChevronUp className="w-5 h-5 text-gray-400" />
       ) : (
         <ChevronDown className="w-5 h-5 text-gray-400" />
@@ -172,17 +114,12 @@ const AnnouncementContent = ({
 
 // 메인 AnnouncementCard 컴포넌트
 interface AnnouncementCardProps {
-  announcement: Announcement;
-  onToggleImportant: (announcement: Announcement) => void;
-  onDelete: (id: number) => void;
+  announcement: Announcement | AnnouncementSummary;
 }
 
 const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ 
   announcement, 
-  onToggleImportant, 
-  onDelete 
 }) => {
-  const { user } = useAuth();
   const router = useRouter();
   
   const [isExpanded, setIsExpanded] = useState(false);
@@ -194,7 +131,7 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
     
     if (!isExpanded && !detail) {
       setIsDetailLoading(true);
-      const result = await announcementApi.getAnnouncementById(announcementId);
+      const result = await announcementApi.getAnnouncement(announcementId);
       setDetail({ 
         content: result.announcementContent, 
         files: result.announcementFiles || [] 
@@ -208,12 +145,9 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
       className={`${announcement.isItImportantAnnouncement ? "border-gray-500" : "border-gray-100"} bg-white rounded-xl shadow-sm border overflow-hidden`}
     >
       <AnnouncementHeader
-        announcement={announcement}
+        announcement={announcement as Announcement}
         isExpanded={isExpanded}
         onExpand={handleExpand}
-        user={user}
-        onToggleImportant={onToggleImportant}
-        onDelete={onDelete}
         router={router}
       />
       <AnnouncementContent

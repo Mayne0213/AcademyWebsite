@@ -8,23 +8,17 @@ import {
   User,
   Pin,
 } from "lucide-react";
-import { Announcement, AnnouncementDetail } from "@/src/entities/announcement/model/types";
-import AnnouncementCU from "@/src/features/announcementCRUD/ui/AnnouncementCU";
-import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { FileItem } from "@/src/entities/file/ui";
 import { FORMATS } from "@/src/shared/lib/formats";
+import AnnouncementCU from "@/src/features/announcementCRUD/ui/AnnouncementCU";
+import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
+import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
+import { Announcement, AnnouncementSummary } from "@/src/entities/announcement/model/types";
 
-interface Props {
-  announcement: Announcement;
-}
-
-const AnnouncementItem: React.FC<Props> = ({
-  announcement,
-}) => {
-  const { readAnnouncementById, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
+const AnnouncementItem = ({announcement}: {announcement: Announcement | AnnouncementSummary}) => {
+  const { readAnnouncementById, deleteAnnouncement, toggleImportantAnnouncement, updateAnnouncement } = useAnnouncementFeatureStore();
+  const { isDetailLoading } = useAnnouncementStore();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [detailData, setDetailData] = useState<AnnouncementDetail | null>(null);
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleDelete = () => {
@@ -37,16 +31,14 @@ const AnnouncementItem: React.FC<Props> = ({
   };
 
   const loadDetailData = async () => {
-    if (!detailData) {
-      setIsLoadingDetail(true);
-      setDetailData(await readAnnouncementById(announcement.announcementId));
-      setIsLoadingDetail(false);
+    if (!('announcementContent' in announcement)) {
+      await readAnnouncementById(announcement.announcementId);
     }
   };
 
   // 수정 모드일 때 EditAnnouncement 렌더링
   if (isEditing) {
-    if (!detailData) {
+    if (!('announcementContent' in announcement)) {
       return (
         <div className="border p-4 rounded-lg shadow-sm">
           <div className="flex items-center justify-center py-8">
@@ -60,11 +52,8 @@ const AnnouncementItem: React.FC<Props> = ({
     return (
       <div>
         <AnnouncementCU
-          onClose={() => {
-            setIsEditing(false);
-            setDetailData(null);
-          }}
-          announcement={detailData}
+          onClose={() => setIsEditing(false)}
+          announcement={announcement as Announcement}
         />
       </div>
     );
@@ -116,7 +105,7 @@ const AnnouncementItem: React.FC<Props> = ({
               }`}
               title={announcement.isItImportantAnnouncement ? '중요 공지 해제' : '중요 공지 설정'}
             >
-              <Pin className={announcement.isItImportantAnnouncement ? 'fill-current w-3 h-3 text-yellow-500' : 'w-5 h-5 text-gray-500'} />
+              <Pin className={announcement.isItImportantAnnouncement ? 'fill-current w-5  text-yellow-500' : 'w-5 h-5 text-gray-500'} />
             </button>
             <button
               onClick={() => {
@@ -143,28 +132,29 @@ const AnnouncementItem: React.FC<Props> = ({
       {isExpanded && (
         <div className="border-t border-gray-300 p-4 sm:p-6 bg-gray-25">
           <div className="">
-            {isLoadingDetail ? (
+            {isDetailLoading[announcement.announcementId] ? (
               <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
                 <span className="ml-2 text-gray-400">불러오는 중...</span>
               </div>
-            ) : detailData ? (
+            ) : 'announcementContent' in announcement ? (
               <>
                 <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {detailData.announcementContent || "공지 내용이 없습니다."}
+                  {announcement.announcementContent || "공지 내용이 없습니다."}
                 </p>
 
                 {/* 파일 목록 */}
-                {detailData.announcementFiles && detailData.announcementFiles.length > 0 && (
+                {announcement.announcementFiles && announcement.announcementFiles.length > 0 && (
                   <div className="mt-6">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">첨부 파일:</h4>
                     <div className="space-y-2">
-                      {detailData.announcementFiles.map((file, index) => (
+                      {announcement.announcementFiles.map((announcementFile, index) => (
                         <FileItem
                           key={index}
                           file={{
-                            fileType: file.fileType || 'application/octet-stream',
-                            originalName: file.originalName,
-                            key: file.key,
+                            fileType: announcementFile.fileType || 'application/octet-stream',
+                            originalName: announcementFile.originalName,
+                            key: announcementFile.key,
                           }}
                         />
                       ))}

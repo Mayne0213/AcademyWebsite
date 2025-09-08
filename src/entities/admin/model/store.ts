@@ -13,7 +13,7 @@ export const useAdminStore = create<AdminState & AdminBasicActions>((set) => ({
 
   // 2. 디테일한 개인의 정보를 전부 불러오는 함수
   readAdmins: (admins: Admin[]) => set({
-    admins,
+    admins: admins,
   }),
 
   // 3. adminId를 받아서 해당하는 개인의 간략한 정보만을 불러오는 함수

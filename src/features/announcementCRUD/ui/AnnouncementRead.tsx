@@ -1,14 +1,10 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { AnnouncementItem } from "@/src/entities/announcement/ui";
+import AnnouncementItem from "./AnnouncementItem";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
 import { usePaginationStore } from "@/src/shared/model/pagination";
-
-interface AnnouncementReadProps {
-  isAssetOnly?: boolean;
-}
 
 const AnnouncementSkeleton = () => {
   return (
@@ -44,22 +40,20 @@ const AnnouncementSkeleton = () => {
   );
 };
 
-const AnnouncementRead: React.FC<AnnouncementReadProps> = ({
-  isAssetOnly = false,
-}) => {
+const AnnouncementRead = ({ isAssetOnly = false }: { isAssetOnly?: boolean }) => {
   const { announcements, isLoading } = useAnnouncementStore();
-  const { readAnnouncements } = useAnnouncementFeatureStore();
+  const { readAnnouncementSummaries } = useAnnouncementFeatureStore();
   const { currentPage } = usePaginationStore();
 
   useEffect(() => {
-    readAnnouncements(currentPage, 6, isAssetOnly);
-  }, [readAnnouncements, currentPage, isAssetOnly]);
+    readAnnouncementSummaries(currentPage, 6, isAssetOnly);
+  }, [currentPage, isAssetOnly, readAnnouncementSummaries]);
 
   if (isLoading) {
     return (
       <div className="flex-1 space-y-4 relative">
         <ul className="space-y-4">
-          {Array.from({ length: 10 }).map((_, index) => (
+          {Array.from({ length: 6 }).map((_, index) => (
             <AnnouncementSkeleton key={index} />
           ))}
         </ul>

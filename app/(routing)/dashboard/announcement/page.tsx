@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Header from "@/src/widgets/header/DashboardHeader";
-import { useAuth } from "@/src/app/providers";
 import { AnnouncementCard } from "@/src/entities/announcement/ui";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
-import { usePaginationStore } from "@/src/shared/model/pagination";
-import { Announcement } from "@/src/entities/announcement/model/types";
+import { usePaginationStore, useTotalPages } from "@/src/shared/model/pagination";
 import { Pagination } from "@/src/shared/ui";
 import { Calendar } from "lucide-react";
 
@@ -56,28 +53,17 @@ const EmptyState = () => (
 );
 
 const Announcements: React.FC = () => {
-  const { user } = useAuth();
   const ITEMS_PER_PAGE = 10;
 
   const { announcements, isLoading } = useAnnouncementStore();
-  const { totalCount, currentPage, setCurrentPage } = usePaginationStore();
-  const { readAnnouncements, deleteAnnouncement, toggleImportantAnnouncement } = useAnnouncementFeatureStore();
+  const { currentPage, setCurrentPage, totalCount } = usePaginationStore();
+  const { readAnnouncements } = useAnnouncementFeatureStore();
 
   useEffect(() => {
     readAnnouncements(currentPage, ITEMS_PER_PAGE, false);
   }, [currentPage, readAnnouncements]);
 
-  const handleToggleImportant = async (announcement: Announcement) => {
-    await toggleImportantAnnouncement(announcement.announcementId, !announcement.isItImportantAnnouncement);
-  };
-
-  const handleDelete = async (id: number) => {
-    if (confirm("정말로 이 공지를 삭제하시겠습니까?")) {
-      await deleteAnnouncement(id);
-    }
-  };
-
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const totalPages = useTotalPages();
 
   return (
     <div className="min-h-screen bg-gray-50 space-y-6">
@@ -94,8 +80,6 @@ const Announcements: React.FC = () => {
               <AnnouncementCard
                 key={announcement.announcementId}
                 announcement={announcement}
-                onToggleImportant={handleToggleImportant}
-                onDelete={handleDelete}
               />
             ))
           )}
@@ -111,19 +95,6 @@ const Announcements: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* 작성 버튼 */}
-      {user?.role === "ADMIN" && (
-        <div className="max-w-6xl mx-auto px-4 flex justify-end">
-          <Link href="announcement/add">
-            <button
-              className={`bg-blue-600 text-white rounded-md hover:bg-blue-700 transition text-sm px-3 py-1.5 tablet:text-sm tablet:px-4 tablet:py-2`}
-            >
-              공지 작성
-            </button>
-          </Link>
-        </div>
-      )}
     </div>
   );
 };

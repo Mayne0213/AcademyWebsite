@@ -6,10 +6,11 @@ import { toast } from "sonner";
 
 // QnA API 관련 함수들
 export const qnaApi = {
-  // 모든 QnA 조회 (관리자/개발자만)
-  getQnAs: async (): Promise<QnABoard[]> => {
+  // 모든 QnA 조회 (관리자/개발자만) - pagination 지원
+  getQnAs: async (page: number, itemsPerPage: number): Promise<{ qnas: QnABoard[]; totalCount: number }> => {
     try {
-      return await apiGet<QnABoard[]>(API_ENDPOINTS.QNA.BASE);
+      const url = `${API_ENDPOINTS.QNA.BASE}?page=${page}&pageSize=${itemsPerPage}`;
+      return await apiGet<{ qnas: QnABoard[]; totalCount: number }>(url);
     } catch (error) {
       throw error;
     }

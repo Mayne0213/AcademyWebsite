@@ -38,7 +38,7 @@ const AnnouncementBoard = () => {
         />
       )}
 
-      <AnnouncementRead />
+      <AnnouncementRead isAssetOnly={false} />
 
       <Pagination
         currentPage={currentPage}

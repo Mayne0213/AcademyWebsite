@@ -2,38 +2,52 @@ import { useCallback } from 'react';
 import { QnABoard, CreateCommentRequest } from "@/src/entities/qna/model/types";
 import { qnaApi } from '@/src/entities/qna/api';
 import { useQnABoardStore, useQnaDetailStore } from "@/src/entities/qna/model/store";
+import { usePaginationStore } from '@/src/shared/model/pagination';
 
 // API 호출과 전역 상태 관리를 통합하는 훅
 export const useQnAFeatureStore = () => {
   const entityStore = useQnABoardStore.getState();
   const detailStore = useQnaDetailStore.getState();
+  const paginationStore = usePaginationStore.getState();
 
-  const readQnAs = useCallback(async () => {
+  const readQnAs = useCallback(async (page: number = 1, itemsPerPage: number = 6) => {
     entityStore.setLoading(true);
     try {
-      entityStore.readQnABoards(await qnaApi.getQnAs());
+      const result = await qnaApi.getQnAs(page, itemsPerPage);
+      entityStore.readQnABoards(result.qnas);
+      paginationStore.setTotalCount(result.totalCount);
+      paginationStore.setCurrentPage(page);
+      paginationStore.setItemsPerPage(itemsPerPage);
+      return result;
+    } catch (error) {
+      console.error('readQnAs error:', error);
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore]);
+  }, [entityStore, paginationStore]);
 
   const readPersonalQnAs = useCallback(async () => {
     entityStore.setLoading(true);
     try {
-      entityStore.readQnABoards(await qnaApi.getPersonalQnAs());
+      const qnas = await qnaApi.getPersonalQnAs();
+      entityStore.readQnABoards(qnas);
+      paginationStore.setTotalCount(qnas.length);
+      paginationStore.setCurrentPage(1);
+      paginationStore.setItemsPerPage(qnas.length);
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore]);
+  }, [entityStore, paginationStore]);
 
   const createQnA = useCallback(async (newQnA: Omit<QnABoard, "qnaId" | "createdAt" | "updatedAt" | "qnaStudent" | "qnaComments">) => {
     entityStore.setLoading(true);
     try {
       entityStore.createQnABoard(await qnaApi.createQnA(newQnA));
+      paginationStore.incrementTotalCount();
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore]);
+  }, [entityStore, paginationStore]);
 
   const updateQnA = useCallback(async (qnaId: number, updatedQnA: QnABoard) => {
     entityStore.setLoading(true);
@@ -50,12 +64,13 @@ export const useQnAFeatureStore = () => {
     try {
       await qnaApi.deleteQnA(qnaId);
       entityStore.deleteQnABoard(qnaId);
+      paginationStore.decrementTotalCount();
       // QnA 삭제 시 상세 정보도 클리어
       detailStore.clearDetail();
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore, detailStore]);
+  }, [entityStore, detailStore, paginationStore]);
 
   const readQnaDetail = useCallback(async (qnaId: number) => {
     detailStore.setIsDetailLoading(true);

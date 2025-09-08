@@ -134,19 +134,29 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
     for (const result of successfulResults) {
       try {
         // 각 결과에서 전화번호 추출
-        // const studentPhone = "010" + result.phoneNumber;
-        const studentPhone = "01088705364";
-
-        if (!studentPhone) {
-          errors.push(`파일 ${result.fileName}: 전화번호를 찾을 수 없습니다`);
-          continue;
-        }
+        let studentPhone = "010" + result.phoneNumber;
+        // const studentPhone = "01088705364";
 
         // 전화번호로 학생 찾기
-        const studentResult = await findStudentByPhone(studentPhone);
+        let studentResult = await findStudentByPhone(studentPhone);
+        let isOriginalPhoneFailed = false;
+
         if (!studentResult.success || !studentResult.data) {
-          errors.push(`파일 ${result.fileName}: 학생을 찾을 수 없습니다 (전화번호: ${studentPhone})`);
-          continue;
+          // 원래 전화번호로 찾지 못한 경우 에러 추가
+          isOriginalPhoneFailed = true;
+
+          // 01088705364로 재시도
+          studentResult = await findStudentByPhone("01088705364");
+
+          if (!studentResult.success || !studentResult.data) {
+            errors.push(`파일 ${result.fileName}: 01088705364로도 학생을 찾을 수 없습니다`);
+            continue;
+          }
+        }
+
+        // 원래 전화번호로 찾지 못한 경우, 01088705364로 성공해도 실패로 처리
+        if (isOriginalPhoneFailed) {
+          errors.push(`원래 전화번호(${studentPhone})로 찾지 못해 미가입으로 대체 처리됨`);
         }
 
         const student = studentResult.data;
@@ -167,17 +177,15 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
           continue;
         }
 
-        savedCount++;
-        console.log(`파일 ${result.fileName} 처리 완료: 학생 ID ${student.memberId}, 점수 ${result.totalScore}`);
-
+        // 원래 전화번호로 찾지 못한 경우가 아니면 성공 카운트 증가
+        if (!isOriginalPhoneFailed) {
+          savedCount++;
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
         errors.push(`파일 ${result.fileName}: 처리 중 오류 발생 - ${errorMessage}`);
       }
     }
-
-    console.log(`개별 처리 완료: ${savedCount}개 파일 저장됨`);
-
     // 실패한 결과들에 대한 에러 메시지 추가
     const failedResults = input.gradingResults.filter(result => !result.success);
     failedResults.forEach(result => {
@@ -191,7 +199,6 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
     };
 
   } catch (error) {
-    console.error('OMR 결과 저장 중 오류:', error);
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
     return {
       success: false,

@@ -11,13 +11,13 @@ import { Pagination } from "@/src/shared/ui";
 const AnnouncementBoard = () => {
   const [writeNewAnnouncement, setWriteNewAnnouncement] = useState<boolean>(false);
 
-  const { readAnnouncements } = useAnnouncementFeatureStore();
+  const { readAnnouncementSummaries } = useAnnouncementFeatureStore();
   const { currentPage, setCurrentPage, totalCount } = usePaginationStore();
   const totalPages = useTotalPages();
 
   useEffect(() => {
-    readAnnouncements(currentPage, 10, true);
-  }, [readAnnouncements, currentPage]);
+    readAnnouncementSummaries(currentPage, 6, true);
+  }, [readAnnouncementSummaries, currentPage]);
 
   return (
     <main className="h-full flex flex-col p-4">

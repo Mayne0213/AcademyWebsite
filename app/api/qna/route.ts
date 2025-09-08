@@ -40,7 +40,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    // URL에서 pagination 파라미터 추출
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const pageSize = parseInt(searchParams.get('pageSize') || '10');
+    const skip = (page - 1) * pageSize;
+
+    // 전체 개수 조회
+    const totalCount = await prisma.qnABoard.count();
+
+    // pagination된 QnA 조회
     const QnAs = await prisma.qnABoard.findMany({
+      skip,
+      take: pageSize,
       orderBy: { createdAt: "desc" },
       include: {
         student: {
@@ -54,10 +66,39 @@ export async function GET(req: NextRequest) {
             file: true,
           },
         },
+        comments: {
+          include: {
+            student: {
+              select: {
+                memberId: true,
+                studentName: true,
+              },
+            },
+            admin: {
+              select: {
+                memberId: true,
+                adminName: true,
+                adminPosition: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    return NextResponse.json({ success: true, data: QnAs }, { status: 200 });
+    // isItAnswered 필드 계산하여 추가
+    const QnAsWithAnsweredStatus = QnAs.map(qna => ({
+      ...qna,
+      isItAnswered: qna.comments && qna.comments.length > 0
+    }));
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        qnas: QnAsWithAnsweredStatus,
+        totalCount
+      }
+    }, { status: 200 });
   } catch (error) {
     console.error("[API ERROR] QnA 조회 실패:", error);
 

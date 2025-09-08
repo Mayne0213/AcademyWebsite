@@ -9,7 +9,10 @@ export const useQnABoardStore = create<QnABoardState & QnABoardBasicActions>((se
   isLoading: true,
 
   // QnA 기본 액션
-  readQnABoards: (qnas: QnABoard[]) => set({ qnas }),
+  readQnABoards: (qnas: QnABoard[]) => set({
+    qnas,
+    isLoading: false
+  }),
 
   createQnABoard: (newQnA: QnABoard) => set((state) => ({
     qnas: [newQnA, ...state.qnas]

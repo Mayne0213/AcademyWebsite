@@ -6,7 +6,7 @@ import { Student } from '@/src/entities/student/model/types';
 import { studentApi } from '@/src/entities/student/api';
 import { StudentLearningReport } from '@/src/features/learningReport/model/types';
 import { learningReportApi } from '@/src/features/learningReport/api/learningReportApi';
-import { PerformanceMetrics, ExamHistoryChart, StudentReportJPG } from '@/src/features/learningReport';
+import { PerformanceMetrics, ExamHistoryChart } from '@/src/features/learningReport';
 import { ExamQuestionResult } from '@/src/entities/examResult/model/types';
 
 const StudentPage = () => {
@@ -174,7 +174,6 @@ const StudentPage = () => {
 
   return (
     <div>
-      {/* PDF에 포함되지 않는 버튼 영역 */}
       {selectedExamId && (
         <div className="flex items-center justify-between px-4">
           <button
