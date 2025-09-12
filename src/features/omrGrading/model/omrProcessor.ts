@@ -117,7 +117,6 @@ const createExamResult = async (data: any): Promise<{ success: boolean; data?: a
 export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Promise<OMRDatabaseSaveResult> => {
   const errors: string[] = [];
   let savedCount = 0;
-  let hasOriginalPhoneFailed = false;
 
   try {
     // 성공한 OMR 결과만 필터링
@@ -158,7 +157,6 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
         // 원래 전화번호로 찾지 못한 경우, 01088705364로 성공해도 실패로 처리
         if (isOriginalPhoneFailed) {
           errors.push(`원래 전화번호(${studentPhone})로 찾지 못해 미가입으로 대체 처리됨`);
-          hasOriginalPhoneFailed = true;
         }
 
         const student = studentResult.data;
@@ -195,7 +193,7 @@ export const saveOMRResultsToDatabase = async (input: OMRDatabaseSaveInput): Pro
     });
 
     return {
-      success: savedCount > 0 && !hasOriginalPhoneFailed,
+      success: savedCount > 0,
       savedCount,
       errors
     };
