@@ -184,7 +184,7 @@ const QuestionTypeAnalysisHTML = React.memo(({
   // 각 영역별 문제 번호 정의 (배점 하드코딩)
   const questionRanges = [
     { title: '듣기 - [1~17]', numbers: Array.from({length: 17}, (_, i) => i + 1), totalPoints: 37 },
-    { title: '내용파악 - [20~24,35,41~45]', numbers: [...Array.from({length: 5}, (_, i) => i + 20), 35, ...Array.from({length: 5}, (_, i) => i + 41)], totalPoints: 25 },
+    { title: '내용파악 - [20~24,35,40~45]', numbers: [...Array.from({length: 5}, (_, i) => i + 20), 35, ...Array.from({length: 6}, (_, i) => i + 40)], totalPoints: 26 },
     { title: '빈칸 - [31~34]', numbers: Array.from({length: 4}, (_, i) => i + 31), totalPoints: 10 },
     { title: '순서삽입 - [36~39]', numbers: Array.from({length: 4}, (_, i) => i + 36), totalPoints: 10 }
   ];

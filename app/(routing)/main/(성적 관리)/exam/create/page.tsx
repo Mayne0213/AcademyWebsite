@@ -27,8 +27,24 @@ const Grading = () => {
 
         for (let i = 1; i <= count; i++) {
             defaultData.correctAnswers[i] = "1"; // 모든 문제 정답을 1번으로
-            defaultData.questionScores[i] = i > count - 10 ? 3 : 2; // 뒤에 10문제는 3점, 나머지는 2점
-            defaultData.questionTypes[i] = "듣기"; // 모든 문제 유형을 듣기로
+            defaultData.questionScores[i] = 2; // 뒤에 10문제는 3점, 나머지는 2점
+            if(i <= 17) {
+                defaultData.questionTypes[i] = "듣기";
+            } else if(i == 18 || i == 19 || i == 25 || i == 26 || i == 27 || i == 28) {
+                defaultData.questionTypes[i] = "기초유형";
+            } else if(31 <= i && i <= 34) {
+                defaultData.questionTypes[i] = "빈칸";
+            } else if(36 <= i && i <= 37) {
+                defaultData.questionTypes[i] = "순서";
+            } else if(38 <= i && i <= 39) {
+                defaultData.questionTypes[i] = "삽입";
+            } else if(i == 29) {
+                defaultData.questionTypes[i] = "어법";
+            } else if(i == 30) {
+                defaultData.questionTypes[i] = "어휘";
+            } else { // 20~24, 35, 40~45
+                defaultData.questionTypes[i] = "내용파악";
+            }
         }
 
         setFormData(prev => ({
@@ -131,12 +147,13 @@ const Grading = () => {
                     >
                         <option value="">유형</option>
                         <option value="듣기">듣기</option>
-                        <option value="빈칸추론">빈칸추론</option>
-                        <option value="글의통일성">글의통일성</option>
-                        <option value="독해">독해</option>
+                        <option value="기초유형">기초유형</option>
+                        <option value="내용파악">내용파악</option>
+                        <option value="빈칸">빈칸</option>
+                        <option value="순서">순서</option>
+                        <option value="삽입">삽입</option>
                         <option value="어법">어법</option>
                         <option value="어휘">어휘</option>
-                        <option value="기타">기타</option>
                     </select>
                 </div>
             );
