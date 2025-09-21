@@ -412,7 +412,7 @@ export default function Home() {
           <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
             <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
               <UserPlus className="h-5 w-5" />
-              새 학생
+              신규 학생
             </h3>
             <div className="space-y-3">
               {stats?.recentActivity?.recentStudents && stats.recentActivity.recentStudents.length > 0 ? (
@@ -465,13 +465,13 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 상위 성과자 & 관리 대상 학생 */}
+        {/* 상위 학생 & 관리 대상 학생 */}
         <div className="grid grid-cols-1 tablet:grid-cols-2 gap-6 mb-6">
-          {/* 상위 성과자 */}
+          {/* 상위 학생 */}
           <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
             <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
               <Award className="h-5 w-5" />
-              상위 성과자
+              상위 학생
             </h3>
             <div className="max-h-96 overflow-y-auto space-y-2">
               {stats?.topPerformers.map((student, index) => (
@@ -497,11 +497,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 관리 대상 학생 */}
+          {/* 상담 대상자 */}
           <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
             <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
-              관리 대상 학생
+              상담 대상자
             </h3>
             <div className="max-h-96 overflow-y-auto space-y-2">
               {stats?.managedStudents.map((student, index) => (
