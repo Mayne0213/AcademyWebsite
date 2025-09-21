@@ -1,7 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import html2canvas from 'html2canvas';
-import { StudentLearningReport } from '@/src/features/learningReport/model/types';
 import { ExamQuestionResult } from '@/src/entities/examResult/model/types';
 import { calculateTopIncorrectQuestions } from '@/src/features/examCRUD/ui/ExamStatistics';
 
@@ -32,6 +31,7 @@ interface StudentReportJPGProps {
     correctRate: number;
     count: number;
   }>;
+  questionTypes: Record<number, string> | null;
   studentName: string;
 }
 
@@ -94,7 +94,7 @@ const QuestionTableHTML = React.memo(({
             <div style={{ fontSize: 6, fontFamily: 'NotoSansKR-Semibold, sans-serif', fontWeight: '600', textAlign: 'center' }}>{examCorrectAnswers[item.questionNumber] || '-'}</div>
           </div>
           <div style={{ width: '16.67%', borderRight: '1px solid #d1d5db', padding: 4 }}>
-            <div style={{ fontSize: 6, fontFamily: 'NotoSansKR-Semibold, sans-serif', fontWeight: '600', textAlign: 'center' }}>2점</div>
+            <div style={{ fontSize: 6, fontFamily: 'NotoSansKR-Semibold, sans-serif', fontWeight: '600', textAlign: 'center' }}>{item.score}점</div>
           </div>
           <div style={{ width: '16.67%', padding: 4 }}>
             <div style={{ fontSize: 6, fontFamily: 'NotoSansKR-Semibold, sans-serif', fontWeight: '600', textAlign: 'center' }}>{item.isCorrect ? item.score : 0}</div>
@@ -184,7 +184,7 @@ const QuestionTypeAnalysisHTML = React.memo(({
   // 각 영역별 문제 번호 정의 (배점 하드코딩)
   const questionRanges = [
     { title: '듣기 - [1~17]', numbers: Array.from({length: 17}, (_, i) => i + 1), totalPoints: 37 },
-    { title: '내용파악 - [20~24,35,41~45]', numbers: [...Array.from({length: 5}, (_, i) => i + 20), 35, ...Array.from({length: 5}, (_, i) => i + 41)], totalPoints: 25 },
+    { title: '내용파악 - [20~24,35,40~45]', numbers: [...Array.from({length: 5}, (_, i) => i + 20), 35, ...Array.from({length: 6}, (_, i) => i + 40)], totalPoints: 26 },
     { title: '빈칸 - [31~34]', numbers: Array.from({length: 4}, (_, i) => i + 31), totalPoints: 10 },
     { title: '순서삽입 - [36~39]', numbers: Array.from({length: 4}, (_, i) => i + 36), totalPoints: 10 }
   ];
@@ -414,6 +414,7 @@ const StudentReportHTML = React.memo(({
   examStatistics, 
   questionResults,
   questionTypeStatistics,
+  questionTypes,
   studentName
 }: StudentReportJPGProps) => {
   // 데이터 전처리 - 렌더링 전에 모든 계산 완료
@@ -441,25 +442,39 @@ const StudentReportHTML = React.memo(({
       .slice(0, 10);
 
     // 문제 번호별 문제 유형 매핑 생성
+    // questionTypes가 있으면 사용하고, 없으면 하드코딩된 분포 사용
     const questionTypeMapping: Record<number, string> = {};
-    let currentQuestionNumber = 1;
     
-    for (const typeStat of questionTypeStatistics) {
-      const startQuestion = currentQuestionNumber;
-      const endQuestion = currentQuestionNumber + typeStat.count - 1;
+    if (questionTypes && Object.keys(questionTypes).length > 0) {
+      // API에서 가져온 문제 유형 정보 사용
+      Object.entries(questionTypes).forEach(([questionNumber, type]) => {
+        questionTypeMapping[parseInt(questionNumber)] = type;
+      });
+    } else {
+      // 하드코딩된 문제 유형 분포 (1-45번 문제)
+      const questionTypeDistribution = [
+        { type: '듣기', start: 1, end: 17 },
+        { type: '문법', start: 18, end: 19 },
+        { type: '내용파악', start: 20, end: 24 },
+        { type: '어휘', start: 25, end: 30 },
+        { type: '빈칸', start: 31, end: 34 },
+        { type: '내용파악', start: 35, end: 35 },
+        { type: '순서삽입', start: 36, end: 39 },
+        { type: '내용파악', start: 40, end: 45 }
+      ];
       
-      for (let i = startQuestion; i <= endQuestion; i++) {
-        questionTypeMapping[i] = typeStat.type;
-      }
-      
-      currentQuestionNumber += typeStat.count;
+      questionTypeDistribution.forEach(({ type, start, end }) => {
+        for (let i = start; i <= end; i++) {
+          questionTypeMapping[i] = type;
+        }
+      });
     }
 
     return {
       incorrectQuestions,
       questionTypeMapping
     };
-  }, [questionResults, questionTypeStatistics, examStatistics, examCorrectAnswers]);
+  }, [questionResults, examStatistics, examCorrectAnswers, questionTypes]);
 
   if (!selectedExamId || !selectedExamData || !examCorrectAnswers || !examStatistics) {
     return null;
@@ -532,6 +547,7 @@ const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
   examStatistics,
   questionResults,
   questionTypeStatistics,
+  questionTypes,
   studentName
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -571,6 +587,7 @@ const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
           examStatistics={examStatistics}
           questionResults={questionResults}
           questionTypeStatistics={questionTypeStatistics}
+          questionTypes={questionTypes}
           studentName={studentName}
         />
       );
@@ -665,6 +682,7 @@ export const generateStudentReportJPG = async (
     correctRate: number;
     count: number;
   }>,
+  questionTypes: Record<number, string> | null,
   studentName: string
 ): Promise<void> => {
   try {
@@ -695,6 +713,7 @@ export const generateStudentReportJPG = async (
         examStatistics={examStatistics}
         questionResults={questionResults}
         questionTypeStatistics={questionTypeStatistics}
+        questionTypes={questionTypes}
         studentName={studentName}
       />
     );

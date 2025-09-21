@@ -12,7 +12,6 @@ import { academyApi } from '@/src/entities/academy/api';
 import AcademyFilter from '@/src/entities/academy/ui/AcademyFilter';
 import { calculateTopIncorrectQuestions } from '@/src/features/examCRUD/ui/ExamStatistics';
 import { useReportGeneration, ReportProcessingProgressModal, ReportGenerationSummaryModal } from '@/src/features/reportGeneration';
-import { studentApi } from '@/src/entities/student/api';
 
 // 새로운 구조: 각 시험 결과를 독립적으로 관리
 interface StudentExamResult {
@@ -33,6 +32,7 @@ interface StudentExamResult {
     correctRate: number;
     count: number;
   }>;
+  questionTypes?: Record<number, string>;
   // 학생의 최근 4개 시험 이력 (학습 추이용)
   recentExamHistory?: Array<{
     examId: number;
@@ -308,6 +308,7 @@ export default function ReportPage() {
         examCorrectAnswers: examDetails?.success ? examDetails.data.correctAnswers || {} : {},
         examStatistics: examStatistics?.success ? examStatistics.data : { averageScore: 0 },
         questionTypeStatistics,
+        questionTypes: examDetails?.success ? examDetails.data.questionTypes || {} : {},
         topIncorrectQuestions,
         recentExamHistory
       };
@@ -334,6 +335,7 @@ export default function ReportPage() {
           updatedStudent.examStatistics || { averageScore: 0 },
           updatedStudent.questionResults || [],
           updatedStudent.questionTypeStatistics || [],
+          updatedStudent.questionTypes || {},
           updatedStudent.studentName
         );
       } catch (jpgError) {
@@ -606,6 +608,7 @@ const StudentResultCard: React.FC<{
                 examStatistics={student.examStatistics || { averageScore: 0 }}
                 questionResults={student.questionResults || []}
                 questionTypeStatistics={student.questionTypeStatistics || []}
+                questionTypes={student.questionTypes || {}}
                 studentName={student.studentName}
               />
             </>
