@@ -48,13 +48,13 @@ export default function ExamAnswers({ examDetail }: ExamAnswersProps) {
                   <div className="col-span-2 font-sansKR-SemiBold text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
                     {i + 1}번
                   </div>
-                  <div className="col-span-2 bg-blue-100 px-3 py-1 rounded font-sansKR-Medium text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
+                  <div className="col-span-2 bg-blue-100 px-3 py-1 rounded font-sansKR-SemiBold text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
                     {answer}
                   </div>
-                  <div className="col-span-2 bg-green-100 px-3 py-1 rounded font-sansKR-Medium text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
-                    {score}점
+                  <div className="col-span-2 bg-green-100 px-3 py-1 rounded font-sansKR-SemiBold text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
+                    {score}
                   </div>
-                  <div className="col-span-6 text-center bg-purple-100 px-3 py-1 rounded font-sansKR-Medium text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
+                  <div className="col-span-6 text-center bg-purple-100 px-3 py-1 rounded font-sansKR-SemiBold text-gray-900 text-xs smalltablet:text-sm tablet:text-base">
                     {type}
                   </div>
                 </div>

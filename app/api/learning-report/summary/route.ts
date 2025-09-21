@@ -38,6 +38,9 @@ export async function GET(request: NextRequest) {
     // 전체 학생 수 조회
     const totalStudents = await prisma.student.count();
 
+    // 전체 시험 수 조회
+    const totalExams = await prisma.exam.count();
+
     // 전체 시험 결과 조회
     const examResults = await prisma.examResult.findMany({
       where: whereClause,
@@ -62,16 +65,16 @@ export async function GET(request: NextRequest) {
     });
 
     // 통계 계산
-    const totalExams = examResults.length;
-    const averageScore = totalExams > 0 
-      ? examResults.reduce((sum, result) => sum + result.totalScore, 0) / totalExams 
+    const totalExamResults = examResults.length;
+    const averageScore = totalExamResults > 0
+      ? examResults.reduce((sum, result) => sum + result.totalScore, 0) / totalExamResults
       : 0;
-    const averageGrade = totalExams > 0 
-      ? examResults.reduce((sum, result) => sum + result.grade, 0) / totalExams 
+    const averageGrade = totalExamResults > 0
+      ? examResults.reduce((sum, result) => sum + result.grade, 0) / totalExamResults
       : 0;
 
     // 학생별 평균 점수 계산
-    const studentScores = new Map<number, { totalScore: number; count: number; name: string }>();
+    const studentScores = new Map<number, { totalScore: number; totalGrade: number; count: number; name: string }>();
     
     examResults.forEach(result => {
       const studentId = result.student.memberId;
@@ -79,10 +82,12 @@ export async function GET(request: NextRequest) {
       
       if (existing) {
         existing.totalScore += result.totalScore;
+        existing.totalGrade += result.grade;
         existing.count += 1;
       } else {
         studentScores.set(studentId, {
           totalScore: result.totalScore,
+          totalGrade: result.grade,
           count: 1,
           name: result.student.studentName
         });
@@ -95,10 +100,11 @@ export async function GET(request: NextRequest) {
         studentId,
         studentName: data.name,
         averageScore: data.totalScore / data.count,
+        averageGrade: data.totalGrade / data.count,
         totalExams: data.count
       }))
       .sort((a, b) => b.averageScore - a.averageScore)
-      .slice(0, 10);
+      .slice(0, 20);
 
     // 최근 시험 정보
     const recentExams = examResults
@@ -107,13 +113,15 @@ export async function GET(request: NextRequest) {
         if (existing) {
           existing.totalParticipants += 1;
           existing.totalScore += result.totalScore;
+          existing.totalGrade += result.grade;
         } else {
           acc.push({
             examId: result.exam.examId,
             examName: result.exam.examName,
             examDate: result.createdAt,
             totalParticipants: 1,
-            totalScore: result.totalScore
+            totalScore: result.totalScore,
+            totalGrade: result.grade
           });
         }
         return acc;
@@ -123,13 +131,101 @@ export async function GET(request: NextRequest) {
         examDate: Date;
         totalParticipants: number;
         totalScore: number;
+        totalGrade: number;
       }>)
       .map(exam => ({
         ...exam,
-        averageScore: exam.totalScore / exam.totalParticipants
+        averageScore: exam.totalScore / exam.totalParticipants,
+        averageGrade: exam.totalGrade / exam.totalParticipants
       }))
       .sort((a, b) => b.examDate.getTime() - a.examDate.getTime())
       .slice(0, 5);
+
+    // 등급별 분포 계산 (막대그래프용 - 9등급까지 세분화)
+    const gradeDistribution = new Map<number, number>();
+    for (let i = 1; i <= 9; i++) {
+      gradeDistribution.set(i, 0);
+    }
+
+    examResults.forEach(result => {
+      const grade = result.grade;
+      if (grade >= 1 && grade <= 9) {
+        gradeDistribution.set(grade, (gradeDistribution.get(grade) || 0) + 1);
+      }
+    });
+
+    const gradeDistributionArray = Array.from(gradeDistribution.entries()).map(([grade, count]) => ({
+      grade: `${grade}등급`,
+      count,
+      percentage: totalExamResults > 0 ? Math.round((count / totalExamResults) * 1000) / 10 : 0
+    }));
+
+    // 파이차트용 등급별 분포 계산 (5~9등급은 '5등급 이하'로 묶음)
+    const pieGradeDistribution = new Map<number, number>();
+    for (let i = 1; i <= 4; i++) {
+      pieGradeDistribution.set(i, 0);
+    }
+    pieGradeDistribution.set(5, 0); // 5등급 이하
+
+    examResults.forEach(result => {
+      const grade = result.grade;
+      if (grade >= 1 && grade <= 4) {
+        pieGradeDistribution.set(grade, (pieGradeDistribution.get(grade) || 0) + 1);
+      } else if (grade >= 5 && grade <= 9) {
+        // 5~9등급은 모두 5등급 이하로 묶음
+        pieGradeDistribution.set(5, (pieGradeDistribution.get(5) || 0) + 1);
+      }
+    });
+
+    const pieGradeDistributionArray = Array.from(pieGradeDistribution.entries()).map(([grade, count]) => ({
+      grade: grade === 5 ? '5등급 이하' : `${grade}등급`,
+      count,
+      percentage: totalExamResults > 0 ? Math.round((count / totalExamResults) * 1000) / 10 : 0
+    }));
+
+
+    // 최근 학생 등록 (7일간)
+    const recentStudents = await prisma.student.findMany({
+      where: {
+        memberId: {
+          gte: 1 // 최근 학생들을 찾기 위한 임시 조건
+        }
+      },
+      include: {
+        user: { select: { memberId: true, userId: true } }
+      },
+      orderBy: { memberId: 'desc' },
+      take: 5
+    });
+
+    // 최근 공지사항
+    const recentAnnouncements = await prisma.announcement.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: {
+        announcementId: true,
+        announcementTitle: true,
+        createdAt: true
+      }
+    });
+
+
+    // 부진 학생 찾기 (평균 점수가 전체 평균의 70% 이하인 학생들)
+    const strugglingStudents = topPerformers.filter(student =>
+      student.averageScore < (averageScore * 0.7)
+    ).slice(0, 5);
+
+    // 관리 대상 학생 (하위 20명)
+    const managedStudents = Array.from(studentScores.entries())
+      .map(([studentId, data]) => ({
+        studentId,
+        studentName: data.name,
+        averageScore: data.totalScore / data.count,
+        averageGrade: data.totalGrade / data.count,
+        totalExams: data.count
+      }))
+      .sort((a, b) => a.averageScore - b.averageScore)
+      .slice(0, 20);
 
     const summary = {
       totalStudents,
@@ -137,7 +233,26 @@ export async function GET(request: NextRequest) {
       averageScore,
       averageGrade,
       topPerformers,
-      recentExams
+      recentExams,
+      gradeDistribution: gradeDistributionArray,
+      pieGradeDistribution: pieGradeDistributionArray,
+      // 최근 활동
+      recentActivity: {
+        recentStudents: recentStudents.map(s => ({
+          studentId: s.memberId,
+          studentName: s.studentName,
+          joinedAt: new Date().toISOString() // 임시로 현재 시간 사용
+        })),
+        recentAnnouncements: recentAnnouncements.map(a => ({
+          announcementId: a.announcementId,
+          title: a.announcementTitle,
+          createdAt: a.createdAt
+        }))
+      },
+      // 부진 학생
+      strugglingStudents,
+      // 관리 대상 학생
+      managedStudents
     };
 
     return NextResponse.json({
