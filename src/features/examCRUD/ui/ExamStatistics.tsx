@@ -150,6 +150,7 @@ export default function ExamStatistics() {
     if (examId) {
       fetchExamData();
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [examId]);
 
   // correctAnswers 상태 변화 추적
@@ -201,10 +202,10 @@ export default function ExamStatistics() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[300px] smalltablet:min-h-[400px] p-4 smalltablet:p-6">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">
+          <div className="animate-spin rounded-full h-24 smalltablet:h-32 w-24 smalltablet:w-32 border-b-2 border-gray-900 mx-auto mb-3 smalltablet:mb-4"></div>
+          <p className="text-sm smalltablet:text-base text-gray-600">
             {isFiltered 
               ? `${academies.find(a => a.academyId === selectedAcademyId)?.academyName} 통계를 불러오는 중...`
               : '전체 통계를 불러오는 중...'
@@ -217,25 +218,25 @@ export default function ExamStatistics() {
 
   if (error || !statistics) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[300px] smalltablet:min-h-[400px] p-4 smalltablet:p-6">
         <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">오류 발생</h3>
-          <p className="text-gray-500">{error || '통계 데이터를 불러올 수 없습니다.'}</p>
+          <AlertCircle className="mx-auto h-10 smalltablet:h-12 w-10 smalltablet:w-12 text-red-500 mb-3 smalltablet:mb-4" />
+          <h3 className="text-base smalltablet:text-lg font-sansKR-Medium text-gray-900 mb-2">오류 발생</h3>
+          <p className="text-sm smalltablet:text-base text-gray-500">{error || '통계 데이터를 불러올 수 없습니다.'}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 smalltablet:space-y-6 p-4 smalltablet:p-6">
       {/* 헤더 */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{statistics.examName}</h1>
-        <p className="text-gray-600">시험 통계 및 분석</p>
+        <h1 className="text-2xl smalltablet:text-3xl font-sansKR-Bold text-gray-900 mb-2">{statistics.examName}</h1>
+        <p className="text-sm smalltablet:text-base text-gray-600">시험 통계 및 분석</p>
         
         {/* 학원 선택 필터 */}
-        <div className="mt-6 flex items-center justify-end gap-4">
+        <div className="mt-4 smalltablet:mt-6 flex items-center justify-end gap-2 smalltablet:gap-4">
           {academies.length > 0 ? (
             <AcademyFilter
               selectedAcademyId={selectedAcademyId}
@@ -245,80 +246,80 @@ export default function ExamStatistics() {
               isFiltered={isFiltered}
             />
           ) : (
-            <div className="px-3 py-2 text-sm text-gray-500 bg-gray-100 rounded-md">
+            <div className="px-2 smalltablet:px-3 py-1.5 smalltablet:py-2 text-xs smalltablet:text-sm text-gray-500 bg-gray-100 rounded-md">
               학원 목록을 불러오는 중...
             </div>
           )}
         </div>
       </div>
 
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="w-full grid grid-cols-1 smalltablet:grid-cols-2 gap-4 smalltablet:gap-6">
       {/* 전체 통계 요약 */}
-      <div className="space-y-6 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="space-y-4 smalltablet:space-y-6 w-full">
+        <div className="grid grid-cols-1 smalltablet:grid-cols-2 gap-3 smalltablet:gap-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-900">응시자 수</h3>
-              <Users className="h-4 w-4 text-gray-400" />
+              <h3 className="text-xs smalltablet:text-sm font-sansKR-Medium text-gray-900">응시자 수</h3>
+              <Users className="h-3.5 smalltablet:h-4 w-3.5 smalltablet:w-4 text-gray-400" />
             </div>
             <div className="mt-2">
-              <div className="text-2xl font-sansKR-Bold">{statistics.totalParticipants}명</div>
+              <div className="text-xl smalltablet:text-2xl font-sansKR-Bold">{statistics.totalParticipants}명</div>
               <p className="text-xs text-gray-500">총 응시 학생</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-900">평균 점수</h3>
-              <Target className="h-4 w-4 text-gray-400" />
+              <h3 className="text-xs smalltablet:text-sm font-sansKR-Medium text-gray-900">평균 점수</h3>
+              <Target className="h-3.5 smalltablet:h-4 w-3.5 smalltablet:w-4 text-gray-400" />
             </div>
             <div className="mt-2">
-              <div className="text-2xl text-green-600 font-sansKR-Bold">{statistics.averageScore.toFixed(1)}점</div>
+              <div className="text-xl smalltablet:text-2xl text-green-600 font-sansKR-Bold">{statistics.averageScore.toFixed(1)}점</div>
               <p className="text-xs text-gray-500">전체 평균</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
+        <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
+          <h3 className="text-base smalltablet:text-lg font-sansKR-SemiBold text-gray-900 mb-3 smalltablet:mb-4 flex items-center gap-2">
+            <BarChart3 className="h-4 smalltablet:h-5 w-4 smalltablet:w-5" />
             점수 분포
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3 smalltablet:space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">최고점</span>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-                <span className="font-sansKR-Bold text-green-600">{statistics.highestScore}점</span>
+              <span className="text-xs smalltablet:text-sm text-gray-600">최고점</span>
+              <div className="flex items-center gap-1.5 smalltablet:gap-2">
+                <TrendingUp className="h-3.5 smalltablet:h-4 w-3.5 smalltablet:w-4 text-green-600" />
+                <span className="text-sm smalltablet:text-base font-sansKR-Bold text-green-600">{statistics.highestScore}점</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">최저점</span>
-              <div className="flex items-center gap-2">
-                <TrendingDown className="h-4 w-4 text-red-600" />
-                <span className="font-sansKR-Bold text-red-600">{statistics.lowestScore}점</span>
+              <span className="text-xs smalltablet:text-sm text-gray-600">최저점</span>
+              <div className="flex items-center gap-1.5 smalltablet:gap-2">
+                <TrendingDown className="h-3.5 smalltablet:h-4 w-3.5 smalltablet:w-4 text-red-600" />
+                <span className="text-sm smalltablet:text-base font-sansKR-Bold text-red-600">{statistics.lowestScore}점</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">평균 등급</span>
-              <span className="font-sansKR-Bold">{statistics.averageGrade.toFixed(1)}등급</span>
+              <span className="text-xs smalltablet:text-sm text-gray-600">평균 등급</span>
+              <span className="text-sm smalltablet:text-base font-sansKR-Bold">{statistics.averageGrade.toFixed(1)}등급</span>
             </div>
           </div>
         </div>
       </div>
 
              {/* 오답률 분포 */}
-       <div className="bg-white w-full rounded-lg border border-gray-200 p-6">
-         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-           <Target className="h-5 w-5" />
+       <div className="bg-white w-full rounded-lg border border-gray-200 p-4 smalltablet:p-6">
+         <h3 className="text-base smalltablet:text-lg font-sansKR-SemiBold text-gray-900 mb-3 smalltablet:mb-4 flex items-center gap-2">
+           <Target className="h-4 smalltablet:h-5 w-4 smalltablet:w-5" />
            오답률 TOP10
          </h3>
-         <div className="grid grid-cols-2 smalltablet:grid-cols-3 tablet:grid-cols-5 desktop:grid-cols-5 gap-4">
+         <div className="grid grid-cols-2 smalltablet:grid-cols-3 tablet:grid-cols-5 desktop:grid-cols-5 gap-2 smalltablet:gap-4">
            {getTopIncorrectQuestions().map((question, index) => (
              <div
                key={question.questionNumber}
-               className="flex flex-col items-center justify-center text-center h-24"
+               className="flex flex-col items-center justify-center text-center h-20 smalltablet:h-24"
              >
-               <div className={`text-3xl font-bold ${
+               <div className={`text-2xl smalltablet:text-3xl font-sansKR-Bold ${
                  index === 0
                    ? 'text-red-800'
                    : index === 1
@@ -342,18 +343,17 @@ export default function ExamStatistics() {
     </div>
 
       {/* 등급별 학생 분포와 문제 유형별 정답률을 한 row에 배치 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 smalltablet:gap-6">
         {/* 등급별 학생 분포 */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
+        <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
+          <h3 className="text-base smalltablet:text-lg font-sansKR-SemiBold text-gray-900 mb-3 smalltablet:mb-4 flex items-center gap-2">
+            <BarChart3 className="h-4 smalltablet:h-5 w-4 smalltablet:w-5" />
             등급별 학생 분포
           </h3>
-          <div className="h-80">
+          <div className="w-full h-full max-h-[400px] smalltablet:max-h-[500px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={statistics.gradeDistribution}
-                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="grade" />
@@ -374,16 +374,16 @@ export default function ExamStatistics() {
         </div>
 
         {/* 문제 유형별 정답률 */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
+        <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
+          <h3 className="text-base smalltablet:text-lg font-sansKR-SemiBold text-gray-900 mb-3 smalltablet:mb-4 flex items-center gap-2">
+            <BarChart3 className="h-4 smalltablet:h-5 w-4 smalltablet:w-5" />
             문제 유형별 정답률
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3 smalltablet:space-y-4">
             {(() => {
               if (!questionTypes) {
                 return (
-                  <div className="text-gray-500 text-center py-4">
+                  <div className="text-sm smalltablet:text-base text-gray-500 text-center py-3 smalltablet:py-4">
                     문제 유형 정보를 불러올 수 없습니다.
                   </div>
                 );
@@ -396,19 +396,19 @@ export default function ExamStatistics() {
                 const color = colors[index % colors.length];
 
                 return (
-                  <div key={index} className="space-y-2">
+                  <div key={index} className="space-y-1.5 smalltablet:space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700">{item.type}</span>
-                      <span className="text-sm text-gray-600">{item.count}문제</span>
+                      <span className="text-xs smalltablet:text-sm text-gray-700">{item.type}</span>
+                      <span className="text-xs smalltablet:text-sm text-gray-600">{item.count}문제</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 bg-gray-200 rounded-full h-4">
+                    <div className="flex items-center gap-2 smalltablet:gap-3">
+                      <div className="flex-1 bg-gray-200 rounded-full h-3 smalltablet:h-4">
                         <div
-                          className={`h-4 rounded-full ${color} transition-all duration-300`}
+                          className={`h-3 smalltablet:h-4 rounded-full ${color} transition-all duration-300`}
                           style={{ width: `${item.correctRate}%` }}
                         />
                       </div>
-                      <span className="text-sm font-sansKR-Bold text-gray-900 w-12 text-right">
+                      <span className="text-xs smalltablet:text-sm font-sansKR-Bold text-gray-900 w-10 smalltablet:w-12 text-right">
                         {item.correctRate.toFixed(1)}%
                       </span>
                     </div>
@@ -421,19 +421,19 @@ export default function ExamStatistics() {
       </div>
 
       {/* 학원별 비교 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <BarChart3 className="h-5 w-5" />
+      <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
+        <h3 className="text-base smalltablet:text-lg font-sansKR-SemiBold text-gray-900 mb-3 smalltablet:mb-4 flex items-center gap-2">
+          <BarChart3 className="h-4 smalltablet:h-5 w-4 smalltablet:w-5" />
           학원별 성취도 비교
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 text-center">
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">학원명</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">응시자 수</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">평균점수</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">1등급 비율</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">학원</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">응시자</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">평균</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">1등급 수</th>
               </tr>
             </thead>
             <tbody>
@@ -449,27 +449,27 @@ export default function ExamStatistics() {
                         isSelected ? 'bg-blue-50' : ''
                       }`}
                     >
-                      <td className="py-2 px-3 font-sansKR-Bold">
+                      <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-Bold">
                         {academy.academyName}
                       </td>
-                      <td className="py-2 px-3">
+                      <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm">
                         {academyStats && academyStats.totalParticipants > 0
                           ? `${academyStats.totalParticipants}명`
-                          : '응시자 없음'
+                          : '없음'
                         }
                       </td>
-                      <td className="py-2 px-3">
+                      <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm">
                         {academyStats && academyStats.totalParticipants > 0
-                          ? `${academyStats.averageScore.toFixed(1)}점`
-                          : '평균 점수 없음'
+                          ? `${academyStats.averageScore.toFixed(1)}`
+                          : '없음'
                         }
                       </td>
-                      <td className="py-2 px-3">
+                      <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm">
                         {academyStats && academyStats.totalParticipants > 0
                           ? `${academyStats.gradeDistribution.find(g => g.grade === 1)?.count || 0}명 (${academyStats.gradeDistribution.find(g => g.grade === 1)?.count &&
                               ((academyStats.gradeDistribution.find(g => g.grade === 1)?.count || 0) / academyStats.totalParticipants * 100).toFixed(1)
                             }%)`
-                          : '시험 결과 없음'
+                          : '없음'
                         }
                       </td>
                     </tr>
@@ -481,24 +481,24 @@ export default function ExamStatistics() {
       </div>
 
       {/* 문제별 통계 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <BarChart3 className="h-5 w-5" />
+      <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
+        <h3 className="text-base smalltablet:text-lg font-sansKR-SemiBold text-gray-900 mb-3 smalltablet:mb-4 flex items-center gap-2">
+          <BarChart3 className="h-4 smalltablet:h-5 w-4 smalltablet:w-5" />
           문제별 상세 통계
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-200 text-center">
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">번호</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">정답</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">배점</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">1</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">2</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">3</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">4</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">5</th>
-                <th className="py-2 px-3 font-sansKR-SemiBold text-gray-900">무효</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">번호</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">정답</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">배점</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">1</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">2</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">3</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">4</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">5</th>
+                <th className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm font-sansKR-SemiBold text-gray-900">무효</th>
               </tr>
             </thead>
             <tbody>
@@ -513,9 +513,9 @@ export default function ExamStatistics() {
                 
                 return (
                   <tr key={question.questionNumber} className="border-b border-gray-100 hover:bg-gray-50 text-center">
-                    <td className="py-2 px-3">{question.questionNumber}</td>
-                    <td className="py-2 px-3 text-blue-600 font-sansKR-Bold">{correctChoice}</td>
-                    <td className="py-2 px-3 text-green-600 font-sansKR-Bold">
+                    <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm">{question.questionNumber}</td>
+                    <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm text-blue-600 font-sansKR-Bold">{correctChoice}</td>
+                    <td className="py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm text-green-600 font-sansKR-Bold">
                       {question.actualScore}
                     </td>
                     {['1', '2', '3', '4', '5', '무효'].map((choiceNumber) => {
@@ -524,7 +524,7 @@ export default function ExamStatistics() {
                       const isCorrect = choiceData ? choiceData.isCorrect : false;
                       
                       return (
-                        <td key={choiceNumber} className={`py-2 px-3 text-sm ${
+                        <td key={choiceNumber} className={`py-1.5 smalltablet:py-2 px-2 smalltablet:px-3 text-xs smalltablet:text-sm ${
                           isCorrect ? 'font-sansKR-Bold text-green-600' : 'text-gray-600'
                         }`}>
                           {(selectionRate * 100).toFixed(0)}%

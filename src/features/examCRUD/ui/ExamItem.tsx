@@ -1,9 +1,8 @@
 import { Button } from "@/src/shared/ui/button";
 import { Modal } from "@/src/shared/ui/Modal";
 import { ExamSummary } from "@/src/entities/exam/model/types";
-import { Calendar, Pencil, BarChart3, FileText, CheckSquare } from "lucide-react";
+import { Calendar, Pencil, BarChart3, FileText } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useExamFeatureStore } from "../model";
 import { useExamStore } from "@/src/entities/exam/model/store";
 import { FORMATS } from "@/src/shared/lib/formats";
@@ -13,7 +12,6 @@ import Link from "next/link";
 export default function ExamItem({ 
   exam
 }: {exam: ExamSummary}) {
-  const router = useRouter();
   const { deleteExam, readExamDetail } = useExamFeatureStore();
   const { examDetail } = useExamStore(); 
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
@@ -84,7 +82,7 @@ export default function ExamItem({
       <Modal
         isOpen={isAnswerModalOpen}
         onClose={() => setIsAnswerModalOpen(false)}
-        title={`${exam.examName} - 답안 및 배점 정보`}
+        title={`${exam.examName} - 답`}
         size="lg"
       >
         {examDetail && <ExamAnswers examDetail={examDetail} />}

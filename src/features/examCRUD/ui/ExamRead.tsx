@@ -36,9 +36,8 @@ const ExamSkeleton = () => {
           {/* Expanded content skeleton */}
           <div className="border-t border-gray-200 rounded-b-xl p-4 bg-gray-50">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="h-12 bg-gray-200 rounded-lg" />
-              <div className="h-12 bg-gray-200 rounded-lg" />
-              <div className="h-12 bg-gray-200 rounded-lg" />
+              <div className="h-12 bg-gray-200 rounded-md" />
+              <div className="h-12 bg-gray-200 rounded-md" />
             </div>
           </div>
         </div>
