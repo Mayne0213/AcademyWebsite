@@ -192,9 +192,13 @@ export async function GET(request: NextRequest) {
         }
       },
       include: {
-        user: { select: { memberId: true, userId: true } }
+        user: { select: { memberId: true, userId: true, createdAt: true } }
       },
-      orderBy: { memberId: 'desc' },
+      orderBy: {
+        user: {
+          createdAt: 'desc'
+        }
+      },
       take: 5
     });
 
@@ -241,7 +245,7 @@ export async function GET(request: NextRequest) {
         recentStudents: recentStudents.map(s => ({
           studentId: s.memberId,
           studentName: s.studentName,
-          joinedAt: new Date().toISOString() // 임시로 현재 시간 사용
+          joinedAt: s.user.createdAt.toISOString() // 실제 가입일 사용
         })),
         recentAnnouncements: recentAnnouncements.map(a => ({
           announcementId: a.announcementId,

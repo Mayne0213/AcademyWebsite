@@ -300,9 +300,6 @@ export default function Home() {
           <h1 className="text-2xl smalltablet:text-3xl tablet:text-4xl font-sansKR-Bold text-gray-900 mb-2">
             학원 대시보드
           </h1>
-          <p className="text-gray-600 font-sansKR-Medium">
-            전체적인 학원 운영 현황과 학습 통계를 확인하세요
-          </p>
         </div>
 
         {/* 통계 카드 */}
@@ -337,10 +334,9 @@ export default function Home() {
                 <BarChart data={gradeDistribution}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="grade" />
-                  <YAxis />
                   <Tooltip
-                    formatter={(value: number, name: string) => [`${value}명`, '학생 수']}
-                    labelFormatter={(label) => label}
+                    formatter={(value: number, name: string) => [`${value}개`]}
+                    // labelFormatter={(label) => label}
                   />
                   <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                     {gradeDistribution.map((entry, index) => (
@@ -358,7 +354,7 @@ export default function Home() {
               <Target className="h-5 w-5" />
               등급별 비율
             </h3>
-            <div className="h-64">
+            <div className="relative h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -366,7 +362,7 @@ export default function Home() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ grade, percentage }) => `${grade} ${percentage}%`}
+                    label={false}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="count"
@@ -375,9 +371,22 @@ export default function Home() {
                       <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => [`${value}명`, '학생 수']} />
                 </PieChart>
               </ResponsiveContainer>
+              {/* 등급별 통계 표시 */}
+              <div className="absolute bottom-2 left-2 space-y-1">
+                {pieGradeDistribution.map((entry, index) => (
+                  <div key={index} className="flex items-center gap-2 text-xs">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                    />
+                    <span className="font-sansKR-SemiBold text-gray-700">
+                      {entry.grade}: {entry.percentage}%
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -417,7 +426,11 @@ export default function Home() {
             <div className="space-y-3">
               {stats?.recentActivity?.recentStudents && stats.recentActivity.recentStudents.length > 0 ? (
                 stats.recentActivity.recentStudents.map((student, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <a
+                    key={index}
+                    href={`main/student/${student.studentId}`}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  >
                     <div>
                       <p className="font-sansKR-Medium text-gray-900 text-sm">{student.studentName}</p>
                       <p className="text-xs text-gray-600">
@@ -425,7 +438,7 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  </div>
+                  </a>
                 ))
               ) : (
                 <div className="text-center py-8 text-gray-500">
@@ -437,7 +450,7 @@ export default function Home() {
           </div>
 
           {/* 최근 공지사항 */}
-          <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
+          {/* <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
             <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
               <Megaphone className="h-5 w-5" />
               공지사항
@@ -446,13 +459,13 @@ export default function Home() {
               {stats?.recentActivity?.recentAnnouncements && stats.recentActivity.recentAnnouncements.length > 0 ? (
                 stats.recentActivity.recentAnnouncements.map((announcement, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-sansKR-Medium text-gray-900 text-sm">{announcement.title}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sansKR-Medium text-gray-900 text-sm truncate">{announcement.title}</p>
                       <p className="text-xs text-gray-600">
                         {new Date(announcement.createdAt).toLocaleDateString('ko-KR')}
                       </p>
                     </div>
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
+                    <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
                   </div>
                 ))
               ) : (
@@ -462,7 +475,7 @@ export default function Home() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* 상위 학생 & 관리 대상 학생 */}
