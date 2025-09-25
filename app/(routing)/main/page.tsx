@@ -450,7 +450,7 @@ export default function Home() {
           </div>
 
           {/* 최근 공지사항 */}
-          {/* <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
+          <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
             <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
               <Megaphone className="h-5 w-5" />
               공지사항
@@ -475,7 +475,7 @@ export default function Home() {
                 </div>
               )}
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* 상위 학생 & 관리 대상 학생 */}
