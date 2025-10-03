@@ -9,10 +9,15 @@ import {
   GraduationCap,
   Calendar,
   Building2,
-  Trash2
+  Trash2,
+  Edit
 } from "lucide-react";
 
-export function StudentCard() {
+interface StudentCardProps {
+  onEditClick?: () => void;
+}
+
+export function StudentCard({ onEditClick }: StudentCardProps) {
   const { studentDetail } = useStudentStore();
   const { deleteStudent } = useStudentFeatureStore();
   const router = useRouter();
@@ -49,14 +54,24 @@ export function StudentCard() {
             <p className="text-sm text-gray-500">ID: {studentDetail?.userId}</p>
 
           </div>
-          <button
-                onClick={handleDeleteStudent}
-                className="flex items-center space-x-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                title="학생 삭제"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>삭제</span>
-              </button>
+          <div className="flex gap-2">
+            <button
+              onClick={onEditClick}
+              className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              title="학생 정보 수정"
+            >
+              <Edit className="w-4 h-4" />
+              <span>수정</span>
+            </button>
+            <button
+              onClick={handleDeleteStudent}
+              className="flex items-center space-x-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+              title="학생 삭제"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>삭제</span>
+            </button>
+          </div>
         </div>
 
         {/* Student information */}

@@ -5,7 +5,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import studentInformationBackground from "@/public/main/student/studentInformationBackground.jpg";
 import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
-import { StudentCard, StudentMemo, useStudentStore } from "@/src/entities/student";
+import { StudentCard, StudentMemo, StudentEditModal, useStudentStore } from "@/src/entities/student";
 
 interface StudentLayoutProps {
   children: ReactNode;
@@ -21,6 +21,10 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
   // 메모 업데이트 상태 관리
   const [isSaving, setIsSaving] = useState(false);
+
+  // 학생 정보 수정 모달 상태 관리
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isUpdatingStudent, setIsUpdatingStudent] = useState(false);
 
   useEffect(() => {
     readStudentById(studentId);
@@ -45,6 +49,29 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // 학생 정보 수정 함수
+  const handleUpdateStudent = async (updatedStudentData: any) => {
+    setIsUpdatingStudent(true);
+    try {
+      await updateStudent(updatedStudentData);
+    } catch (error) {
+      console.error("학생 정보 수정 실패:", error);
+      throw error;
+    } finally {
+      setIsUpdatingStudent(false);
+    }
+  };
+
+  // 수정 모달 열기
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  // 수정 모달 닫기
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
   };
 
   if (isLoading) {
@@ -91,7 +118,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       <div className="relative w-full -mt-32 z-10 px-6">
         <div >
           <div className="mb-8 flex gap-4">
-            <StudentCard />
+            <StudentCard onEditClick={handleEditClick} />
 
             {/* Student Memo */}
             <StudentMemo
@@ -107,6 +134,17 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
         </div>
       </div>
+
+      {/* Student Edit Modal */}
+      {studentDetail && (
+        <StudentEditModal
+          student={studentDetail}
+          isOpen={isEditModalOpen}
+          onClose={handleCloseEditModal}
+          onSave={handleUpdateStudent}
+          isLoading={isUpdatingStudent}
+        />
+      )}
     </div>
   );
 }
