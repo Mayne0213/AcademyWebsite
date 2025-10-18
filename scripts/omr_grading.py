@@ -322,8 +322,8 @@ def define_answer_positions(img_width, img_height, top_rectangles, left_rectangl
 
     return positions
 
-def estimate_phone_number_with_density(img, phone_positions, min_density=0.05):
-    """밀도 기반 전화번호 추정 (답안과 동일한 로직 적용)"""
+def estimate_phone_number_with_density(img, phone_positions, min_density=0.17):
+    """단일 선택이 보장된 경우 간단한 전화번호 추정"""
     phone_selected = {}
 
     # 각 자리별로 밀도가 가장 높은 숫자 찾기
@@ -339,38 +339,19 @@ def estimate_phone_number_with_density(img, phone_positions, min_density=0.05):
             density = calculate_marking_density(img, x, y)
             digit_densities[digit] = density
 
-        # 밀도가 높은 순으로 정렬
-        sorted_digits = sorted(digit_densities.items(), key=lambda x: x[1], reverse=True)
+        # 가장 높은 밀도 찾기
+        highest_digit, highest_density = max(digit_densities.items(), key=lambda x: x[1])
 
-        # 답안과 동일한 로직 적용
-        if len(sorted_digits) >= 2:
-            highest_digit, highest_density = sorted_digits[0]
-            second_digit, second_density = sorted_digits[1]
-
-            # 1. 최고 밀도가 최소 임계값을 넘고
-            # 2. 최고 밀도가 두 번째보다 충분히 높은 경우만 선택
-            if (highest_density >= min_density and
-                highest_density > second_density + 0.1):  # 10% 이상 차이
-                phone_selected[digit_pos] = highest_digit
-            else:
-                # 애매한 경우 더 엄격한 기준 적용
-                if highest_density >= min_density + 0.1:  # 더 높은 임계값 요구
-                    phone_selected[digit_pos] = highest_digit
-                else:
-                    phone_selected[digit_pos] = "0"
-        elif len(sorted_digits) == 1:
-            digit, density = sorted_digits[0]
-            if density >= min_density + 0.1:  # 단일 숫자도 더 엄격한 기준
-                phone_selected[digit_pos] = digit
-            else:
-                phone_selected[digit_pos] = "0"
+        # 임계값 이상이면 선택, 아니면 0 (빈칸)
+        if highest_density >= min_density:
+            phone_selected[digit_pos] = highest_digit
         else:
             phone_selected[digit_pos] = "0"
 
     return phone_selected
 
-def estimate_selected_answers_with_density(img, answer_positions, min_density=0.07):
-    """밀도 기반 답안 추정 (상대적 분석 + 밀도 분석)"""
+def estimate_selected_answers_with_density(img, answer_positions, min_density=0.17):
+    """단일 선택이 보장된 경우 간단한 답안 추정"""
     selected = {}
 
     # 모든 답안 문제 처리 (1-45번)
@@ -386,34 +367,12 @@ def estimate_selected_answers_with_density(img, answer_positions, min_density=0.
             density = calculate_marking_density(img, x, y)
             choice_densities[choice] = density
 
-        # 밀도가 높은 순으로 정렬
-        sorted_choices = sorted(choice_densities.items(), key=lambda x: x[1], reverse=True)
+        # 가장 높은 밀도 찾기
+        highest_choice, highest_density = max(choice_densities.items(), key=lambda x: x[1])
 
-        # 가장 높은 밀도와 두 번째 높은 밀도 비교
-        if len(sorted_choices) >= 2:
-            highest_choice, highest_density = sorted_choices[0]
-            second_choice, second_density = sorted_choices[1]
-
-            # 1. 최고 밀도가 최소 임계값을 넘고
-            # 2. 최고 밀도가 두 번째보다 충분히 높은 경우만 선택
-            if (highest_density >= min_density and
-                highest_density > second_density + 0.1):  # 10% 이상 차이 (더 엄격하게)
-                selected[str(q_num)] = highest_choice
-            elif highest_density >= 0.35 and second_density >= 0.35:  # 무효 처리 기준 완화
-                # 두 선지가 모두 높은 밀도면 무효
-                selected[str(q_num)] = "무효"
-            else:
-                # 애매한 경우 더 엄격한 기준 적용
-                if highest_density >= min_density + 0.1:  # 더 높은 임계값 요구
-                    selected[str(q_num)] = highest_choice
-                else:
-                    selected[str(q_num)] = "무효"
-        elif len(sorted_choices) == 1:
-            choice, density = sorted_choices[0]
-            if density >= min_density + 0.1:  # 단일 선지도 더 엄격한 기준
-                selected[str(q_num)] = choice
-            else:
-                selected[str(q_num)] = "무효"
+        # 임계값 이상이면 선택, 아니면 무효 (답 안 씀)
+        if highest_density >= min_density:
+            selected[str(q_num)] = highest_choice
         else:
             selected[str(q_num)] = "무효"
 
