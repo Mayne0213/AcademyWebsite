@@ -504,7 +504,7 @@ const GradePage = () => {
                       </div>
 
                       {/* 시험의 오답률 TOP10 */}
-                      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                      {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <h3 className="text-lg font-MaruBuri-Bold text-gray-900 mb-6 flex items-center gap-2">
                           <Target className="w-5 h-5 text-blue-600" />
                           오답률 TOP10
@@ -547,7 +547,7 @@ const GradePage = () => {
                             ));
                           })()}
                         </div>
-                      </div>
+                      </div> */}
 
 
                       {/* 학생 개인별 추이 - 전체 너비 */}
