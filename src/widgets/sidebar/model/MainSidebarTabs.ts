@@ -11,7 +11,8 @@ import {
   MessageCircleQuestion,
   Paperclip,
   Headphones,
-  FileWarning
+  FileWarning,
+  Star
 } from "lucide-react";
 
 const tabs = [
@@ -109,6 +110,12 @@ const tabs = [
         label: "단과 관리",
         icon: Building,
         href: "/main/academyManagement",
+        description: "",
+      },
+      {
+        label: "리뷰 관리",
+        icon: Star,
+        href: "/main/review",
         description: "",
       },
     ],
