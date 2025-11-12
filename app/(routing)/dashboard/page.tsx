@@ -12,6 +12,7 @@ import { SUBTITLES } from "@/src/shared/config";
 import DashboardFooter from "@/src/widgets/footer/DashboardFooter";
 import { Announcement } from "@/src/entities/announcement/model/types";
 import { ReservationCard } from "@/src/entities/reservation/ui";
+import { ReviewPopup } from "@/src/features/reviewPopup";
 
 // 공통 게시판 컴포넌트
 const DashboardBoard = ({
@@ -160,6 +161,9 @@ export default function Dashboard() {
 
   return (
     <div className="bg-gray-50">
+      {/* 리뷰 팝업 */}
+      <ReviewPopup />
+
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 py-12">
