@@ -2,6 +2,7 @@ import json
 import sys
 import cv2
 import numpy as np
+import os
 
 # --- 상수 및 설정 ---
 TARGET_WIDTH = 2480
@@ -12,8 +13,20 @@ TARGET_HEIGHT = 3508
 # --- 함수 정의 ---
 
 def load_image(image_path):
-    """이미지 로드 및 크기 반환"""
-    img = cv2.imread(image_path)
+    """이미지 로드 및 크기 반환 (JPEG 경고 억제)"""
+    # stderr를 /dev/null로 리다이렉트하여 JPEG 라이브러리 경고 억제
+    stderr_fd = sys.stderr.fileno()
+    old_stderr = os.dup(stderr_fd)
+    devnull = os.open(os.devnull, os.O_WRONLY)
+    
+    try:
+        os.dup2(devnull, stderr_fd)
+        img = cv2.imread(image_path)
+    finally:
+        os.dup2(old_stderr, stderr_fd)
+        os.close(old_stderr)
+        os.close(devnull)
+    
     if img is None:
         raise FileNotFoundError(f"Image not found at: {image_path}")
     return img, img.shape[:2]
@@ -53,6 +66,89 @@ def unsharp_mask(img, kernel_size=(5, 5), sigma=1.0, amount=1.0):
     blurred = cv2.GaussianBlur(img, kernel_size, sigma)
     sharpened = cv2.addWeighted(img, 1.0 + amount, blurred, -amount, 0)
     return sharpened
+
+def deskew_image_with_barcodes(img):
+    """바코드를 기준으로 이미지 기울기 보정
+    
+    find_top_black_rectangles와 동일한 로직으로 바코드를 검출합니다.
+    (함수 정의 순서 문제로 내부에 구현)
+    """
+    try:
+        # 상단 바코드 찾기 (find_top_black_rectangles와 동일한 로직)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY_INV)
+        
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel)
+        
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        img_height, img_width = img.shape[:2]
+        top_area_threshold = img_height * 0.15
+        
+        top_rectangles = []
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            if (y < top_area_threshold and
+                w > 10 and h > 10 and
+                w < 300 and h < 300):
+                center_x = x + w // 2
+                center_y = y + h // 2
+                top_rectangles.append({'center': (center_x, center_y)})
+        
+        if len(top_rectangles) < 15:
+            return img
+        
+        # Y축 정렬 → 상위 23개 선택 → X축 정렬
+        top_rectangles.sort(key=lambda x: x['center'][1])
+        top_rectangles = top_rectangles[:23]
+        top_rectangles.sort(key=lambda x: x['center'][0])
+        
+        if len(top_rectangles) >= 10:
+            # 양 끝의 바코드들을 사용하여 기울기 계산
+            left_points = top_rectangles[:5]
+            right_points = top_rectangles[-5:]
+            
+            left_avg_x = np.mean([p['center'][0] for p in left_points])
+            left_avg_y = np.mean([p['center'][1] for p in left_points])
+            right_avg_x = np.mean([p['center'][0] for p in right_points])
+            right_avg_y = np.mean([p['center'][1] for p in right_points])
+            
+            delta_y = right_avg_y - left_avg_y
+            delta_x = right_avg_x - left_avg_x
+            
+            if delta_x == 0:
+                return img
+            
+            angle_rad = np.arctan2(delta_y, delta_x)
+            angle_deg = np.degrees(angle_rad)
+            
+            # 기울기가 너무 작으면 보정 불필요 (0.3도 미만)
+            if abs(angle_deg) < 0.3:
+                return img
+            
+            # 기울기가 너무 크면 보정하지 않음 (10도 초과)
+            if abs(angle_deg) > 10:
+                return img
+            
+            # 이미지 중심점 기준으로 회전
+            center = (img_width // 2, img_height // 2)
+            rotation_matrix = cv2.getRotationMatrix2D(center, angle_deg, 1.0)
+            
+            deskewed = cv2.warpAffine(
+                img, rotation_matrix, (img_width, img_height),
+                flags=cv2.INTER_CUBIC,
+                borderMode=cv2.BORDER_REPLICATE
+            )
+            
+            return deskewed
+        
+        return img
+        
+    except Exception:
+        # 보정 실패시 원본 반환
+        return img
 
 def preprocess_omr_image(img):
     """OMR 이미지 전처리 강화"""
@@ -122,7 +218,7 @@ def calculate_marking_density(img, x, y, width=30, height=60):
 
 
 
-upperValueSquare = 120
+upperValueSquare = 180
 def find_top_black_rectangles(img):
     """상단 검은색 사각형들을 찾아서 좌표 반환"""
     # 그레이스케일 변환
@@ -322,8 +418,8 @@ def define_answer_positions(img_width, img_height, top_rectangles, left_rectangl
 
     return positions
 
-def estimate_phone_number_with_density(img, phone_positions, min_density=0.05):
-    """밀도 기반 전화번호 추정 (답안과 동일한 로직 적용)"""
+def estimate_phone_number_with_density(img, phone_positions, min_density=0.17):
+    """단일 선택이 보장된 경우 간단한 전화번호 추정"""
     phone_selected = {}
 
     # 각 자리별로 밀도가 가장 높은 숫자 찾기
@@ -339,38 +435,19 @@ def estimate_phone_number_with_density(img, phone_positions, min_density=0.05):
             density = calculate_marking_density(img, x, y)
             digit_densities[digit] = density
 
-        # 밀도가 높은 순으로 정렬
-        sorted_digits = sorted(digit_densities.items(), key=lambda x: x[1], reverse=True)
+        # 가장 높은 밀도 찾기
+        highest_digit, highest_density = max(digit_densities.items(), key=lambda x: x[1])
 
-        # 답안과 동일한 로직 적용
-        if len(sorted_digits) >= 2:
-            highest_digit, highest_density = sorted_digits[0]
-            second_digit, second_density = sorted_digits[1]
-
-            # 1. 최고 밀도가 최소 임계값을 넘고
-            # 2. 최고 밀도가 두 번째보다 충분히 높은 경우만 선택
-            if (highest_density >= min_density and
-                highest_density > second_density + 0.1):  # 10% 이상 차이
-                phone_selected[digit_pos] = highest_digit
-            else:
-                # 애매한 경우 더 엄격한 기준 적용
-                if highest_density >= min_density + 0.1:  # 더 높은 임계값 요구
-                    phone_selected[digit_pos] = highest_digit
-                else:
-                    phone_selected[digit_pos] = "0"
-        elif len(sorted_digits) == 1:
-            digit, density = sorted_digits[0]
-            if density >= min_density + 0.1:  # 단일 숫자도 더 엄격한 기준
-                phone_selected[digit_pos] = digit
-            else:
-                phone_selected[digit_pos] = "0"
+        # 임계값 이상이면 선택, 아니면 0 (빈칸)
+        if highest_density >= min_density:
+            phone_selected[digit_pos] = highest_digit
         else:
             phone_selected[digit_pos] = "0"
 
     return phone_selected
 
-def estimate_selected_answers_with_density(img, answer_positions, min_density=0.07):
-    """밀도 기반 답안 추정 (상대적 분석 + 밀도 분석)"""
+def estimate_selected_answers_with_density(img, answer_positions, min_density=0.2):
+    """단일 선택이 보장된 경우 간단한 답안 추정"""
     selected = {}
 
     # 모든 답안 문제 처리 (1-45번)
@@ -386,34 +463,12 @@ def estimate_selected_answers_with_density(img, answer_positions, min_density=0.
             density = calculate_marking_density(img, x, y)
             choice_densities[choice] = density
 
-        # 밀도가 높은 순으로 정렬
-        sorted_choices = sorted(choice_densities.items(), key=lambda x: x[1], reverse=True)
+        # 가장 높은 밀도 찾기
+        highest_choice, highest_density = max(choice_densities.items(), key=lambda x: x[1])
 
-        # 가장 높은 밀도와 두 번째 높은 밀도 비교
-        if len(sorted_choices) >= 2:
-            highest_choice, highest_density = sorted_choices[0]
-            second_choice, second_density = sorted_choices[1]
-
-            # 1. 최고 밀도가 최소 임계값을 넘고
-            # 2. 최고 밀도가 두 번째보다 충분히 높은 경우만 선택
-            if (highest_density >= min_density and
-                highest_density > second_density + 0.1):  # 10% 이상 차이 (더 엄격하게)
-                selected[str(q_num)] = highest_choice
-            elif highest_density >= 0.35 and second_density >= 0.35:  # 무효 처리 기준 완화
-                # 두 선지가 모두 높은 밀도면 무효
-                selected[str(q_num)] = "무효"
-            else:
-                # 애매한 경우 더 엄격한 기준 적용
-                if highest_density >= min_density + 0.1:  # 더 높은 임계값 요구
-                    selected[str(q_num)] = highest_choice
-                else:
-                    selected[str(q_num)] = "무효"
-        elif len(sorted_choices) == 1:
-            choice, density = sorted_choices[0]
-            if density >= min_density + 0.1:  # 단일 선지도 더 엄격한 기준
-                selected[str(q_num)] = choice
-            else:
-                selected[str(q_num)] = "무효"
+        # 임계값 이상이면 선택, 아니면 무효 (답 안 씀)
+        if highest_density >= min_density:
+            selected[str(q_num)] = highest_choice
         else:
             selected[str(q_num)] = "무효"
 
@@ -516,6 +571,8 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         # 이미지 로드
         img, (h, w) = load_image(image_path)
 
+        # 바코드 기반 이미지 기울기 보정
+        deskewed_img = deskew_image_with_barcodes(img)
 
         # 이미지 비율 확인 (2480:3508 = 0.7075)
         expected_ratio = TARGET_WIDTH / TARGET_HEIGHT
@@ -525,8 +582,8 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
         if ratio_diff > 0.01:  # 1% 이상 차이나면 경고
             pass
 
-        # 이미지 리사이징 및 스케일 팩터 계산
-        resized_img, scale_x, scale_y = resize_image_to_target(img)
+        # 이미지 리사이징 및 스케일 팩터 계산 (기울기 보정된 이미지 사용)
+        resized_img, scale_x, scale_y = resize_image_to_target(deskewed_img)
         resized_h, resized_w = resized_img.shape[:2]
 
         # 이미지 전처리 강화 적용
@@ -579,7 +636,9 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
             resized_w=resized_w,
             resized_h=resized_h,
             scale_x=scale_x,
-            scale_y=scale_y
+            scale_y=scale_y,
+            deskewed_img=deskewed_img,
+            image_path=image_path
         )
 
         # 정답과 학생 답안 비교 (모든 문제)
@@ -623,8 +682,34 @@ def grade_omr(image_path, correct_answers, question_scores, question_types):
 
 def debug(isActive=True, **kwargs):
     """디버깅 전용 함수 - isActive가 True일 때만 작동"""
+    # 기울기 보정된 이미지 저장 (항상 실행)
+    if 'deskewed_img' in kwargs and 'image_path' in kwargs:
+        import os
+        image_path = kwargs['image_path']
+        deskewed_img = kwargs['deskewed_img']
+        
+        # 원본 이미지 파일명 추출
+        filename = os.path.basename(image_path)
+        name, ext = os.path.splitext(filename)
+        
+        # 스크립트 디렉토리 경로
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # deskewed 폴더 생성 (없으면)
+        deskewed_dir = os.path.join(script_dir, "omr_deskewed")
+        os.makedirs(deskewed_dir, exist_ok=True)
+        
+        # 저장 경로
+        save_path = os.path.join(deskewed_dir, f"{name}_deskewed{ext}")
+        
+        # 이미지 저장
+        cv2.imwrite(save_path, deskewed_img)
+
+    
+    # 디버깅 모드가 꺼져 있으면 여기서 종료
     if not isActive:
         return
+    
     # 전화번호 위치별 기본 밀도값 출력
     if 'phone_positions' in kwargs and 'preprocessed_img' in kwargs:
         print("\n=== 전화번호 위치별 기본 밀도값 ===")
