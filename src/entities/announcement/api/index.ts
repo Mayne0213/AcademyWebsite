@@ -60,7 +60,7 @@ export const announcementApi = {
   updateAnnouncement: async (announcementId: number, updateData: { announcementId: number; announcementTitle: string; announcementContent: string; isItAssetAnnouncement: boolean; isItImportantAnnouncement: boolean; files?: any[]; academyIds?: number[] }): Promise<Announcement> => {
     try {
       const result = await apiPut<Announcement>(API_ENDPOINTS.ANNOUNCEMENT.BY_ID(announcementId), updateData);
-      toast.success("공지사항이 성공적으로 ㅇㅇㅇ수정되었습니다.");
+      toast.success("공지사항이 성공적으로 수정되었습니다.");
 
       return result;
     } catch (error) {

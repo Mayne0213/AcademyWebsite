@@ -3,10 +3,10 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   // 기본 메타데이터
   title: {
-    default: "주혜연 학원 | 확신의 1등급 주혜연T",
+    default: "주혜연T - 확신의 1등급",
     template: "%s | 주혜연 학원"
   },
-  description: "주혜연 선생님의 확신의 1등급 학원입니다. 체계적인 학습 관리와 맞춤형 교육으로 학생들의 성적 향상을 돕습니다.",
+  description: "주혜연 선생님의 현강 페이지입니다. 체계적인 학습 관리와 맞춤형 교육으로 학생들의 성적 향상을 돕습니다.",
   keywords: [
     "주혜연",
     "주혜연 학원",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: "https://joossameng.com", // 실제 도메인으로 변경
     siteName: "주혜연 학원",
-    title: "주혜연 학원 | 확신의 1등급 주혜연T",
+    title: "주혜연T | 확신의 1등급!",
     description: "주혜연 선생님의 확신의 1등급 학원입니다. 체계적인 학습 관리와 맞춤형 교육으로 학생들의 성적 향상을 돕습니다.",
     images: [
       {
