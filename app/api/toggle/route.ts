@@ -3,6 +3,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// Route 캐싱 비활성화 (동적 데이터)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // GET: Toggle 설정 조회
 export async function GET(req: NextRequest) {
   try {
