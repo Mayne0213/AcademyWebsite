@@ -65,7 +65,7 @@ const Home = () => {
 
       <LandingPageAcademyDepartments />
 
-      <LandingPageSNSLinks /> {/* 리팩토링 필요 */}
+      <LandingPageSNSLinks />
     </main>
   );
 };
