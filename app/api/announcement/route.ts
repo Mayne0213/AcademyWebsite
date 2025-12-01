@@ -30,7 +30,6 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const isItAssetAnnouncement = searchParams.get("isItAssetAnnouncement");
-    const isItImportantAnnouncement = searchParams.get("isItImportantAnnouncement");
     const type = searchParams.get("type"); // summary 또는 detail
     const page = parseInt(searchParams.get("page") || "1", 10);
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
