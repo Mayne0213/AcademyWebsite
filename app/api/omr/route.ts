@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import path from 'path';
-import fs from 'fs/promises';
-import { writeFile } from 'fs/promises';
 
-const execAsync = promisify(exec);
+// FastAPI 서버 URL (환경변수로 설정 가능)
+const OMR_API_URL = process.env.OMR_API_URL || 'https://joossameng.kro.kr';
+
+// 개발 환경에서 SSL 인증서 검증 우회 (프로덕션에서는 사용하지 않음)
+if (process.env.NODE_ENV === 'development') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,12 +25,10 @@ export async function POST(request: NextRequest) {
     }
 
     // JSON 파싱 검증
-    let parsedCorrectAnswers, parsedQuestionScores, parsedQuestionTypes;
-    
     try {
-      parsedCorrectAnswers = JSON.parse(correctAnswers);
-      parsedQuestionScores = JSON.parse(questionScores);
-      parsedQuestionTypes = JSON.parse(questionTypes);
+      JSON.parse(correctAnswers);
+      JSON.parse(questionScores);
+      JSON.parse(questionTypes);
     } catch (parseError) {
       console.error('FormData 파싱 오류:', parseError);
       return NextResponse.json(
@@ -38,66 +37,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 임시 파일로 저장
-    const tempDir = '/tmp';
-    const tempImagePath = path.join(tempDir, `omr_${Date.now()}_${imageFile.name}`);
-    
-    try {
-      const buffer = Buffer.from(await imageFile.arrayBuffer());
-      
-      await writeFile(tempImagePath, buffer);
+    // FastAPI 서버로 전송할 FormData 생성
+    const apiFormData = new FormData();
+    apiFormData.append('image', imageFile);
+    apiFormData.append('correct_answers', correctAnswers);
+    apiFormData.append('question_scores', questionScores);
+    apiFormData.append('question_types', questionTypes);
 
-      // Python 스크립트 실행 - JSON 문자열을 직접 전달
-      const scriptPath = path.join(process.cwd(), 'scripts', 'omr_grading.py');
-      
-      // JSON 문자열을 그대로 전달 (Python에서 json.loads로 파싱)
-      const command = `python3 "${scriptPath}" "${tempImagePath}" '${correctAnswers}' '${questionScores}' '${questionTypes}'`;
-      
-      console.log('실행할 명령어:', command);
-      
-      const { stdout, stderr } = await execAsync(command);
-      
-      if (stderr) {
-        console.error('Python 스크립트 stderr:', stderr);
-      }
+    // FastAPI 서버에 요청
+    const apiUrl = `${OMR_API_URL}/api/omr/grade`;
+    console.log(`OMR API 요청 시작: ${apiUrl}`);
 
-      if (stderr && stderr.trim() !== '') {
-        return NextResponse.json(
-          { success: false, message: `Python 스크립트 오류: ${stderr}` },
-          { status: 500 }
-        );
-      }
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      body: apiFormData,
+    });
 
-      // Python 스크립트 결과 파싱
-      let result;
-      try {
-        result = JSON.parse(stdout);
-      } catch (parseError) {
-        console.error('Python 결과 파싱 실패:', parseError);
-        console.error('Python stdout 원본:', stdout);
-        return NextResponse.json(
-          { success: false, message: `Python 결과 파싱 실패: ${parseError}` },
-          { status: 500 }
-        );
-      }
-
-      if (result.error) {
-        return NextResponse.json(
-          { success: false, message: result.error },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({ success: true, data: result });
-
-    } finally {
-      // 임시 파일 삭제
-      try {
-        await fs.unlink(tempImagePath);
-      } catch (cleanupError) {
-        console.error('임시 파일 삭제 실패:', cleanupError);
-      }
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('FastAPI 서버 오류:', response.status, errorText);
+      return NextResponse.json(
+        { success: false, message: `OMR 서버 오류: ${response.status}` },
+        { status: response.status }
+      );
     }
+
+    const result = await response.json();
+
+    if (result.error || result.detail) {
+      return NextResponse.json(
+        { success: false, message: result.error || result.detail },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, data: result });
 
   } catch (error) {
     console.error('OMR API 전체 오류:', error);
@@ -106,6 +80,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, message: '잘못된 JSON 형식입니다' },
         { status: 400 }
+      );
+    }
+
+    // 네트워크 오류 처리
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return NextResponse.json(
+        { success: false, message: 'OMR 서버에 연결할 수 없습니다' },
+        { status: 503 }
       );
     }
 
