@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// FastAPI 서버 URL (환경변수로 설정 가능)
-const OMR_API_URL = process.env.OMR_API_URL || 'https://joossameng.kro.kr';
-
-// 개발 환경에서 SSL 인증서 검증 우회 (프로덕션에서는 사용하지 않음)
-if (process.env.NODE_ENV === 'development') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
+const OMR_API_URL = 'https://joossameng.kro.kr';
 
 export async function POST(request: NextRequest) {
   try {
