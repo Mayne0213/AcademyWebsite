@@ -10,8 +10,10 @@ const generateUploadUrl = async (
   folder?: string
 ): Promise<{ uploadUrl: string; fileKey: string }> => {
   try {
-    const fileKey = folder ? `${folder}/${Date.now()}-${fileName}` : `${Date.now()}-${fileName}`;
-    
+    // Joossam 폴더 안에 저장되도록 경로 구성
+    const subFolder = folder || 'uploads';
+    const fileKey = `${S3_CONFIG.BASE_PATH}/${subFolder}/${Date.now()}-${fileName}`;
+
     const command = new PutObjectCommand({
       Bucket: S3_CONFIG.BUCKET_NAME,
       Key: fileKey,
