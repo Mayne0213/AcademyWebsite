@@ -34,8 +34,8 @@ export const useAcademyFeatureStore = () => {
       // 삭제된 파일이 있으면 먼저 삭제
       if (updateData.deletedFiles && updateData.deletedFiles.length > 0) {
         const academy = entityStore.academies.find(a => a.academyId === academyId);
-        if (academy && academy.academyFiles) {
-          const filesToDelete = academy.academyFiles.filter(file =>
+        if (academy && academy.files) {
+          const filesToDelete = academy.files.filter(file =>
             updateData.deletedFiles!.includes(file.fileId)
           );
           if (filesToDelete.length > 0) {
@@ -54,8 +54,8 @@ export const useAcademyFeatureStore = () => {
     entityStore.setLoading(true);
     try {
       const academy = entityStore.academies.find(a => a.academyId === academyId);
-      if (academy && academy.academyFiles && academy.academyFiles.length > 0) {
-        await deleteAcademyFiles(academy.academyFiles);
+      if (academy && academy.files && academy.files.length > 0) {
+        await deleteAcademyFiles(academy.files);
       }
 
       // 학원 삭제 (DB, 상태 관리)

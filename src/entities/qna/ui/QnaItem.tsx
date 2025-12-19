@@ -99,16 +99,16 @@ export default function QnaItem({
         </div>
         
         {/* 첨부 파일 표시 */}
-        {selectedDetail.qnaFiles && selectedDetail.qnaFiles.length > 0 && (
+        {selectedDetail.files && selectedDetail.files.length > 0 && (
           <div className="mt-6 pt-6 border-t">
             <h4 className="text-sm font-semibold text-gray-700 mb-3">
-              첨부 파일 ({selectedDetail.qnaFiles.length}개)
+              첨부 파일 ({selectedDetail.files.length}개)
             </h4>
             <div className="space-y-2">
-              {selectedDetail.qnaFiles.map((fileItem: any) => (
+              {selectedDetail.files.map((fileItem: any) => (
                 <FileDisplay
                   key={fileItem.fileId}
-                  file={fileItem.file}
+                  file={fileItem}
                   showDelete={false}
                   className="bg-gray-50"
                 />

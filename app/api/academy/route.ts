@@ -6,11 +6,7 @@ export async function GET(req: NextRequest) {
     const academies = await prisma.academy.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        academyFiles: {
-          include: {
-            file: true
-          }
-        },
+        files: true,
       },
     });
 
@@ -58,13 +54,15 @@ export async function POST(req: Request) {
 
     // 3. 파일 연결 (파일이 있는 경우)
     if (files && files.length > 0) {
-      const academyFileConnections = files.map((file: any) => ({
-        academyId: newAcademy.academyId,
-        fileId: file.fileId,
-      }));
-
       await prisma.academyFile.createMany({
-        data: academyFileConnections,
+        data: files.map((file: any) => ({
+          academyId: newAcademy.academyId,
+          fileName: file.fileName,
+          originalName: file.originalName,
+          fileUrl: file.fileUrl,
+          fileType: file.fileType,
+          fileSize: file.fileSize || null,
+        })),
       });
     }
 
@@ -72,11 +70,7 @@ export async function POST(req: Request) {
     const resultWithFiles = await prisma.academy.findUnique({
       where: { academyId: newAcademy.academyId },
       include: {
-        academyFiles: {
-          include: {
-            file: true
-          }
-        },
+        files: true,
       },
     });
 

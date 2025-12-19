@@ -37,10 +37,10 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
     return (
       <li className="border p-3 smalltablet:p-4 tablet:p-6 rounded-lg shadow-sm flex flex-col gap-3 smalltablet:gap-4 tablet:gap-6">
         {/* 학원 사진 영역 */}
-        {academy.academyFiles && academy.academyFiles.length > 0 ? (
+        {academy.files && academy.files.length > 0 ? (
           <div className="w-full h-32 smalltablet:h-40 tablet:h-52 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden relative flex-shrink-0">
             <SignedImage
-              fileKey={academy.academyFiles[0].file.fileUrl}
+              fileKey={academy.files[0].fileName}
               alt="학원 대표 이미지"
               fill
               sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"

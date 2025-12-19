@@ -12,16 +12,20 @@ export interface Academy  {
   academyStudents: Student[];
   academyAdmins: Admin[];
   academyAnnouncements: Announcement[];
-  academyFiles: AcademyFile[];
+  files: AcademyFile[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface AcademyFile {
-  academyId: number;
   fileId: number;
-  academy: Academy;
-  file: FileType;
+  academyId: number;
+  fileName: string;
+  originalName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize?: number;
+  createdAt: Date;
 }
 
 // 학원 배열

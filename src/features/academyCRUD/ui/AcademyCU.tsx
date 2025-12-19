@@ -66,7 +66,7 @@ const AcademyCU: React.FC<AcademyCUProps> = ({
 
   useEffect(() => {
     if (mode === 'update' && academy) {
-      setExistingFiles(academy.academyFiles || []);
+      setExistingFiles(academy.files || []);
     }
   }, [mode, academy]);
 
@@ -221,7 +221,7 @@ const AcademyCU: React.FC<AcademyCUProps> = ({
               {existingFiles.map((file) => (
                 <FileDisplay
                   key={file.fileId}
-                  file={file.file}
+                  file={file}
                   onDelete={handleFileDelete}
                   showDelete={true}
                 />

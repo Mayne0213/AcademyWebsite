@@ -62,8 +62,8 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
         isItAssetAnnouncement: announcement.isItAssetAnnouncement,
         announcementAcademies: announcement.announcementAcademies,
       });
-      
-      const convertedFiles = announcement.announcementFiles?.map(convertAnnouncementFileToEntity) || [];
+
+      const convertedFiles = announcement.files?.map(convertAnnouncementFileToEntity) || [];
       setFiles(convertedFiles);
 
       // 선택된 학원들 설정

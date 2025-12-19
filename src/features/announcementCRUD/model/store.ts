@@ -78,8 +78,8 @@ export const useAnnouncementFeatureStore = () => {
     entityStore.setLoading(true);
     try {
       const announcement = entityStore.announcements.find(a => a.announcementId === announcementId);
-      if (announcement && 'announcementFiles' in announcement && announcement.announcementFiles && announcement.announcementFiles.length > 0) {
-        await deleteAnnouncementFiles(announcement.announcementFiles);
+      if (announcement && 'files' in announcement && announcement.files && announcement.files.length > 0) {
+        await deleteAnnouncementFiles(announcement.files);
       }
 
       // 공지사항 삭제 (DB, 상태 관리)

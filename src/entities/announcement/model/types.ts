@@ -21,7 +21,7 @@ export interface Announcement  {
   announcementContent: string;
   isItAssetAnnouncement: boolean;
   isItImportantAnnouncement: boolean;
-  announcementFiles?: AnnouncementFile[]; // 선택적 (목록에서는 파일 개수만)
+  files?: AnnouncementFile[]; // 선택적 (목록에서는 파일 개수만)
   fileCount?: number; // 파일 개수 (목록 조회 시 사용)
   announcementAcademies: Academy[];
   authorId?: number;
@@ -32,9 +32,13 @@ export interface Announcement  {
 
 export interface AnnouncementFile {
   fileId: number;
-  fileType: string;
+  announcementId: number;
+  fileName: string;
   originalName: string;
-  key: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize?: number;
+  createdAt: Date;
 }
 
 export interface AnnouncementState {
@@ -61,7 +65,7 @@ export interface UpdateAnnouncementRequest {
   announcementContent?: string;
   isItAssetAnnouncement?: boolean;
   isItImportantAnnouncement?: boolean;
-  announcementFiles?: AnnouncementFile[];
+  files?: AnnouncementFile[];
   announcementAcademies?: Academy[];
 }
 
@@ -72,11 +76,6 @@ export interface CreateAnnouncementRequest {
   authorId: number;
   isItAssetAnnouncement: boolean;
   isItImportantAnnouncement: boolean;
-  files?: FileItem[];
+  files?: AnnouncementFile[];
   academyIds?: number[];
-}
-
-// 파일 아이템 타입
-export interface FileItem {
-  fileId: number;
 }

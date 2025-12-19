@@ -61,11 +61,7 @@ export async function GET(req: NextRequest) {
             studentName: true,
           },
         },
-        qnaFiles: {
-          include: {
-            file: true,
-          },
-        },
+        files: true,
         comments: {
           include: {
             student: {
@@ -113,7 +109,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { qnaTitle, qnaContent, qnaUserId, qnaFiles } = body;
+    const { qnaTitle, qnaContent, qnaUserId, files } = body;
 
     if (!qnaTitle || !qnaContent) {
       return NextResponse.json({ success: false, message: "입력 값이 누락되었습니다." }, { status: 400 });
@@ -124,11 +120,6 @@ export async function POST(req: Request) {
         qnaTitle,
         qnaContent,
         qnaUserId,
-        qnaFiles: qnaFiles && qnaFiles.length > 0 ? {
-          create: qnaFiles.map((file: any) => ({
-            fileId: file.fileId,
-          })),
-        } : undefined,
       },
       include: {
         student: {
@@ -137,15 +128,39 @@ export async function POST(req: Request) {
             studentName: true,
           },
         },
-        qnaFiles: {
-          include: {
-            file: true,
-          },
-        },
+        files: true,
       },
     });
 
-    return NextResponse.json({ success: true, data: newQnA }, { status: 201 });
+    // 파일이 있으면 생성
+    if (files && files.length > 0) {
+      await prisma.qnAFile.createMany({
+        data: files.map((file: any) => ({
+          qnaId: newQnA.qnaId,
+          fileName: file.fileName,
+          originalName: file.originalName,
+          fileUrl: file.fileUrl,
+          fileType: file.fileType,
+          fileSize: file.fileSize || null,
+        })),
+      });
+    }
+
+    // 파일 포함하여 다시 조회
+    const resultWithFiles = await prisma.qnABoard.findUnique({
+      where: { qnaId: newQnA.qnaId },
+      include: {
+        student: {
+          select: {
+            memberId: true,
+            studentName: true,
+          },
+        },
+        files: true,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: resultWithFiles }, { status: 201 });
   } catch (error) {
     console.error("[API ERROR] QnA 생성 실패:", error);
 

@@ -55,23 +55,6 @@ model Student {
   @@index([academyId], map: "Student_academyId_idx")
 }
 
-model File {
-  fileId        Int      @id @default(autoincrement())
-  fileName      String
-  originalName  String
-  fileUrl       String
-  fileType      String
-  fileSize      Int?
-  createdAt     DateTime @default(now())
-
-  // 중간 테이블들을 통한 관계
-  academyFiles     AcademyFile[]
-  qnaFiles         QnaFile[]
-  announcementFiles AnnouncementFile[]
-
-  @@index([fileId])
-}
-
 model Academy {
   academyId        Int            @id @default(autoincrement())
   academyName      String         @unique
@@ -81,21 +64,24 @@ model Academy {
   academyStudents  Student[]      @relation("AcademyToStudents")
   academyAdmins    Admin[]        @relation("AdminToAcademy")
   academyAnnouncements Announcement[] @relation("AnnouncementToAcademy")
-  academyFiles     AcademyFile[]
+  files            AcademyFile[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt @default(now())
 }
 
 model AcademyFile {
-  academyId Int
-  fileId    Int
+  fileId       Int      @id @default(autoincrement())
+  academyId    Int
+  fileName     String   // S3 Key
+  originalName String
+  fileUrl      String
+  fileType     String
+  fileSize     Int?
+  createdAt    DateTime @default(now())
 
-  academy   Academy @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
-  file      File    @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+  academy      Academy  @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
 
-  @@id([academyId, fileId])
   @@index([academyId])
-  @@index([fileId])
 }
 
 model Announcement {
@@ -104,7 +90,7 @@ model Announcement {
   announcementContent               String       @default("")
   isItAssetAnnouncement Boolean            @default(false)
   isItImportantAnnouncement Boolean            @default(false)
-  announcementFiles     AnnouncementFile[]
+  files                 AnnouncementFile[]
   academies             Academy[]          @relation("AnnouncementToAcademy")
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
@@ -114,15 +100,18 @@ model Announcement {
 }
 
 model AnnouncementFile {
+  fileId         Int      @id @default(autoincrement())
   announcementId Int
-  fileId        Int @default(0)  //여기 default 나중에 제거할 것
+  fileName       String   // S3 Key
+  originalName   String
+  fileUrl        String
+  fileType       String
+  fileSize       Int?
+  createdAt      DateTime @default(now())
 
-  announcement  Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
-  file          File         @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+  announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
 
-  @@id([announcementId, fileId])
   @@index([announcementId])
-  @@index([fileId])
 }
 
 
@@ -135,22 +124,25 @@ model QnABoard {
   qnaUserId   Int               // 기존 API와의 호환성을 위해 유지
   isItAnswered Boolean           @default(false)
   comments    QnABoardComment[] @relation("QnAWithComments")
-  qnaFiles    QnaFile[]
+  files       QnAFile[]
   student     Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([qnaUserId], map: "QnABoard_qnaUserId_idx")
 }
 
-model QnaFile {
-  qnaId   Int
-  fileId  Int
+model QnAFile {
+  fileId       Int      @id @default(autoincrement())
+  qnaId        Int
+  fileName     String   // S3 Key
+  originalName String
+  fileUrl      String
+  fileType     String
+  fileSize     Int?
+  createdAt    DateTime @default(now())
 
-  qna     QnABoard @relation(fields: [qnaId], references: [qnaId], onDelete: Cascade)
-  file    File     @relation(fields: [fileId], references: [fileId], onDelete: Cascade)
+  qna          QnABoard @relation(fields: [qnaId], references: [qnaId], onDelete: Cascade)
 
-  @@id([qnaId, fileId])
   @@index([qnaId])
-  @@index([fileId])
 }
 
 model QnABoardComment {
