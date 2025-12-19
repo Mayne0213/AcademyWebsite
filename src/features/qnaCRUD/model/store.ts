@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { QnABoard, CreateCommentRequest } from "@/src/entities/qna/model/types";
+import { QnABoard, CreateCommentRequest, CreateQnARequest } from "@/src/entities/qna/model/types";
 import { qnaApi } from '@/src/entities/qna/api';
 import { useQnABoardStore, useQnaDetailStore } from "@/src/entities/qna/model/store";
 import { usePaginationStore } from '@/src/shared/model/pagination';
@@ -39,7 +39,7 @@ export const useQnAFeatureStore = () => {
     }
   }, [entityStore, paginationStore]);
 
-  const createQnA = useCallback(async (newQnA: Omit<QnABoard, "qnaId" | "createdAt" | "updatedAt" | "qnaStudent" | "qnaComments">) => {
+  const createQnA = useCallback(async (newQnA: CreateQnARequest) => {
     entityStore.setLoading(true);
     try {
       entityStore.createQnABoard(await qnaApi.createQnA(newQnA));

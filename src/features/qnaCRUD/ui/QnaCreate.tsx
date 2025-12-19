@@ -5,7 +5,7 @@ import { useAuth } from "@/src/app/providers";
 import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import type { File as FileEntity } from "@/src/entities/file/model/types";
-import type { QnABoard } from "@/src/entities/qna/model/types";
+import type { CreateQnARequest } from "@/src/entities/qna/model/types";
 
 export const QnaCreate: React.FC = () => {
   const router = useRouter();
@@ -64,14 +64,12 @@ export const QnaCreate: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const newQna = {
+      const newQna: CreateQnARequest = {
         qnaTitle: form.qnaTitle.trim(),
         qnaContent: form.qnaContent.trim(),
         qnaUserId: user.memberId,
         isItAnswered: false,
         files: files,
-        comments: [],
-        student: {} as any,
       };
 
       await createQnA(newQna);

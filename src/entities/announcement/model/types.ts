@@ -65,7 +65,14 @@ export interface UpdateAnnouncementRequest {
   announcementContent?: string;
   isItAssetAnnouncement?: boolean;
   isItImportantAnnouncement?: boolean;
-  files?: AnnouncementFile[];
+  files?: {
+    fileId?: number;
+    fileName?: string;
+    originalName?: string;
+    fileUrl?: string;
+    fileType?: string;
+    fileSize?: number;
+  }[];
   announcementAcademies?: Academy[];
 }
 
@@ -76,6 +83,13 @@ export interface CreateAnnouncementRequest {
   authorId: number;
   isItAssetAnnouncement: boolean;
   isItImportantAnnouncement: boolean;
-  files?: AnnouncementFile[];
+  files?: {
+    fileId?: number;
+    fileName?: string;
+    originalName?: string;
+    fileUrl?: string;
+    fileType?: string;
+    fileSize?: number;
+  }[];
   academyIds?: number[];
 }
