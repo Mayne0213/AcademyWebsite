@@ -102,6 +102,7 @@ export const S3_CONFIG = {
   REGION: process.env.AWS_REGION || 'ap-northeast-2',
   ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || '',
   SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || '',
+  BASE_PATH: 'Joossam', // 모든 파일이 Joossam 폴더 안에 저장됨
 } as const;
 
 // S3 클라이언트 인스턴스 (서버 사이드에서만 사용)
