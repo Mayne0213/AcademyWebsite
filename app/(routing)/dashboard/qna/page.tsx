@@ -21,7 +21,7 @@ interface ExpandedDetail {
   qnaContent: string;
   qnaImageUrl: string | null;
   comments: any[];
-  qnaFiles: any[];
+  files: any[];
 }
 
 // QnA 헤더 컴포넌트
@@ -100,16 +100,16 @@ const QnaContent: React.FC<{
         </p>
 
         {/* 첨부 파일 섹션 */}
-        {detail.qnaFiles && detail.qnaFiles.length > 0 && (
+        {detail.files && detail.files.length > 0 && (
           <div className="mt-4">
             <h4 className="text-sm font-semibold text-gray-700 mb-2">
-              첨부 파일 ({detail.qnaFiles.length}개)
+              첨부 파일 ({detail.files.length}개)
             </h4>
             <div className="space-y-2">
-              {detail.qnaFiles.map((fileItem: any) => (
+              {detail.files.map((fileItem: any) => (
                 <FileDisplay
                   key={fileItem.fileId}
-                  file={fileItem.file}
+                  file={fileItem}
                   onDelete={() => {}} // 읽기 전용이므로 빈 함수
                   showDelete={false}
                 />
@@ -279,9 +279,9 @@ const QnaBoard: React.FC = () => {
           ...prev,
           [qnaId]: {
             qnaContent: data.qnaContent,
-            qnaImageUrl: data.qnaFiles?.[0]?.file?.fileUrl,
+            qnaImageUrl: data.files?.[0]?.fileUrl,
             comments: data.comments || [],
-            qnaFiles: data.qnaFiles || [],
+            files: data.files || [],
           },
         }));
       }

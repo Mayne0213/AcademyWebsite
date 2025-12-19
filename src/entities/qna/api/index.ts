@@ -111,7 +111,7 @@ export const qnaApi = {
         updatedAt: result.updatedAt,
         student: result.student,
         comments: result.comments || [],
-        qnaFiles: result.qnaFiles || []
+        files: result.files || []
       };
     } catch (error) {
       throw error;

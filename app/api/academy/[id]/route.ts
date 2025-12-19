@@ -35,15 +35,17 @@ export async function PUT(
       });
     }
 
-    // 파일 연결 (파일이 있는 경우)
+    // 파일 생성 (파일이 있는 경우)
     if (files && files.length > 0) {
-      const academyFileConnections = files.map((file: any) => ({
-        academyId: id,
-        fileId: file.fileId,
-      }));
-
       await prisma.academyFile.createMany({
-        data: academyFileConnections,
+        data: files.map((file: any) => ({
+          academyId: id,
+          fileName: file.fileName,
+          originalName: file.originalName,
+          fileUrl: file.fileUrl,
+          fileType: file.fileType,
+          fileSize: file.fileSize || null,
+        })),
       });
     }
 
@@ -51,11 +53,7 @@ export async function PUT(
     const resultWithFiles = await prisma.academy.findUnique({
       where: { academyId: id },
       include: {
-        academyFiles: {
-          include: {
-            file: true
-          }
-        },
+        files: true
       },
     });
 
@@ -85,11 +83,7 @@ export async function DELETE(
       include: {
         academyStudents: true,
         academyAdmins: true,
-        academyFiles: {
-          include: {
-            file: true
-          }
-        }
+        files: true
       },
     });
 
@@ -114,14 +108,11 @@ export async function DELETE(
       );
     }
 
-    // S3에서 첨부 파일들 삭제
-    if (academyWithFiles.academyFiles && academyWithFiles.academyFiles.length > 0) {
-      const deletePromises = academyWithFiles.academyFiles.map(async (academyFile: any) => {
+    // S3에서 파일 삭제
+    if (academyWithFiles.files && academyWithFiles.files.length > 0) {
+      const deletePromises = academyWithFiles.files.map(async (file: any) => {
         try {
-          // S3 URL에서 key 추출
-          const urlParts = academyFile.file.fileUrl.split("/");
-          const key = urlParts[urlParts.length - 1];
-
+          const key = file.fileName;
           if (key) {
             const command = new DeleteObjectCommand({
               Bucket: "jooeng",
@@ -131,7 +122,7 @@ export async function DELETE(
             console.log(`S3 파일 삭제 성공: ${key}`);
           }
         } catch (error) {
-          console.error(`S3 파일 삭제 실패: ${academyFile.file.fileUrl}`, error);
+          console.error(`S3 파일 삭제 실패: ${file.fileName}`, error);
           // S3 삭제 실패는 로그만 남기고 계속 진행
         }
       });

@@ -132,9 +132,9 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
     if (!isExpanded && !detail) {
       setIsDetailLoading(true);
       const result = await announcementApi.getAnnouncement(announcementId);
-      setDetail({ 
-        content: result.announcementContent, 
-        files: result.announcementFiles || [] 
+      setDetail({
+        content: result.announcementContent,
+        files: result.files || []
       });
       setIsDetailLoading(false);
     }

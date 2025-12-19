@@ -25,19 +25,7 @@ export async function GET(
             adminName: true,
           },
         },
-        announcementFiles: {
-          include: {
-            file: {
-              select: {
-                fileId: true,
-                fileName: true,
-                originalName: true,
-                fileUrl: true,
-                fileType: true,
-              },
-            },
-          },
-        },
+        files: true,
         academies: {
           select: {
             academyId: true,
@@ -51,18 +39,7 @@ export async function GET(
       return NextResponse.json({ error: "공지사항을 찾을 수 없습니다." }, { status: 404 });
     }
 
-    // 파일 데이터를 프론트엔드 형식으로 변환
-    const result = {
-      ...announcement,
-      announcementFiles: announcement.announcementFiles.map((file: any) => ({
-        fileId: file.fileId,
-        key: file.file.fileUrl,
-        originalName: file.file.originalName,
-        fileType: file.file.fileType,
-      })),
-    };
-
-    return NextResponse.json({ success: true, data: result }, { status: 200 });
+    return NextResponse.json({ success: true, data: announcement }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       {
@@ -86,19 +63,7 @@ export async function PUT(
     const existing = await prisma.announcement.findUnique({
       where: { announcementId: id },
       include: {
-        announcementFiles: {
-          include: {
-            file: {
-              select: {
-                fileId: true,
-                fileName: true,
-                originalName: true,
-                fileUrl: true,
-                fileType: true,
-              },
-            },
-          },
-        },
+        files: true,
         academies: true,
       },
     });
@@ -125,9 +90,13 @@ export async function PUT(
       });
 
       if (body.files && body.files.length > 0) {
-        updateData.announcementFiles = {
+        updateData.files = {
           create: body.files.map((file: any) => ({
-            fileId: file.fileId,
+            fileName: file.fileName,
+            originalName: file.originalName,
+            fileUrl: file.fileUrl,
+            fileType: file.fileType,
+            fileSize: file.fileSize || null,
           })),
         };
       }
@@ -149,26 +118,14 @@ export async function PUT(
     const updated = await prisma.announcement.update({
       where: { announcementId: id },
       data: updateData,
-      include: { 
+      include: {
         author: {
           select: {
             memberId: true,
             adminName: true,
           },
         },
-        announcementFiles: {
-          include: {
-            file: {
-              select: {
-                fileId: true,
-                fileName: true,
-                originalName: true,
-                fileUrl: true,
-                fileType: true,
-              },
-            },
-          },
-        },
+        files: true,
         academies: {
           select: {
             academyId: true,
@@ -178,18 +135,7 @@ export async function PUT(
       },
     });
 
-    // 파일 데이터를 프론트엔드 형식으로 변환
-    const result = {
-      ...updated,
-      announcementFiles: updated.announcementFiles.map((file: any) => ({
-        fileId: file.fileId,
-        key: file.file.fileUrl,
-        originalName: file.file.originalName,
-        fileType: file.file.fileType,
-      })),
-    };
-
-    return NextResponse.json({ success: true, data: result }, { status: 200 });
+    return NextResponse.json({ success: true, data: updated }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       {
@@ -212,19 +158,7 @@ export async function DELETE(
     const announcement = await prisma.announcement.findUnique({
       where: { announcementId: id },
       include: {
-        announcementFiles: {
-          include: {
-            file: {
-              select: {
-                fileId: true,
-                fileName: true,
-                originalName: true,
-                fileUrl: true,
-                fileType: true,
-              },
-            },
-          },
-        },
+        files: true
       },
     });
 
@@ -232,23 +166,29 @@ export async function DELETE(
       return NextResponse.json({ error: "공지사항을 찾을 수 없습니다.", message: "공지사항을 찾을 수 없습니다." }, { status: 404 });
     }
 
-    // S3에서 첨부 파일들 삭제
-    if (announcement.announcementFiles && announcement.announcementFiles.length > 0) {
-      const deletePromises = announcement.announcementFiles.map(async (file: any) => {
+    // S3에서 파일 삭제
+    if (announcement.files && announcement.files.length > 0) {
+      const deletePromises = announcement.files.map(async (file: any) => {
         try {
-          const command = new DeleteObjectCommand({
-            Bucket: "jooeng",
-            Key: file.file.fileUrl,
-          });
-          await s3Client.send(command);
+          const key = file.fileName;
+          if (key) {
+            const command = new DeleteObjectCommand({
+              Bucket: "jooeng",
+              Key: key,
+            });
+            await s3Client.send(command);
+            console.log(`S3 파일 삭제 성공: ${key}`);
+          }
         } catch (error) {
+          console.error(`S3 파일 삭제 실패: ${file.fileName}`, error);
+          // S3 삭제 실패는 로그만 남기고 계속 진행
         }
       });
 
       await Promise.all(deletePromises);
     }
 
-    // 공지사항 삭제 (Cascade로 첨부 파일 레코드도 함께 삭제됨)
+    // 공지사항 삭제 (AnnouncementFile은 CASCADE로 자동 삭제됨)
     await prisma.announcement.delete({
       where: { announcementId: id },
     });

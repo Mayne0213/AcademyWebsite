@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
       // 파일 개수만 가져오기 (상세 정보는 필요시에만)
       _count: {
         select: {
-          announcementFiles: true,
+          files: true,
         },
       },
     };
@@ -98,19 +98,7 @@ export async function GET(req: NextRequest) {
           academyName: true,
         },
       };
-      selectFields.announcementFiles = {
-        include: {
-          file: {
-            select: {
-              fileId: true,
-              fileName: true,
-              originalName: true,
-              fileUrl: true,
-              fileType: true,
-            },
-          },
-        },
-      };
+      selectFields.files = true;
     }
 
     // 페이지네이션 적용 - 최적화된 쿼리
@@ -140,7 +128,7 @@ export async function GET(req: NextRequest) {
         authorId: announcement.authorId,
         author: announcement.author,
         // 파일 개수만 포함 (상세 정보는 필요시에만 로드)
-        fileCount: announcement._count.announcementFiles,
+        fileCount: announcement._count.files,
       };
 
       // summary가 아닌 경우에만 content, academies, files 포함
@@ -149,12 +137,7 @@ export async function GET(req: NextRequest) {
           ...baseData,
           announcementContent: announcement.announcementContent,
           announcementAcademies: announcement.academies,
-          announcementFiles: announcement.announcementFiles?.map((af: any) => ({
-            fileId: af.fileId,
-            key: af.file.fileUrl,
-            originalName: af.file.originalName,
-            fileType: af.file.fileType,
-          })) || [],
+          files: announcement.files || [],
         };
       }
 
@@ -196,13 +179,6 @@ export async function POST(req: Request) {
       authorId,
       isItAssetAnnouncement,
       isItImportantAnnouncement: body.isItImportantAnnouncement || false,
-      announcementFiles: files && files.length > 0
-        ? {
-            create: files.map((file: any) => ({
-              fileId: file.fileId,
-            })),
-          }
-        : undefined,
       academies: academyIds && academyIds.length > 0
         ? {
             connect: academyIds.map((academyId: number) => ({ academyId })),
@@ -212,26 +188,48 @@ export async function POST(req: Request) {
 
     const newAnnouncement = await prisma.announcement.create({
       data: announcementData,
-      include: { 
+      include: {
         author: {
           select: {
             memberId: true,
             adminName: true,
           },
         },
-        announcementFiles: {
-          include: {
-            file: {
-              select: {
-                fileId: true,
-                fileName: true,
-                originalName: true,
-                fileUrl: true,
-                fileType: true,
-              },
-            },
+        files: true,
+        academies: {
+          select: {
+            academyId: true,
+            academyName: true,
           },
         },
+      },
+    });
+
+    // 파일이 있으면 생성
+    if (files && files.length > 0) {
+      await prisma.announcementFile.createMany({
+        data: files.map((file: any) => ({
+          announcementId: newAnnouncement.announcementId,
+          fileName: file.fileName,
+          originalName: file.originalName,
+          fileUrl: file.fileUrl,
+          fileType: file.fileType,
+          fileSize: file.fileSize || null,
+        })),
+      });
+    }
+
+    // 파일 포함하여 다시 조회
+    const resultWithFiles = await prisma.announcement.findUnique({
+      where: { announcementId: newAnnouncement.announcementId },
+      include: {
+        author: {
+          select: {
+            memberId: true,
+            adminName: true,
+          },
+        },
+        files: true,
         academies: {
           select: {
             academyId: true,
@@ -243,22 +241,17 @@ export async function POST(req: Request) {
 
     // 프론트엔드에서 기대하는 형식으로 데이터 변환
     const transformedAnnouncement = {
-      announcementId: newAnnouncement.announcementId,
-      announcementTitle: newAnnouncement.announcementTitle,
-      announcementContent: newAnnouncement.announcementContent,
-      createdAt: newAnnouncement.createdAt,
-      updatedAt: newAnnouncement.updatedAt,
-      isItAssetAnnouncement: newAnnouncement.isItAssetAnnouncement,
-      isItImportantAnnouncement: newAnnouncement.isItImportantAnnouncement,
-      authorId: newAnnouncement.authorId,
-      author: newAnnouncement.author,
-      announcementFiles: newAnnouncement.announcementFiles.map(af => ({
-        fileId: af.fileId,
-        key: af.file.fileUrl,
-        originalName: af.file.originalName,
-        fileType: af.file.fileType,
-      })),
-      announcementAcademies: newAnnouncement.academies,
+      announcementId: resultWithFiles!.announcementId,
+      announcementTitle: resultWithFiles!.announcementTitle,
+      announcementContent: resultWithFiles!.announcementContent,
+      createdAt: resultWithFiles!.createdAt,
+      updatedAt: resultWithFiles!.updatedAt,
+      isItAssetAnnouncement: resultWithFiles!.isItAssetAnnouncement,
+      isItImportantAnnouncement: resultWithFiles!.isItImportantAnnouncement,
+      authorId: resultWithFiles!.authorId,
+      author: resultWithFiles!.author,
+      files: resultWithFiles!.files || [],
+      announcementAcademies: resultWithFiles!.academies,
     };
 
     return NextResponse.json({ success: true, data: transformedAnnouncement }, { status: 201 });

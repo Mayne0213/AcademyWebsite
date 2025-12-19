@@ -10,7 +10,7 @@ export interface QnABoard  {
   qnaUserId: number;
   isItAnswered: boolean;
   comments: QnABoardComment[];
-  qnaFiles: QnaFile[];
+  files: QnAFile[];
   student: Student;
 }
 
@@ -23,7 +23,7 @@ export interface QnADetail {
   updatedAt: Date;
   student: Student;
   comments: QnABoardComment[];
-  qnaFiles: QnaFile[];
+  files: QnAFile[];
 }
 
 export interface QnABoardComment {
@@ -45,19 +45,15 @@ export interface QnABoardComment {
   qna: QnABoard;
 }
 
-export interface QnaFile {
-  qnaId: number;
+export interface QnAFile {
   fileId: number;
-  qna: QnABoard;
-  file: {
-    fileId: number;
-    fileName: string;
-    originalName: string;
-    fileUrl: string;
-    fileType: string;
-    fileSize?: number;
-    createdAt: Date;
-  };
+  qnaId: number;
+  fileName: string;
+  originalName: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize?: number;
+  createdAt: Date;
 }
 
 // QnA 배열

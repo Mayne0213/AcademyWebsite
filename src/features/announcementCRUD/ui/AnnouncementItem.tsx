@@ -144,17 +144,17 @@ const AnnouncementItem = ({announcement}: {announcement: Announcement | Announce
                 </p>
 
                 {/* 파일 목록 */}
-                {announcement.announcementFiles && announcement.announcementFiles.length > 0 && (
+                {announcement.files && announcement.files.length > 0 && (
                   <div className="mt-6">
                     <h4 className="text-sm font-medium text-gray-700 mb-3">첨부 파일:</h4>
                     <div className="space-y-2">
-                      {announcement.announcementFiles.map((announcementFile, index) => (
+                      {announcement.files.map((file, index) => (
                         <FileItem
                           key={index}
                           file={{
-                            fileType: announcementFile.fileType || 'application/octet-stream',
-                            originalName: announcementFile.originalName,
-                            key: announcementFile.key,
+                            fileType: file.fileType || 'application/octet-stream',
+                            originalName: file.originalName,
+                            key: file.fileName,
                           }}
                         />
                       ))}

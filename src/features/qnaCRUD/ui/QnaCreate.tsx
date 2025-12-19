@@ -5,7 +5,7 @@ import { useAuth } from "@/src/app/providers";
 import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import type { File as FileEntity } from "@/src/entities/file/model/types";
-import type { QnABoard, QnaFile } from "@/src/entities/qna/model/types";
+import type { QnABoard } from "@/src/entities/qna/model/types";
 
 export const QnaCreate: React.FC = () => {
   const router = useRouter();
@@ -69,12 +69,7 @@ export const QnaCreate: React.FC = () => {
         qnaContent: form.qnaContent.trim(),
         qnaUserId: user.memberId,
         isItAnswered: false,
-        qnaFiles: files.map(file => ({
-          qnaId: 0,
-          fileId: file.fileId,
-          qna: {} as QnABoard,
-          file: file,
-        } as QnaFile)),
+        files: files,
         comments: [],
         student: {} as any,
       };

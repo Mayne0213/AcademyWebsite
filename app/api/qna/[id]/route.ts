@@ -14,7 +14,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   try {
     const id = Number(params.id);
     const body = await req.json();
-    const { qnaTitle, qnaContent, qnaFiles } = body;
+    const { qnaTitle, qnaContent, files } = body;
 
     if (!qnaTitle || !qnaContent) {
       return NextResponse.json({ success: false, message: "입력 값이 누락되었습니다." }, { status: 400 });
@@ -25,10 +25,14 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: {
         qnaTitle,
         qnaContent,
-        qnaFiles: qnaFiles && qnaFiles.length > 0 ? {
+        files: files && files.length > 0 ? {
           deleteMany: {},
-          create: qnaFiles.map((file: any) => ({
-            fileId: file.fileId,
+          create: files.map((file: any) => ({
+            fileName: file.fileName,
+            originalName: file.originalName,
+            fileUrl: file.fileUrl,
+            fileType: file.fileType,
+            fileSize: file.fileSize || null,
           })),
         } : undefined,
       },
@@ -39,11 +43,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
             studentName: true,
           },
         },
-        qnaFiles: {
-          include: {
-            file: true,
-          },
-        },
+        files: true,
       },
     });
 
@@ -64,10 +64,8 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     // 삭제하기 전에 QnA 정보 가져오기
     const qna = await prisma.qnABoard.findUnique({
       where: { qnaId: id },
-      include: { 
-        qnaFiles: { 
-          include: { file: true } 
-        } 
+      include: {
+        files: true
       },
     });
 
@@ -75,28 +73,29 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ success: false, message: "질문을 찾을 수 없습니다." }, { status: 404 });
     }
 
-    // S3에서 이미지 파일 삭제
-    if (qna.qnaFiles && qna.qnaFiles.length > 0) {
-      try {
-        // S3 URL에서 key 추출
-        const urlParts = qna.qnaFiles[0].file.fileUrl.split("/");
-        const key = urlParts[urlParts.length - 1];
-
-        if (key) {
-          const command = new DeleteObjectCommand({
-            Bucket: "jooeng",
-            Key: key,
-          });
-          await s3Client.send(command);
-          console.log(`S3 이미지 삭제 성공: ${key}`);
+    // S3에서 파일 삭제
+    if (qna.files && qna.files.length > 0) {
+      const deletePromises = qna.files.map(async (file: any) => {
+        try {
+          const key = file.fileName;
+          if (key) {
+            const command = new DeleteObjectCommand({
+              Bucket: "jooeng",
+              Key: key,
+            });
+            await s3Client.send(command);
+            console.log(`S3 파일 삭제 성공: ${key}`);
+          }
+        } catch (error) {
+          console.error(`S3 파일 삭제 실패: ${file.fileName}`, error);
+          // S3 삭제 실패는 로그만 남기고 계속 진행
         }
-      } catch (error) {
-        console.error(`S3 이미지 삭제 실패: ${qna.qnaFiles}`, error);
-        // 이미지 삭제 실패는 로그만 남기고 계속 진행
-      }
+      });
+
+      await Promise.all(deletePromises);
     }
 
-    // QnA 삭제
+    // QnA 삭제 (QnAFile은 CASCADE로 자동 삭제됨)
     await prisma.qnABoard.delete({
       where: { qnaId: id },
     });
@@ -123,11 +122,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
             studentName: true,
           },
         },
-        qnaFiles: {
-          include: {
-            file: true,
-          },
-        },
+        files: true,
         comments: {
           include: {
             student: {

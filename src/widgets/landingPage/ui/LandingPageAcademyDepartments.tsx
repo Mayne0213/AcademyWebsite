@@ -75,9 +75,9 @@ const AcademyDepartmentCard = ({ academy, selectedInfo, onInfoChange, index }: {
     className={STYLES.card}
   >
     <div className={STYLES.imageWrapper}>
-      {academy.academyFiles && academy.academyFiles.length > 0 ? (
+      {academy.files && academy.files.length > 0 ? (
         <SignedImage
-          fileKey={academy.academyFiles[0].file.fileUrl}
+          fileKey={academy.files[0].fileName}
           alt={`${academy.academyName} 이미지`}
           fill
           sizes="(max-width: 600px) 100vw, (max-width: 990px) 50vw, (max-width: 1200px) 33vw, 25vw"

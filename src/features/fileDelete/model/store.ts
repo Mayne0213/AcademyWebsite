@@ -34,9 +34,9 @@ export const useFileFeatureStore = () => {
     try {
       if (academyFiles && academyFiles.length > 0) {
         const fileIds = academyFiles
-          .filter(academyFile => academyFile.file && academyFile.file.fileId)
-          .map(academyFile => academyFile.file.fileId);
-        
+          .filter(academyFile => academyFile.fileId)
+          .map(academyFile => academyFile.fileId);
+
         if (fileIds.length > 0) {
           await deleteFiles(fileIds);
         }
@@ -51,9 +51,9 @@ export const useFileFeatureStore = () => {
     try {
       if (announcementFiles && announcementFiles.length > 0) {
         const fileIds = announcementFiles
-          .filter(announcementFile => announcementFile.file && announcementFile.file.fileId)
-          .map(announcementFile => announcementFile.file.fileId);
-        
+          .filter(announcementFile => announcementFile.fileId)
+          .map(announcementFile => announcementFile.fileId);
+
         if (fileIds.length > 0) {
           await deleteFiles(fileIds);
         }
@@ -68,9 +68,9 @@ export const useFileFeatureStore = () => {
     try {
       if (qnaFiles && qnaFiles.length > 0) {
         const fileIds = qnaFiles
-          .filter(qnaFile => qnaFile.file && qnaFile.file.fileId)
-          .map(qnaFile => qnaFile.file.fileId);
-        
+          .filter(qnaFile => qnaFile.fileId)
+          .map(qnaFile => qnaFile.fileId);
+
         if (fileIds.length > 0) {
           await deleteFiles(fileIds);
         }
