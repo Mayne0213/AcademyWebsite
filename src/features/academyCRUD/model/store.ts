@@ -2,12 +2,10 @@ import { useCallback } from 'react';
 import { Academy } from "@/src/entities/academy/model/types";
 import { academyApi } from '@/src/entities/academy/api';
 import { useAcademyStore } from "@/src/entities/academy/model/store";
-import { useFileFeatureStore } from '@/src/features/fileDelete';
 
 // API 호출과 전역 상태 관리를 통합하는 훅
 export const useAcademyFeatureStore = () => {
   const entityStore = useAcademyStore.getState();
-  const { deleteAcademyFiles } = useFileFeatureStore();
 
   const readAcademies = useCallback(async () => {
     entityStore.setLoading(true);
@@ -31,39 +29,22 @@ export const useAcademyFeatureStore = () => {
   const updateAcademy = useCallback(async (academyId: number, updateData: { academyId: number; academyName: string; academyPhone: string; academyAddress: string; files?: any[]; deletedFiles?: number[] }) => {
     entityStore.setLoading(true);
     try {
-      // 삭제된 파일이 있으면 먼저 삭제
-      if (updateData.deletedFiles && updateData.deletedFiles.length > 0) {
-        const academy = entityStore.academies.find(a => a.academyId === academyId);
-        if (academy && academy.files) {
-          const filesToDelete = academy.files.filter(file =>
-            updateData.deletedFiles!.includes(file.fileId)
-          );
-          if (filesToDelete.length > 0) {
-            await deleteAcademyFiles(filesToDelete);
-          }
-        }
-      }
-
+      // 업데이트 (삭제된 파일은 백엔드에서 처리)
       entityStore.updateAcademy(await academyApi.updateAcademy(academyId, updateData));
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore, deleteAcademyFiles]);
+  }, [entityStore]);
 
   const deleteAcademy = useCallback(async (academyId: number) => {
     entityStore.setLoading(true);
     try {
-      const academy = entityStore.academies.find(a => a.academyId === academyId);
-      if (academy && academy.files && academy.files.length > 0) {
-        await deleteAcademyFiles(academy.files);
-      }
-
-      // 학원 삭제 (DB, 상태 관리)
+      // 학원 삭제 (DB에서 CASCADE로 파일도 자동 삭제됨)
       entityStore.deleteAcademy(await academyApi.deleteAcademy(academyId));
     } finally {
       entityStore.setLoading(false);
     }
-  }, [entityStore, deleteAcademyFiles]);
+  }, [entityStore]);
 
   return {
     readAcademies,

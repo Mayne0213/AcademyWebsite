@@ -63,6 +63,7 @@ export const API_ENDPOINTS = {
     RELATION: "/api/files/relation",
     DOWNLOAD_URL: "/api/files/download-url",
     UPLOAD_URL: "/api/files/upload-url",
+    DELETE_S3: "/api/files/delete-s3",
     BY_TARGET: (targetType: string, targetId: number) => `/api/files/${targetType}/${targetId}`,
     SEARCH: "/api/files/search",
   },

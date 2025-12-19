@@ -86,4 +86,14 @@ export const fileApi = {
       throw error;
     }
   },
+
+  // S3에서만 파일 삭제 (업로드되었지만 DB에 저장되지 않은 임시 파일용)
+  deleteFromS3: async (fileKey: string): Promise<void> => {
+    try {
+      await apiDelete<void>(API_ENDPOINTS.FILE.DELETE_S3, { fileKey });
+    } catch (error) {
+      console.error('S3 파일 삭제 실패:', error);
+      throw error;
+    }
+  },
 };

@@ -5,10 +5,10 @@ import { File as FileEntity } from "@/src/entities/file/model/types";
  */
 export const convertAnnouncementFileToEntity = (file: any): FileEntity => ({
   fileId: file.fileId,
-  fileName: file.key,
+  fileName: file.fileName || file.key,
   originalName: file.originalName,
-  fileUrl: file.key,
+  fileUrl: file.fileUrl || file.fileName || file.key,
   fileType: file.fileType,
   fileSize: file.fileSize,
-  createdAt: new Date(),
+  createdAt: file.createdAt || new Date(),
 });
