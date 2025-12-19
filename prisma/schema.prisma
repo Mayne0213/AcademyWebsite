@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -52,7 +52,7 @@ model Student {
   user              User    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
   academy           Academy @relation("AcademyToStudents", fields: [academyId], references: [academyId])
 
-  @@index([academyId], map: "Student_academyId_fkey")
+  @@index([academyId], map: "Student_academyId_idx")
 }
 
 model File {
@@ -110,7 +110,7 @@ model Announcement {
   updatedAt             DateTime           @updatedAt
   authorId              Int?
   author                Admin?             @relation("AdminToAnnouncements", fields: [authorId], references: [memberId])
-  @@index([authorId], map: "Announcement_authorId_fkey")
+  @@index([authorId], map: "Announcement_authorId_idx")
 }
 
 model AnnouncementFile {
@@ -138,7 +138,7 @@ model QnABoard {
   qnaFiles    QnaFile[]
   student     Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([qnaUserId], map: "QnABoard_qnaUserId_fkey")
+  @@index([qnaUserId], map: "QnABoard_qnaUserId_idx")
 }
 
 model QnaFile {
