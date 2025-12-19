@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -124,7 +122,5 @@ export async function GET(
       success: false,
       message: '학습 리포트를 불러오는 중 오류가 발생했습니다.'
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

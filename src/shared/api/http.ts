@@ -115,10 +115,11 @@ export const apiPut = async <T>(
 };
 
 // DELETE 요청
-export const apiDelete = async <T>(url: string): Promise<T> => {
+export const apiDelete = async <T>(url: string, data?: any): Promise<T> => {
   try {
     const response = await apiRequest(url, {
       method: 'DELETE',
+      ...(data && { body: JSON.stringify(data) }),
     });
     const result = await response.json();
 

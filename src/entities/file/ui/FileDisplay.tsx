@@ -65,16 +65,21 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
     }
   };
 
-    const handleDelete = async () => {
-    if (isDeleting) return;
-    
+  const handleDelete = async () => {
+    if (isDeleting || !onDelete) return;
+
     setIsDeleting(true);
     try {
-      await fileApi.deleteFile(file.fileId);
-      
-      // 부모 컴포넌트에 삭제 완료 알림
-      onDelete?.(file.fileId);
-      
+      // 임시 파일(fileId=0)인 경우 S3에서도 삭제
+      if (file.fileId === 0 && file.fileUrl) {
+        await fileApi.deleteFromS3(file.fileUrl);
+      }
+
+      // 부모 컴포넌트에서 파일 삭제 처리
+      // (업로드 중인 파일은 state에서만 제거, 저장된 파일은 부모에서 처리)
+      onDelete(file.fileId);
+    } catch (error) {
+      console.error('파일 삭제 실패:', error);
     } finally {
       setIsDeleting(false);
     }

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/prisma/client";
 
 // Route 캐싱 비활성화 (동적 데이터)
 export const dynamic = 'force-dynamic';

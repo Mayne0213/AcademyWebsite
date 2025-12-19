@@ -2,14 +2,12 @@ import { useCallback } from 'react';
 import { CreateAnnouncementRequest } from "@/src/entities/announcement/model/types";
 import { announcementApi } from '@/src/entities/announcement/api';
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
-import { useFileFeatureStore } from '@/src/features/fileDelete';
 import { usePaginationStore } from '@/src/shared/model/pagination';
 
 // API 호출과 전역 상태 관리를 통합하는 훅
 export const useAnnouncementFeatureStore = () => {
   const entityStore = useAnnouncementStore.getState();
   const paginationStore = usePaginationStore.getState();
-  const { deleteAnnouncementFiles } = useFileFeatureStore();
 
   const readAnnouncements = useCallback(async (page: number, itemsPerPage: number, isAssetOnly: boolean = false) => {
     entityStore.setLoading(true);
@@ -77,13 +75,7 @@ export const useAnnouncementFeatureStore = () => {
   const deleteAnnouncement = useCallback(async (announcementId: number) => {
     entityStore.setLoading(true);
     try {
-      const announcement = entityStore.announcements.find(a => a.announcementId === announcementId);
-      if (announcement && 'files' in announcement && announcement.files && announcement.files.length > 0) {
-        await deleteAnnouncementFiles(announcement.files);
-      }
-
-      // 공지사항 삭제 (DB, 상태 관리)
-
+      // 공지사항 삭제 (DB에서 CASCADE로 파일도 자동 삭제됨)
       entityStore.deleteAnnouncement(await announcementApi.deleteAnnouncement(announcementId));
 
       // totalCount를 직접 감소시킴
@@ -103,7 +95,7 @@ export const useAnnouncementFeatureStore = () => {
     } finally {
       entityStore.setLoading(false);
     }
-  }, [deleteAnnouncementFiles, entityStore, paginationStore]);
+  }, [entityStore, paginationStore]);
 
   const readAnnouncementById = useCallback(async (announcementId: number) => {
     entityStore.setDetailLoading(announcementId, true);
