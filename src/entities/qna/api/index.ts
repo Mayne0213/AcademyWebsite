@@ -1,5 +1,5 @@
 // entities/qna/api/index.ts
-import { QnABoard, QnABoardComment, QnADetail, CreateCommentRequest } from "@/src/entities/qna/model/types";
+import { QnABoard, QnABoardComment, QnADetail, CreateCommentRequest, CreateQnARequest } from "@/src/entities/qna/model/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
 import { toast } from "sonner";
@@ -26,7 +26,7 @@ export const qnaApi = {
   },
 
   // QnA 생성
-  createQnA: async (newQnA: Omit<QnABoard, "qnaId" | "createdAt" | "updatedAt" | "qnaStudent" | "qnaComments">): Promise<QnABoard> => {
+  createQnA: async (newQnA: CreateQnARequest): Promise<QnABoard> => {
     try {
       const result = await apiPost<QnABoard>(API_ENDPOINTS.QNA.BASE, newQnA);
       toast.success("QnA가 성공적으로 생성되었습니다.");

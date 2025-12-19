@@ -126,9 +126,7 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
         isItAssetAnnouncement: form.isItAssetAnnouncement,
         isItImportantAnnouncement: false,
         academyIds: selectedAcademies,
-        files: files.map(file => ({
-          fileId: file.fileId,
-        })),
+        files: files,
       };
       ANNOUNCEMENT_VALIDATION.validateAnnouncementForCreate(submitData);
       
@@ -144,9 +142,7 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
         authorId: announcement.authorId,
         isItAssetAnnouncement: form.isItAssetAnnouncement,
         isItImportantAnnouncement: announcement.isItImportantAnnouncement || false,
-        files: files.map(file => ({
-          fileId: file.fileId,
-        })),
+        files: files,
         academyIds: selectedAcademies,
       };
       ANNOUNCEMENT_VALIDATION.validateAnnouncementForUpdate(updateData);

@@ -78,6 +78,22 @@ export interface CreateCommentRequest {
   qnaId: number;
 }
 
+// QnA 생성 요청 타입
+export interface CreateQnARequest {
+  qnaTitle: string;
+  qnaContent: string;
+  qnaUserId: number;
+  isItAnswered: boolean;
+  files?: {
+    fileId?: number;
+    fileName?: string;
+    originalName?: string;
+    fileUrl?: string;
+    fileType?: string;
+    fileSize?: number;
+  }[];
+}
+
 // QnA 상세 정보 상태 관리 타입
 export interface QnaDetailState {
   selectedDetail: QnADetail | null;
