@@ -16,6 +16,16 @@ import {
   AlertTriangle,
   XCircle
 } from "lucide-react";
+import { Button } from "@/src/shared/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/src/shared/ui/dropdownMenu";
 import {
   BarChart,
   Bar,
@@ -39,7 +49,9 @@ interface DashboardStats {
     studentId: number;
     studentName: string;
     averageScore: number;
+    averageGrade: number;
     totalExams: number;
+    joinedAt: string;
   }>;
   recentExams: Array<{
     examId: number;
@@ -74,7 +86,9 @@ interface DashboardStats {
     studentId: number;
     studentName: string;
     averageScore: number;
+    averageGrade: number;
     totalExams: number;
+    joinedAt: string;
   }>;
   managedStudents: Array<{
     studentId: number;
@@ -82,6 +96,24 @@ interface DashboardStats {
     averageScore: number;
     averageGrade: number;
     totalExams: number;
+    joinedAt: string;
+  }>;
+  allStudents: Array<{
+    studentId: number;
+    studentName: string;
+    joinedAt: string;
+    isActive: boolean;
+  }>;
+  examResultsForFilter: Array<{
+    examResultId: number;
+    studentId: number;
+    studentJoinedAt: string;
+    studentIsActive: boolean;
+    examId: number;
+    examName: string;
+    examDate: string;
+    totalScore: number;
+    grade: number;
   }>;
 }
 
@@ -90,16 +122,8 @@ export default function Home() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [gradeDistribution, setGradeDistribution] = useState<Array<{
-    grade: string;
-    count: number;
-    percentage: number;
-  }>>([]);
-  const [pieGradeDistribution, setPieGradeDistribution] = useState<Array<{
-    grade: string;
-    count: number;
-    percentage: number;
-  }>>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [showActiveOnly, setShowActiveOnly] = useState(false);
 
   // 통계 데이터 가져오기
   useEffect(() => {
@@ -114,8 +138,6 @@ export default function Home() {
 
         if (result.success) {
           setStats(result.data);
-          setGradeDistribution(result.data.gradeDistribution || []);
-          setPieGradeDistribution(result.data.pieGradeDistribution || []);
         } else {
           setError(result.message || '통계 데이터를 불러올 수 없습니다.');
         }
@@ -253,11 +275,134 @@ export default function Home() {
     );
   }
 
+  // 등급별 분포 차트 색상 (막대그래프용 - 9등급까지)
+  const BAR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316', '#ec4899'];
+  // 파이차트용 색상 (5개 카테고리)
+  const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+  // 연도 필터링 함수
+  const filterByYear = (joinedAt: string) => {
+    if (selectedYear === null) return true;
+    const year = new Date(joinedAt).getFullYear();
+    return year === selectedYear;
+  };
+
+  // 활성화 상태 필터링 함수
+  const filterByActive = (isActive: boolean) => {
+    if (!showActiveOnly) return true;
+    return isActive;
+  };
+
+  // 필터링된 통계 데이터
+  const filteredTopPerformers = stats?.topPerformers.filter(student => filterByYear(student.joinedAt)) || [];
+  const filteredManagedStudents = stats?.managedStudents.filter(student => filterByYear(student.joinedAt)) || [];
+  const filteredStrugglingStudents = stats?.strugglingStudents.filter(student => filterByYear(student.joinedAt)) || [];
+  
+  // 전체 학생 목록에서 필터링 (연도 + 활성화 상태)
+  const filteredAllStudents = stats?.allStudents.filter(student => 
+    filterByYear(student.joinedAt) && filterByActive(student.isActive)
+  ) || [];
+  const filteredStudentCount = filteredAllStudents.length;
+  
+  // 연도별 + 활성화 상태별 시험 결과 필터링
+  const filteredExamResults = stats?.examResultsForFilter.filter(result => 
+    filterByYear(result.studentJoinedAt) && filterByActive(result.studentIsActive)
+  ) || [];
+  
+  // 필터링된 시험 결과로 평균 점수/등급 재계산
+  const filteredAverageScore = filteredExamResults.length > 0
+    ? filteredExamResults.reduce((sum, result) => sum + result.totalScore, 0) / filteredExamResults.length
+    : (stats?.averageScore || 0);
+  
+  const filteredAverageGrade = filteredExamResults.length > 0
+    ? filteredExamResults.reduce((sum, result) => sum + result.grade, 0) / filteredExamResults.length
+    : (stats?.averageGrade || 0);
+  
+  // 필터링된 등급 분포 계산
+  const filteredGradeDistribution = selectedYear && filteredExamResults.length > 0 ? (() => {
+    const gradeMap = new Map<number, number>();
+    for (let i = 1; i <= 9; i++) {
+      gradeMap.set(i, 0);
+    }
+    filteredExamResults.forEach(result => {
+      const grade = result.grade;
+      if (grade >= 1 && grade <= 9) {
+        gradeMap.set(grade, (gradeMap.get(grade) || 0) + 1);
+      }
+    });
+    return Array.from(gradeMap.entries()).map(([grade, count]) => ({
+      grade: `${grade}등급`,
+      count,
+      percentage: Math.round((count / filteredExamResults.length) * 1000) / 10
+    }));
+  })() : (stats?.gradeDistribution || []);
+
+  // 필터링된 파이차트 등급 분포
+  const filteredPieGradeDistribution = selectedYear && filteredExamResults.length > 0 ? (() => {
+    const pieGradeMap = new Map<number, number>();
+    for (let i = 1; i <= 4; i++) {
+      pieGradeMap.set(i, 0);
+    }
+    pieGradeMap.set(5, 0);
+    filteredExamResults.forEach(result => {
+      const grade = result.grade;
+      if (grade >= 1 && grade <= 4) {
+        pieGradeMap.set(grade, (pieGradeMap.get(grade) || 0) + 1);
+      } else if (grade >= 5 && grade <= 9) {
+        pieGradeMap.set(5, (pieGradeMap.get(5) || 0) + 1);
+      }
+    });
+    return Array.from(pieGradeMap.entries()).map(([grade, count]) => ({
+      grade: grade === 5 ? '5등급 이하' : `${grade}등급`,
+      count,
+      percentage: Math.round((count / filteredExamResults.length) * 1000) / 10
+    }));
+  })() : (stats?.pieGradeDistribution || []);
+
+  // 필터링된 최근 시험
+  const filteredRecentExams = selectedYear && filteredExamResults.length > 0 ? (() => {
+    const examMap = new Map<number, {
+      examId: number;
+      examName: string;
+      examDate: string;
+      totalParticipants: number;
+      totalScore: number;
+    }>();
+    
+    filteredExamResults.forEach(result => {
+      const existing = examMap.get(result.examId);
+      if (existing) {
+        existing.totalParticipants += 1;
+        existing.totalScore += result.totalScore;
+      } else {
+        examMap.set(result.examId, {
+          examId: result.examId,
+          examName: result.examName,
+          examDate: result.examDate,
+          totalParticipants: 1,
+          totalScore: result.totalScore
+        });
+      }
+    });
+    
+    return Array.from(examMap.values())
+      .map(exam => ({
+        ...exam,
+        averageScore: exam.totalScore / exam.totalParticipants
+      }))
+      .sort((a, b) => new Date(b.examDate).getTime() - new Date(a.examDate).getTime())
+      .slice(0, 5);
+  })() : (stats?.recentExams || []);
+
+  // 연도 목록 생성 (2025년부터 현재년도까지)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i).reverse();
+
   // 통계 카드 데이터
   const statCards = [
     {
       title: "전체 학생 수",
-      value: stats?.totalStudents || 0,
+      value: selectedYear ? filteredStudentCount : (stats?.totalStudents || 0),
       icon: Users,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
@@ -271,7 +416,9 @@ export default function Home() {
     },
     {
       title: "평균 점수",
-      value: stats?.averageScore ? Math.round(stats.averageScore * 10) / 10 : 0,
+      value: selectedYear 
+        ? (filteredAverageScore ? Math.round(filteredAverageScore * 10) / 10 : 0)
+        : (stats?.averageScore ? Math.round(stats.averageScore * 10) / 10 : 0),
       icon: TrendingUp,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
@@ -279,7 +426,9 @@ export default function Home() {
     },
     {
       title: "평균 등급",
-      value: stats?.averageGrade ? Math.round(stats.averageGrade * 10) / 10 : 0,
+      value: selectedYear
+        ? (filteredAverageGrade ? Math.round(filteredAverageGrade * 10) / 10 : 0)
+        : (stats?.averageGrade ? Math.round(stats.averageGrade * 10) / 10 : 0),
       icon: Award,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
@@ -287,19 +436,93 @@ export default function Home() {
     }
   ];
 
-  // 등급별 분포 차트 색상 (막대그래프용 - 9등급까지)
-  const BAR_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316', '#ec4899'];
-  // 파이차트용 색상 (5개 카테고리)
-  const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
   return (
     <div className="min-h-screen p-4 smalltablet:p-6 tablet:p-8">
       <div className="">
         {/* 헤더 */}
         <div className="mb-8">
-          <h1 className="text-2xl smalltablet:text-3xl tablet:text-4xl font-sansKR-Bold text-gray-900 mb-2">
-            학원 대시보드
-          </h1>
+          <div className="flex flex-col smalltablet:flex-row smalltablet:items-center smalltablet:justify-between gap-4 mb-4">
+            <h1 className="text-2xl smalltablet:text-3xl tablet:text-4xl font-sansKR-Bold text-gray-900">
+              학원 대시보드
+            </h1>
+            {/* 필터 */}
+            <div className="flex items-center gap-2">
+              {/* 연도 필터 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="font-sansKR-Medium min-w-[140px]">
+                    {selectedYear === null ? "전체 연도" : `${selectedYear}년`}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel className="font-sansKR-Medium">
+                    가입연도 선택
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuRadioGroup
+                    value={selectedYear === null ? "전체" : selectedYear.toString()}
+                    onValueChange={(value) => {
+                      if (value === "전체") {
+                        setSelectedYear(null);
+                      } else {
+                        setSelectedYear(parseInt(value));
+                      }
+                    }}
+                  >
+                    <DropdownMenuRadioItem
+                      value="전체"
+                      className="font-sansKR-Medium"
+                    >
+                      전체
+                    </DropdownMenuRadioItem>
+                    {years.map((year) => (
+                      <DropdownMenuRadioItem
+                        key={year}
+                        value={year.toString()}
+                        className="font-sansKR-Medium"
+                      >
+                        {year}년
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 활성화 상태 필터 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="font-sansKR-Medium min-w-[140px]">
+                    {showActiveOnly ? "활성 학생만" : "전체 학생"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel className="font-sansKR-Medium">
+                    학생 상태 선택
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuRadioGroup
+                    value={showActiveOnly ? "active" : "all"}
+                    onValueChange={(value) => {
+                      setShowActiveOnly(value === "active");
+                    }}
+                  >
+                    <DropdownMenuRadioItem
+                      value="all"
+                      className="font-sansKR-Medium"
+                    >
+                      전체 학생
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem
+                      value="active"
+                      className="font-sansKR-Medium"
+                    >
+                      활성 학생만
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
         </div>
 
         {/* 통계 카드 */}
@@ -331,7 +554,7 @@ export default function Home() {
             </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={gradeDistribution}>
+                <BarChart data={filteredGradeDistribution}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="grade" />
                   <Tooltip
@@ -339,7 +562,7 @@ export default function Home() {
                     // labelFormatter={(label) => label}
                   />
                   <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                    {gradeDistribution.map((entry, index) => (
+                    {filteredGradeDistribution.map((entry, index) => (
                       <Cell key={`bar-cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
                     ))}
                   </Bar>
@@ -358,7 +581,7 @@ export default function Home() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={pieGradeDistribution}
+                    data={filteredPieGradeDistribution}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -367,7 +590,7 @@ export default function Home() {
                     fill="#8884d8"
                     dataKey="count"
                   >
-                    {pieGradeDistribution.map((entry, index) => (
+                    {filteredPieGradeDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
@@ -375,7 +598,7 @@ export default function Home() {
               </ResponsiveContainer>
               {/* 등급별 통계 표시 */}
               <div className="absolute bottom-2 left-2 space-y-1">
-                {pieGradeDistribution.map((entry, index) => (
+                {filteredPieGradeDistribution.map((entry, index) => (
                   <div key={index} className="flex items-center gap-2 text-xs">
                     <div
                       className="w-3 h-3 rounded-full"
@@ -401,7 +624,7 @@ export default function Home() {
               최근 시험
             </h3>
             <div className="space-y-3">
-              {stats?.recentExams.slice(0, 5).map((exam, index) => (
+              {filteredRecentExams.slice(0, 5).map((exam, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <h4 className="font-sansKR-Medium text-gray-900 text-sm">{exam.examName}</h4>
@@ -487,7 +710,7 @@ export default function Home() {
               상위 학생
             </h3>
             <div className="max-h-96 overflow-y-auto space-y-2">
-              {stats?.topPerformers.map((student, index) => (
+              {filteredTopPerformers.map((student, index) => (
                 <a
                   key={student.studentId}
                   href={`main/student/${student.studentId}`}
@@ -517,7 +740,7 @@ export default function Home() {
               상담 대상자
             </h3>
             <div className="max-h-96 overflow-y-auto space-y-2">
-              {stats?.managedStudents.map((student, index) => (
+              {filteredManagedStudents.map((student, index) => (
                 <a
                   key={student.studentId}
                   href={`main/student/${student.studentId}`}
@@ -543,14 +766,14 @@ export default function Home() {
 
 
         {/* 부진 학생 알림 */}
-        {stats?.strugglingStudents && stats.strugglingStudents.length > 0 && (
+        {filteredStrugglingStudents && filteredStrugglingStudents.length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 smalltablet:p-6 mb-6">
             <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-red-800 mb-4 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5" />
               부진 학생 알림
             </h3>
             <div className="grid grid-cols-1 smalltablet:grid-cols-2 tablet:grid-cols-3 gap-4">
-              {stats.strugglingStudents.map((student, index) => (
+              {filteredStrugglingStudents.map((student, index) => (
                 <div key={index} className="bg-white rounded-lg p-4 border border-red-200">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-sansKR-Medium text-gray-900">{student.studentName}</h4>
@@ -560,7 +783,7 @@ export default function Home() {
                     평균 점수: {student.averageScore.toFixed(1)}점
                   </p>
                   <p className="text-xs text-gray-600">
-                    전체 평균 대비 {((student.averageScore / stats.averageScore) * 100).toFixed(1)}%
+                    전체 평균 대비 {((student.averageScore / (stats?.averageScore || 1)) * 100).toFixed(1)}%
                   </p>
                 </div>
               ))}
