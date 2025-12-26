@@ -43,6 +43,7 @@ model Student {
   studentHighschool String?
   studentBirthYear  Int
   studentMemo       String?           @db.Text
+  isActive          Boolean           @default(false)
   qnas              QnABoard[]        @relation("StudentToQnA")
   qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
   counselingReservations CounselingReservation[] @relation("StudentToCounselingReservation")

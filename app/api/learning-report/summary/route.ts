@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/prisma/client';
 
+// Route 캐싱 비활성화 (동적 데이터)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -39,6 +43,20 @@ export async function GET(request: NextRequest) {
     // 전체 시험 수 조회
     const totalExams = await prisma.exam.count();
 
+    // 전체 학생 목록 조회 (가입일 및 활성화 상태 포함)
+    const allStudentsList = await prisma.student.findMany({
+      select: {
+        memberId: true,
+        studentName: true,
+        isActive: true,
+        user: {
+          select: {
+            createdAt: true
+          }
+        }
+      }
+    });
+
     // 전체 시험 결과 조회
     const examResults = await prisma.examResult.findMany({
       where: whereClause,
@@ -53,7 +71,13 @@ export async function GET(request: NextRequest) {
         student: {
           select: {
             memberId: true,
-            studentName: true
+            studentName: true,
+            isActive: true,
+            user: {
+              select: {
+                createdAt: true
+              }
+            }
           }
         }
       },
@@ -61,6 +85,19 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc'
       }
     });
+
+    // 클라이언트 필터링을 위한 시험 결과 데이터
+    const examResultsForFilter = examResults.map(result => ({
+      examResultId: result.examResultId,
+      studentId: result.student.memberId,
+      studentJoinedAt: result.student.user.createdAt.toISOString(),
+      studentIsActive: result.student.isActive,
+      examId: result.exam.examId,
+      examName: result.exam.examName,
+      examDate: result.createdAt.toISOString(),
+      totalScore: result.totalScore,
+      grade: result.grade
+    }));
 
     // 통계 계산
     const totalExamResults = examResults.length;
@@ -72,7 +109,7 @@ export async function GET(request: NextRequest) {
       : 0;
 
     // 학생별 평균 점수 계산
-    const studentScores = new Map<number, { totalScore: number; totalGrade: number; count: number; name: string }>();
+    const studentScores = new Map<number, { totalScore: number; totalGrade: number; count: number; name: string; joinedAt: Date }>();
     
     examResults.forEach(result => {
       const studentId = result.student.memberId;
@@ -87,7 +124,8 @@ export async function GET(request: NextRequest) {
           totalScore: result.totalScore,
           totalGrade: result.grade,
           count: 1,
-          name: result.student.studentName
+          name: result.student.studentName,
+          joinedAt: result.student.user.createdAt
         });
       }
     });
@@ -99,7 +137,8 @@ export async function GET(request: NextRequest) {
         studentName: data.name,
         averageScore: data.totalScore / data.count,
         averageGrade: data.totalGrade / data.count,
-        totalExams: data.count
+        totalExams: data.count,
+        joinedAt: data.joinedAt.toISOString()
       }))
       .sort((a, b) => b.averageScore - a.averageScore)
       .slice(0, 20);
@@ -224,10 +263,18 @@ export async function GET(request: NextRequest) {
         studentName: data.name,
         averageScore: data.totalScore / data.count,
         averageGrade: data.totalGrade / data.count,
-        totalExams: data.count
+        totalExams: data.count,
+        joinedAt: data.joinedAt.toISOString()
       }))
       .sort((a, b) => a.averageScore - b.averageScore)
       .slice(0, 20);
+
+    // 전체 학생 목록 (가입일 포함)
+    const allStudents = allStudentsList.map(student => ({
+      studentId: student.memberId,
+      studentName: student.studentName,
+      joinedAt: student.user.createdAt.toISOString()
+    }));
 
     const summary = {
       totalStudents,
@@ -254,7 +301,11 @@ export async function GET(request: NextRequest) {
       // 부진 학생
       strugglingStudents,
       // 관리 대상 학생
-      managedStudents
+      managedStudents,
+      // 전체 학생 목록
+      allStudents,
+      // 클라이언트 필터링용 시험 결과
+      examResultsForFilter
     };
 
     return NextResponse.json({
