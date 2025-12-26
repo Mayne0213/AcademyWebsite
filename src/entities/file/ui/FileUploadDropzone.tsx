@@ -15,7 +15,7 @@ interface FileUploadDropzoneProps {
   maxSize?: number;
   className?: string;
   disabled?: boolean;
-  folder?: string;
+  folder?: 'announcement' | 'qna' | 'academy' | 'file';
 }
 
 const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
@@ -25,14 +25,14 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   maxSize = 10 * 1024 * 1024, // 10MB
   className = "",
   disabled = false,
-  folder = ""
+  folder = 'file'
 }) => {
   // 내부 에러 핸들러
   const handleUploadError = (error: string) => {
     toast.error(`파일 업로드 실패: ${error}`);
   };
 
-  const { isUploading, uploadProgress, uploadFiles } = useFileUpload(onUploadComplete, handleUploadError);
+  const { isUploading, uploadProgress, uploadFiles } = useFileUpload(onUploadComplete, handleUploadError, folder);
 
   const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: any[]) => {
     if (rejectedFiles.length > 0) {

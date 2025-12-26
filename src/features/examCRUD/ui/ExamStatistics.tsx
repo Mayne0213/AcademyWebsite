@@ -8,11 +8,12 @@ import { useAcademyStore } from "@/src/entities/academy/model/store";
 import { useExamFeatureStore } from "@/src/features/examCRUD/model/store";
 import type { ExamStatistics as ExamStatisticsType } from "@/src/entities/examResult/model/types";
 import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
-import { 
-  BarChart3, 
-  Users, 
-  Target, 
-  TrendingUp, 
+import { ActiveFilter } from "@/src/entities/student/ui";
+import {
+  BarChart3,
+  Users,
+  Target,
+  TrendingUp,
   TrendingDown,
   AlertCircle,
 } from "lucide-react";
@@ -29,6 +30,7 @@ export default function ExamStatistics() {
   const [academyStatistics, setAcademyStatistics] = useState<Map<number, ExamStatisticsType>>(new Map());
   const [correctAnswers, setCorrectAnswers] = useState<Record<string, string>>({});
   const [questionTypes, setQuestionTypes] = useState<Record<number, string> | null>(null);
+  const [activeStatusFilter, setActiveStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
 
   // academy feature store와 entity store 사용
   const { readAcademies } = useAcademyFeatureStore();
@@ -71,7 +73,7 @@ export default function ExamStatistics() {
     // 각 학원별로 순차적으로 통계 데이터 가져오기
     for (const academy of academies) {
       try {
-        const academyStats = await examResultApi.getExamStatisticsByAcademy(examId, academy.academyId);
+        const academyStats = await examResultApi.getExamStatisticsByAcademy(examId, academy.academyId, activeStatusFilter);
         if (academyStats) {
           statisticsMap.set(academy.academyId, academyStats);
         }
@@ -143,7 +145,7 @@ export default function ExamStatistics() {
       fetchAllAcademyStatistics();
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [academies, examId]);
+  }, [academies, examId, activeStatusFilter]);
 
   // 정답 데이터와 문제 유형 데이터 가져오기
   useEffect(() => {
@@ -159,12 +161,12 @@ export default function ExamStatistics() {
       try {
         setIsLoading(true);
         setError(null);
-        
-        const result = selectedAcademyId 
-          ? await examResultApi.getExamStatisticsByAcademy(examId, selectedAcademyId)
-          : await examResultApi.getExamStatistics(examId);
-        
-        
+
+        const result = selectedAcademyId
+          ? await examResultApi.getExamStatisticsByAcademy(examId, selectedAcademyId, activeStatusFilter)
+          : await examResultApi.getExamStatistics(examId, activeStatusFilter);
+
+
         if (result && result.examId) {
           setStatistics(result);
           setError(null);
@@ -188,7 +190,7 @@ export default function ExamStatistics() {
     if (examId) {
       fetchStatistics();
     }
-  }, [examId, selectedAcademyId]);
+  }, [examId, selectedAcademyId, activeStatusFilter]);
 
   const handleAcademyChange = (academyId: number | null) => {
     setSelectedAcademyId(academyId);
@@ -238,13 +240,19 @@ export default function ExamStatistics() {
         {/* 학원 선택 필터 */}
         <div className="mt-4 smalltablet:mt-6 flex items-center justify-end gap-2 smalltablet:gap-4">
           {academies.length > 0 ? (
-            <AcademyFilter
-              selectedAcademyId={selectedAcademyId}
-              academies={academies}
-              onAcademyChange={handleAcademyChange}
-              resetFilter={resetFilter}
-              isFiltered={isFiltered}
-            />
+            <>
+              <AcademyFilter
+                selectedAcademyId={selectedAcademyId}
+                academies={academies}
+                onAcademyChange={handleAcademyChange}
+                resetFilter={resetFilter}
+                isFiltered={isFiltered}
+              />
+              <ActiveFilter
+                selectedStatus={activeStatusFilter}
+                onStatusChange={setActiveStatusFilter}
+              />
+            </>
           ) : (
             <div className="px-2 smalltablet:px-3 py-1.5 smalltablet:py-2 text-xs smalltablet:text-sm text-gray-500 bg-gray-100 rounded-md">
               학원 목록을 불러오는 중...

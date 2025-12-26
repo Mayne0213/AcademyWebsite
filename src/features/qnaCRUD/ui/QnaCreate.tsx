@@ -133,7 +133,7 @@ export const QnaCreate: React.FC = () => {
         <FileUploadDropzone
           onUploadComplete={handleFileUploadComplete}
           multiple={true}
-          folder="qna-files"
+          folder="qna"
           className="mb-4"
         />
         

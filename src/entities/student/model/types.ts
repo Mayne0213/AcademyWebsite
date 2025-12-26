@@ -4,6 +4,7 @@ import { Academy } from "@/src/entities/academy/model/types";
 
 // 학생 엔티티
 export interface Student extends UserInfo {
+  isActive: boolean;
   academyId: number;
   studentName: string;
   studentPhone: string;

@@ -19,9 +19,18 @@ export async function GET(request: NextRequest) {
     });
 
     const { examId, studentId, grade, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = validatedQuery;
-    
-    // 필터링 조건 구성
-    const where: any = {};
+
+    // includeInactive 쿼리 파라미터 확인 (기본값: false)
+    const includeInactive = searchParams.get('includeInactive') === 'true';
+
+    // 필터링 조건 구성 (기본적으로 활성 학생만)
+    const where: any = {
+      ...(!includeInactive && {
+        student: {
+          isActive: true
+        }
+      })
+    };
     if (examId) where.examId = examId;
     if (studentId) where.studentId = studentId;
     if (grade) where.grade = grade;

@@ -208,7 +208,7 @@ const AcademyCU: React.FC<AcademyCUProps> = ({
               'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
             }}
             multiple={true}
-            folder="academy-images"
+            folder="academy"
             className="mb-4"
           />
         </div>

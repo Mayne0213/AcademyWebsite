@@ -20,8 +20,12 @@ export async function GET(request: NextRequest) {
 
     const { examId, studentId, grade, page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = validatedQuery;
     
-    // 필터링 조건 구성
-    const where: any = {};
+    // 필터링 조건 구성 (활성 학생만)
+    const where: any = {
+      student: {
+        isActive: true
+      }
+    };
     if (examId) where.examId = examId;
     if (studentId) where.studentId = studentId;
     if (grade) where.grade = grade;

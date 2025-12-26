@@ -37,27 +37,22 @@ export async function GET(request: NextRequest) {
       if (maxScore) whereClause.totalScore.lte = parseInt(maxScore);
     }
 
-    // 전체 학생 수 조회
+    // 전체 학생 수 조회 (활성/비활성 모두 포함, 클라이언트에서 필터링)
     const totalStudents = await prisma.student.count();
 
     // 전체 시험 수 조회
     const totalExams = await prisma.exam.count();
 
-    // 전체 학생 목록 조회 (가입일 및 활성화 상태 포함)
+    // 전체 학생 목록 조회 (등록년도 및 활성화 상태 포함)
     const allStudentsList = await prisma.student.findMany({
       select: {
         memberId: true,
         studentName: true,
         isActive: true,
-        user: {
-          select: {
-            createdAt: true
-          }
-        }
       }
     });
 
-    // 전체 시험 결과 조회
+    // 전체 시험 결과 조회 (모든 학생 포함, 클라이언트에서 필터링)
     const examResults = await prisma.examResult.findMany({
       where: whereClause,
       include: {
@@ -73,11 +68,6 @@ export async function GET(request: NextRequest) {
             memberId: true,
             studentName: true,
             isActive: true,
-            user: {
-              select: {
-                createdAt: true
-              }
-            }
           }
         }
       },
@@ -90,7 +80,6 @@ export async function GET(request: NextRequest) {
     const examResultsForFilter = examResults.map(result => ({
       examResultId: result.examResultId,
       studentId: result.student.memberId,
-      studentJoinedAt: result.student.user.createdAt.toISOString(),
       studentIsActive: result.student.isActive,
       examId: result.exam.examId,
       examName: result.exam.examName,
@@ -109,7 +98,7 @@ export async function GET(request: NextRequest) {
       : 0;
 
     // 학생별 평균 점수 계산
-    const studentScores = new Map<number, { totalScore: number; totalGrade: number; count: number; name: string; joinedAt: Date }>();
+    const studentScores = new Map<number, { totalScore: number; totalGrade: number; count: number; name: string }>();
     
     examResults.forEach(result => {
       const studentId = result.student.memberId;
@@ -125,7 +114,6 @@ export async function GET(request: NextRequest) {
           totalGrade: result.grade,
           count: 1,
           name: result.student.studentName,
-          joinedAt: result.student.user.createdAt
         });
       }
     });
@@ -138,7 +126,6 @@ export async function GET(request: NextRequest) {
         averageScore: data.totalScore / data.count,
         averageGrade: data.totalGrade / data.count,
         totalExams: data.count,
-        joinedAt: data.joinedAt.toISOString()
       }))
       .sort((a, b) => b.averageScore - a.averageScore)
       .slice(0, 20);
@@ -221,15 +208,17 @@ export async function GET(request: NextRequest) {
     }));
 
 
-    // 최근 학생 등록 (7일간)
+    // 최근 학생 등록 (최근 가입자 기준)
     const recentStudents = await prisma.student.findMany({
       where: {
         memberId: {
           gte: 1 // 최근 학생들을 찾기 위한 임시 조건
         }
       },
-      include: {
-        user: { select: { memberId: true, userId: true, createdAt: true } }
+      select: {
+        memberId: true,
+        studentName: true,
+        user: { select: { createdAt: true } }
       },
       orderBy: {
         user: {
@@ -264,16 +253,15 @@ export async function GET(request: NextRequest) {
         averageScore: data.totalScore / data.count,
         averageGrade: data.totalGrade / data.count,
         totalExams: data.count,
-        joinedAt: data.joinedAt.toISOString()
       }))
       .sort((a, b) => a.averageScore - b.averageScore)
       .slice(0, 20);
 
-    // 전체 학생 목록 (가입일 포함)
+    // 전체 학생 목록 (등록년도 포함)
     const allStudents = allStudentsList.map(student => ({
       studentId: student.memberId,
       studentName: student.studentName,
-      joinedAt: student.user.createdAt.toISOString()
+      isActive: student.isActive
     }));
 
     const summary = {
@@ -290,7 +278,7 @@ export async function GET(request: NextRequest) {
         recentStudents: recentStudents.map(s => ({
           studentId: s.memberId,
           studentName: s.studentName,
-          joinedAt: s.user.createdAt.toISOString() // 실제 가입일 사용
+          joinedAt: s.user.createdAt.toISOString() // 표시용 가입일
         })),
         recentAnnouncements: recentAnnouncements.map(a => ({
           announcementId: a.announcementId,

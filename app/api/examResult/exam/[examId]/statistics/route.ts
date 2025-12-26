@@ -9,6 +9,7 @@ export async function GET(
     const examId = parseInt(params.examId);
     const { searchParams } = new URL(request.url);
     const academyId = searchParams.get('academyId');
+    const activeStatus = searchParams.get('activeStatus') || 'active'; // 기본값: active (재원생)
 
     if (isNaN(examId)) {
       return NextResponse.json(
@@ -36,16 +37,21 @@ export async function GET(
       );
     }
 
-    // 해당 시험의 결과 조회 (학원 필터링 적용)
-    const examResults = await prisma.examResult.findMany({
-      where: {
-        examId,
+    // 해당 시험의 결과 조회 (학원 필터링 적용, 활성 상태 필터링)
+    const whereClause: any = {
+      examId,
+      student: {
+        ...(activeStatus === 'active' && { isActive: true }),
+        ...(activeStatus === 'inactive' && { isActive: false }),
+        // activeStatus === 'all'이면 isActive 조건 없음
         ...(academyId && {
-          student: {
-            academyId: parseInt(academyId)
-          }
+          academyId: parseInt(academyId)
         })
-      },
+      }
+    };
+
+    const examResults = await prisma.examResult.findMany({
+      where: whereClause,
       include: {
         questionResults: true,
         student: {

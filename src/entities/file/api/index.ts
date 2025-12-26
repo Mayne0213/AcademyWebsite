@@ -17,11 +17,16 @@ export const fileApi = {
   },
 
   // S3 업로드 URL 생성
-  getUploadUrl: async (fileName: string, fileType: string): Promise<{ uploadUrl: string; fileKey: string }> => {
+  getUploadUrl: async (
+    fileName: string,
+    fileType: string,
+    folder?: 'announcement' | 'qna' | 'academy' | 'file'
+  ): Promise<{ uploadUrl: string; fileKey: string }> => {
     try {
       const result = await apiPost<{ uploadUrl: string; fileKey: string }>(API_ENDPOINTS.FILE.UPLOAD_URL, {
         fileName,
         fileType,
+        folder,
       });
       return result;
     } catch (error) {

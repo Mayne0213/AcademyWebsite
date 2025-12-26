@@ -2,6 +2,8 @@ import { useMemo, useCallback } from "react";
 import { Student } from "@/src/entities/student/model/types";
 import { Academy } from "@/src/entities/academy/model/types";
 
+type ActiveStatus = 'all' | 'active' | 'inactive';
+
 interface Options {
   students: Student[];
   academies: Academy[];
@@ -9,6 +11,7 @@ interface Options {
   selectedAcademy: string;
   sortKey: string | null;
   currentPage: number;
+  activeStatusFilter?: ActiveStatus;
 }
 
 const useFilteredSortedPaginatedUsers = ({
@@ -18,6 +21,7 @@ const useFilteredSortedPaginatedUsers = ({
   selectedAcademy,
   sortKey,
   currentPage,
+  activeStatusFilter = 'all',
 }: Options) => {
   const itemsPerPage = 20;
 
@@ -33,16 +37,21 @@ const useFilteredSortedPaginatedUsers = ({
   );
 
   const filteredUsers = useMemo(() => {
-    const x = students.filter((user) => {
+    const x = students.filter((student) => {
       const matchesAcademy =
         selectedAcademy === "전체" ||
-        compareAcademyName(user.academyId, selectedAcademy);
+        compareAcademyName(student.academyId, selectedAcademy);
 
-      return user.studentName.includes(searchTerm) && matchesAcademy;
+      const matchesActiveStatus =
+        activeStatusFilter === 'all' ||
+        (activeStatusFilter === 'active' && student.isActive === true) ||
+        (activeStatusFilter === 'inactive' && student.isActive === false);
+
+      return student.studentName.includes(searchTerm) && matchesAcademy && matchesActiveStatus;
     });
 
     return x;
-  }, [students, searchTerm, selectedAcademy, compareAcademyName]);
+  }, [students, searchTerm, selectedAcademy, compareAcademyName, activeStatusFilter]);
 
   const sortedUsers = useMemo(() => {
     return [...filteredUsers].sort((a, b) => {

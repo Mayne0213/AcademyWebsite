@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { StudentRead } from "@/src/features/studentCRUD/ui/StudentRead";
 import { useStudentFeatureStore } from "@/src/features/studentCRUD/model/store";
 import { useStudentStore } from "@/src/entities/student/model/store";
+import { ActiveFilter } from "@/src/entities/student/ui";
 import { SearchInput, SortControls, Pagination } from "@/src/shared/ui";
 
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
@@ -21,6 +22,7 @@ const Student = () => {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
+  const [activeStatusFilter, setActiveStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
 
 
 
@@ -36,6 +38,7 @@ const Student = () => {
     selectedAcademy,
     sortKey,
     currentPage,
+    activeStatusFilter,
   });
 
   useEffect(() => {
@@ -73,11 +76,19 @@ const Student = () => {
 
       {/* 필터 + 학생 추가 + 검색 */}
       <div className="w-full flex flex-col smalltablet:flex-row smalltablet:justify-between gap-3 smalltablet:gap-4 mb-4 smalltablet:mb-6">
-        <div className="w-full smalltablet:w-auto">
+        <div className="flex flex-col smalltablet:flex-row gap-2 w-full smalltablet:w-auto">
           <AcademyFilter
             selectedAcademyId={selectedAcademyId}
             academies={academies}
             onAcademyChange={handleAcademyChange}
+          />
+
+          <ActiveFilter
+            selectedStatus={activeStatusFilter}
+            onStatusChange={(status) => {
+              setActiveStatusFilter(status);
+              setCurrentPage(1);
+            }}
           />
         </div>
 

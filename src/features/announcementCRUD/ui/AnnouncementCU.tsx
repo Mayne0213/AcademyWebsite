@@ -217,7 +217,7 @@ const AnnouncementCU: React.FC<AnnouncementCUProps> = ({
           <FileUploadDropzone
             onUploadComplete={handleFileUploadComplete}
             multiple={true}
-            folder="announcement-files"
+            folder="announcement"
             className="mb-4"
           />
           

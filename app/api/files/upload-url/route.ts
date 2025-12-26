@@ -34,7 +34,7 @@ const generateUploadUrl = async (
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fileName, fileType } = body;
+    const { fileName, fileType, folder } = body;
 
     if (!fileName || !fileType) {
       return NextResponse.json(
@@ -43,7 +43,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { uploadUrl, fileKey } = await generateUploadUrl(fileName, fileType, 'uploads');
+    // folder가 제공되지 않으면 기본값 'file' 사용
+    // 가능한 값: 'announcement', 'qna', 'academy', 'file'
+    const targetFolder = folder || 'file';
+
+    const { uploadUrl, fileKey } = await generateUploadUrl(fileName, fileType, targetFolder);
 
     return NextResponse.json({
       uploadUrl,

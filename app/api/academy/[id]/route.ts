@@ -11,15 +11,16 @@ export async function PUT(
     const id = Number(params.id);
     const body = await req.json();
 
-    const { academyName, academyPhone, academyAddress, files, deletedFiles } = body;
+    const { academyName, academyPhone, academyAddress, isActive, files, deletedFiles } = body;
 
     // Academy 정보 수정
     const updated = await prisma.academy.update({
       where: { academyId: id },
-      data: { 
-        academyName, 
-        academyPhone, 
+      data: {
+        academyName,
+        academyPhone,
         academyAddress,
+        ...(isActive !== undefined && { isActive }),
       },
     });
 

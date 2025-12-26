@@ -103,7 +103,7 @@ const tabs = [
       {
         label: "교재 관리X",
         icon : Book,
-        href: "/main/textbookManagement",
+        href: "/main/textbook",
         description: "",
       },
       {
