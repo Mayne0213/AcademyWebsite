@@ -16,16 +16,7 @@ import {
   AlertTriangle,
   XCircle
 } from "lucide-react";
-import { Button } from "@/src/shared/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/src/shared/ui/dropdownMenu";
+import { ActiveFilter } from "@/src/entities/student/ui";
 import {
   BarChart,
   Bar,
@@ -51,7 +42,7 @@ interface DashboardStats {
     averageScore: number;
     averageGrade: number;
     totalExams: number;
-    joinedAt: string;
+    registerYear: number;
   }>;
   recentExams: Array<{
     examId: number;
@@ -74,6 +65,7 @@ interface DashboardStats {
     recentStudents: Array<{
       studentId: number;
       studentName: string;
+      registerYear: number;
       joinedAt: string;
     }>;
     recentAnnouncements: Array<{
@@ -88,7 +80,7 @@ interface DashboardStats {
     averageScore: number;
     averageGrade: number;
     totalExams: number;
-    joinedAt: string;
+    registerYear: number;
   }>;
   managedStudents: Array<{
     studentId: number;
@@ -96,18 +88,18 @@ interface DashboardStats {
     averageScore: number;
     averageGrade: number;
     totalExams: number;
-    joinedAt: string;
+    registerYear: number;
   }>;
   allStudents: Array<{
     studentId: number;
     studentName: string;
-    joinedAt: string;
+    registerYear: number;
     isActive: boolean;
   }>;
   examResultsForFilter: Array<{
     examResultId: number;
     studentId: number;
-    studentJoinedAt: string;
+    studentRegisterYear: number;
     studentIsActive: boolean;
     examId: number;
     examName: string;
@@ -122,8 +114,7 @@ export default function Home() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [showActiveOnly, setShowActiveOnly] = useState(false);
+  const [studentFilter, setStudentFilter] = useState<'all' | 'active' | 'inactive'>('active');
 
   // 통계 데이터 가져오기
   useEffect(() => {
@@ -280,34 +271,40 @@ export default function Home() {
   // 파이차트용 색상 (5개 카테고리)
   const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-  // 연도 필터링 함수
-  const filterByYear = (joinedAt: string) => {
-    if (selectedYear === null) return true;
-    const year = new Date(joinedAt).getFullYear();
-    return year === selectedYear;
-  };
-
   // 활성화 상태 필터링 함수
   const filterByActive = (isActive: boolean) => {
-    if (!showActiveOnly) return true;
-    return isActive;
+    if (studentFilter === 'all') return true;
+    if (studentFilter === 'active') return isActive === true;
+    if (studentFilter === 'inactive') return isActive === false;
+    return true;
   };
 
-  // 필터링된 통계 데이터
-  const filteredTopPerformers = stats?.topPerformers.filter(student => filterByYear(student.joinedAt)) || [];
-  const filteredManagedStudents = stats?.managedStudents.filter(student => filterByYear(student.joinedAt)) || [];
-  const filteredStrugglingStudents = stats?.strugglingStudents.filter(student => filterByYear(student.joinedAt)) || [];
-  
-  // 전체 학생 목록에서 필터링 (연도 + 활성화 상태)
-  const filteredAllStudents = stats?.allStudents.filter(student => 
-    filterByYear(student.joinedAt) && filterByActive(student.isActive)
+  // 필터링된 통계 데이터 (활성화 상태만 필터링)
+  const filteredAllStudents = stats?.allStudents.filter(student =>
+    filterByActive(student.isActive)
   ) || [];
   const filteredStudentCount = filteredAllStudents.length;
-  
-  // 연도별 + 활성화 상태별 시험 결과 필터링
-  const filteredExamResults = stats?.examResultsForFilter.filter(result => 
-    filterByYear(result.studentJoinedAt) && filterByActive(result.studentIsActive)
+
+  // 활성화 상태별 시험 결과 필터링
+  const filteredExamResults = stats?.examResultsForFilter.filter(result =>
+    filterByActive(result.studentIsActive)
   ) || [];
+
+  // 상위 성과자, 관리 대상 학생, 부진 학생도 활성화 상태로 필터링
+  const filteredTopPerformers = stats?.topPerformers.filter(student => {
+    const studentData = stats.allStudents.find(s => s.studentId === student.studentId);
+    return studentData ? filterByActive(studentData.isActive) : false;
+  }) || [];
+
+  const filteredManagedStudents = stats?.managedStudents.filter(student => {
+    const studentData = stats.allStudents.find(s => s.studentId === student.studentId);
+    return studentData ? filterByActive(studentData.isActive) : false;
+  }) || [];
+
+  const filteredStrugglingStudents = stats?.strugglingStudents.filter(student => {
+    const studentData = stats.allStudents.find(s => s.studentId === student.studentId);
+    return studentData ? filterByActive(studentData.isActive) : false;
+  }) || [];
   
   // 필터링된 시험 결과로 평균 점수/등급 재계산
   const filteredAverageScore = filteredExamResults.length > 0
@@ -318,8 +315,12 @@ export default function Home() {
     ? filteredExamResults.reduce((sum, result) => sum + result.grade, 0) / filteredExamResults.length
     : (stats?.averageGrade || 0);
   
+  // 필터 적용 여부
+  const hasFilter = studentFilter !== 'all';
+
   // 필터링된 등급 분포 계산
-  const filteredGradeDistribution = selectedYear && filteredExamResults.length > 0 ? (() => {
+  const filteredGradeDistribution = hasFilter ? (() => {
+    if (filteredExamResults.length === 0) return [];
     const gradeMap = new Map<number, number>();
     for (let i = 1; i <= 9; i++) {
       gradeMap.set(i, 0);
@@ -338,7 +339,8 @@ export default function Home() {
   })() : (stats?.gradeDistribution || []);
 
   // 필터링된 파이차트 등급 분포
-  const filteredPieGradeDistribution = selectedYear && filteredExamResults.length > 0 ? (() => {
+  const filteredPieGradeDistribution = hasFilter ? (() => {
+    if (filteredExamResults.length === 0) return [];
     const pieGradeMap = new Map<number, number>();
     for (let i = 1; i <= 4; i++) {
       pieGradeMap.set(i, 0);
@@ -360,7 +362,8 @@ export default function Home() {
   })() : (stats?.pieGradeDistribution || []);
 
   // 필터링된 최근 시험
-  const filteredRecentExams = selectedYear && filteredExamResults.length > 0 ? (() => {
+  const filteredRecentExams = hasFilter ? (() => {
+    if (filteredExamResults.length === 0) return [];
     const examMap = new Map<number, {
       examId: number;
       examName: string;
@@ -394,15 +397,11 @@ export default function Home() {
       .slice(0, 5);
   })() : (stats?.recentExams || []);
 
-  // 연도 목록 생성 (2025년부터 현재년도까지)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i).reverse();
-
   // 통계 카드 데이터
   const statCards = [
     {
       title: "전체 학생 수",
-      value: selectedYear ? filteredStudentCount : (stats?.totalStudents || 0),
+      value: hasFilter ? filteredStudentCount : (stats?.totalStudents || 0),
       icon: Users,
       color: "text-blue-600",
       bgColor: "bg-blue-50"
@@ -416,7 +415,7 @@ export default function Home() {
     },
     {
       title: "평균 점수",
-      value: selectedYear 
+      value: hasFilter
         ? (filteredAverageScore ? Math.round(filteredAverageScore * 10) / 10 : 0)
         : (stats?.averageScore ? Math.round(stats.averageScore * 10) / 10 : 0),
       icon: TrendingUp,
@@ -426,7 +425,7 @@ export default function Home() {
     },
     {
       title: "평균 등급",
-      value: selectedYear
+      value: hasFilter
         ? (filteredAverageGrade ? Math.round(filteredAverageGrade * 10) / 10 : 0)
         : (stats?.averageGrade ? Math.round(stats.averageGrade * 10) / 10 : 0),
       icon: Award,
@@ -447,80 +446,10 @@ export default function Home() {
             </h1>
             {/* 필터 */}
             <div className="flex items-center gap-2">
-              {/* 연도 필터 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="font-sansKR-Medium min-w-[140px]">
-                    {selectedYear === null ? "전체 연도" : `${selectedYear}년`}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel className="font-sansKR-Medium">
-                    가입연도 선택
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup
-                    value={selectedYear === null ? "전체" : selectedYear.toString()}
-                    onValueChange={(value) => {
-                      if (value === "전체") {
-                        setSelectedYear(null);
-                      } else {
-                        setSelectedYear(parseInt(value));
-                      }
-                    }}
-                  >
-                    <DropdownMenuRadioItem
-                      value="전체"
-                      className="font-sansKR-Medium"
-                    >
-                      전체
-                    </DropdownMenuRadioItem>
-                    {years.map((year) => (
-                      <DropdownMenuRadioItem
-                        key={year}
-                        value={year.toString()}
-                        className="font-sansKR-Medium"
-                      >
-                        {year}년
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* 활성화 상태 필터 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="font-sansKR-Medium min-w-[140px]">
-                    {showActiveOnly ? "활성 학생만" : "전체 학생"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuLabel className="font-sansKR-Medium">
-                    학생 상태 선택
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup
-                    value={showActiveOnly ? "active" : "all"}
-                    onValueChange={(value) => {
-                      setShowActiveOnly(value === "active");
-                    }}
-                  >
-                    <DropdownMenuRadioItem
-                      value="all"
-                      className="font-sansKR-Medium"
-                    >
-                      전체 학생
-                    </DropdownMenuRadioItem>
-                    <DropdownMenuRadioItem
-                      value="active"
-                      className="font-sansKR-Medium"
-                    >
-                      활성 학생만
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ActiveFilter
+                selectedStatus={studentFilter}
+                onStatusChange={setStudentFilter}
+              />
             </div>
           </div>
         </div>

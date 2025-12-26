@@ -9,6 +9,7 @@ export interface Academy  {
   academyName: string;
   academyPhone: string;
   academyAddress: string;
+  isActive: boolean;
   academyStudents: Student[];
   academyAdmins: Admin[];
   academyAnnouncements: Announcement[];
@@ -48,5 +49,6 @@ export interface UpdateAcademyRequest {
   academyName?: string;
   academyPhone?: string;
   academyAddress?: string;
+  isActive?: boolean;
   updatedAt: Date;
 }

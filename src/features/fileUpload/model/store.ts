@@ -15,7 +15,8 @@ interface UseFileUploadReturn {
 
 export const useFileUpload = (
   onUploadComplete: (file: FileEntity) => void,
-  onUploadError?: (error: string) => void
+  onUploadError?: (error: string) => void,
+  folder?: 'announcement' | 'qna' | 'academy' | 'file'
 ): UseFileUploadReturn => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
@@ -43,7 +44,7 @@ export const useFileUpload = (
           }));
 
           // API를 통해 S3 업로드 URL 생성
-          const { uploadUrl, fileKey } = await fileApi.getUploadUrl(file.name, file.type);
+          const { uploadUrl, fileKey } = await fileApi.getUploadUrl(file.name, file.type, folder);
 
           // 진행률 업데이트 (URL 생성 완료)
           setUploadProgress(prev => ({
@@ -90,7 +91,7 @@ export const useFileUpload = (
       setIsUploading(false);
       setUploadProgress({});
     }
-  }, [onUploadComplete, onUploadError]);
+  }, [onUploadComplete, onUploadError, folder]);
 
   return {
     isUploading,

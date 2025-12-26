@@ -61,6 +61,7 @@ model Academy {
   academyName      String         @unique
   academyPhone     String         @unique
   academyAddress   String
+  isActive         Boolean        @default(true)
 
   academyStudents  Student[]      @relation("AcademyToStudents")
   academyAdmins    Admin[]        @relation("AdminToAcademy")
@@ -268,6 +269,18 @@ model Toggle {
   updatedAt         DateTime @updatedAt
 }
 
+model Textbook {
+  textbookId   Int              @id @default(autoincrement())
+  textbookName String           // 파일명 (원본 파일명)
+  fileName     String           // S3 Key
+  fileType     String           @default("application/pdf")
+  fileSize     Int?
+  isImportant  Boolean          @default(false)
+  category     TextbookCategory
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
 enum Role {
   DEVELOPER
   ADMIN
@@ -279,4 +292,13 @@ enum ReservationStatus {
   CONFIRMED  // 확정
   CANCELLED  // 취소됨
   COMPLETED  // 완료
+}
+
+enum TextbookCategory {
+  LISTENING     // 듣기파일
+  MATERIAL      // 수업교재
+  WEEKLY_TEST   // 주간테스트
+  PPT           // PPT
+  ETC           // 기타자료
+  ASSISTANT     // 조교자료
 }

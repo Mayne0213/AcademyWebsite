@@ -39,10 +39,10 @@ export const API_ENDPOINTS = {
   },
 
   // 교재 관련 엔드포인트
-  // TEXTBOOK: {
-  //   BASE: "/api/textbook",
-  //   BY_ID: (id: number) => `/api/textbook/${id}`,
-  // },
+  TEXTBOOK: {
+    BASE: "/api/textbook",
+    BY_ID: (id: number) => `/api/textbook/${id}`,
+  },
 
   // 출석 관련 엔드포인트
   // ATTENDANCE: {

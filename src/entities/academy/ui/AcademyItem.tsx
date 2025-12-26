@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Academy } from "@/src/entities/academy/model/types";
 import { Button } from "@/src/shared/ui/button";
-import AcademyCU from "@/src/features/academyCRUD/ui/AcademyCU";  
+import { Switch } from "@/src/shared/ui/switch";
+import AcademyCU from "@/src/features/academyCRUD/ui/AcademyCU";
 import { Phone, MapPin } from "lucide-react";
 import SignedImage from "@/src/shared/ui/SignedImage";
 import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
@@ -12,7 +13,7 @@ interface Props {
 
 const AcademyItem: React.FC<Props> = ({ academy }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { deleteAcademy } = useAcademyFeatureStore();
+  const { deleteAcademy, updateAcademy } = useAcademyFeatureStore();
 
   const handleDelete = () => {
     const confirmed = window.confirm(
@@ -21,6 +22,17 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
     if (confirmed) {
       deleteAcademy(academy.academyId);
     }
+  };
+
+  const handleToggleActive = async () => {
+    const updateData = {
+      academyId: academy.academyId,
+      academyName: academy.academyName,
+      academyPhone: academy.academyPhone,
+      academyAddress: academy.academyAddress,
+      isActive: !academy.isActive
+    };
+    await updateAcademy(academy.academyId, updateData);
   };
 
   if (isEditing) {
@@ -78,9 +90,25 @@ const AcademyItem: React.FC<Props> = ({ academy }) => {
           </p>
 
           <p className="text-gray-700 mt-1 flex items-center gap-2 text-sm smalltablet:text-base">
-            <MapPin className="w-4 smalltablet:w-5 tablet:w-5 h-4 smalltablet:h-5 tablet:h-5 flex-shrink-0" /> 
+            <MapPin className="w-4 smalltablet:w-5 tablet:w-5 h-4 smalltablet:h-5 tablet:h-5 flex-shrink-0" />
             <span className="truncate">{academy.academyAddress}</span>
           </p>
+
+          {/* 활성화 상태 토글 */}
+          <div className="mt-3 pt-3 border-t flex items-center justify-between">
+            <span className={`text-sm smalltablet:text-base font-medium ${academy.isActive ? "text-green-500" : "text-red-500"}`}>
+              {academy.isActive ? "운영 중" : "운영 중지"}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs smalltablet:text-sm text-gray-500">
+                {academy.isActive ? "활성" : "비활성"}
+              </span>
+              <Switch
+                checked={academy.isActive}
+                onCheckedChange={handleToggleActive}
+              />
+            </div>
+          </div>
         </div>
       </li>
     );

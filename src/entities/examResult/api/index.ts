@@ -100,16 +100,20 @@ export const examResultApi = {
   },
 
   // 시험 통계 조회
-  getExamStatistics: async (examId: number): Promise<ExamStatistics> => {
-    return apiGet(`${BASE_URL}/exam/${examId}/statistics`);
+  getExamStatistics: async (examId: number, activeStatus: 'all' | 'active' | 'inactive' = 'active'): Promise<ExamStatistics> => {
+    return apiGet(`${BASE_URL}/exam/${examId}/statistics?activeStatus=${activeStatus}`);
   },
 
   // 학원별 시험 통계 조회
-  getExamStatisticsByAcademy: async (examId: number, academyId?: number): Promise<ExamStatistics> => {
-    const url = academyId
-      ? `${BASE_URL}/exam/${examId}/statistics?academyId=${academyId}`
-      : `${BASE_URL}/exam/${examId}/statistics`;
-    return apiGet(url);
+  getExamStatisticsByAcademy: async (
+    examId: number,
+    academyId?: number,
+    activeStatus: 'all' | 'active' | 'inactive' = 'active'
+  ): Promise<ExamStatistics> => {
+    const params = new URLSearchParams();
+    if (academyId) params.append('academyId', academyId.toString());
+    params.append('activeStatus', activeStatus);
+    return apiGet(`${BASE_URL}/exam/${examId}/statistics?${params.toString()}`);
   },
 
   // 시험 결과와 학원 정보를 한 번에 조회 (리포트용)

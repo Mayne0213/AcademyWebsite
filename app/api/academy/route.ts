@@ -3,7 +3,11 @@ import { prisma } from "@/prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const activeOnly = searchParams.get('activeOnly') === 'true';
+
     const academies = await prisma.academy.findMany({
+      where: activeOnly ? { isActive: true } : undefined,
       orderBy: { createdAt: "desc" },
       include: {
         files: true,
