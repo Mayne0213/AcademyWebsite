@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { FileItem } from "@/src/entities/file/ui";
 import { FORMATS } from "@/src/shared/lib/formats";
+import { convertUrlsToLinks } from "@/src/shared/lib/utils";
 import AnnouncementCU from "@/src/features/announcementCRUD/ui/AnnouncementCU";
 import { useAnnouncementStore } from "@/src/entities/announcement/model/store";
 import { useAnnouncementFeatureStore } from "@/src/features/announcementCRUD/model/store";
@@ -139,8 +140,8 @@ const AnnouncementItem = ({announcement}: {announcement: Announcement | Announce
               </div>
             ) : 'announcementContent' in announcement ? (
               <>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {announcement.announcementContent || "공지 내용이 없습니다."}
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                  {announcement.announcementContent ? convertUrlsToLinks(announcement.announcementContent) : "공지 내용이 없습니다."}
                 </p>
 
                 {/* 파일 목록 */}

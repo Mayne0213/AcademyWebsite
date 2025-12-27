@@ -3,7 +3,7 @@ import { Announcement, AnnouncementSummary } from '@/src/entities/announcement/m
 import { ChevronDown, ChevronUp, Calendar, User, Edit, Trash2, Pin, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FileItem } from '@/src/entities/file/ui';
-import { extractYouTubeVideoId } from '@/src/shared/lib/utils';
+import { extractYouTubeVideoId, convertUrlsToLinks } from '@/src/shared/lib/utils';
 import { announcementApi } from '../api';
 
 // 공지사항 헤더 컴포넌트
@@ -90,8 +90,8 @@ const AnnouncementContent = ({
                 </div>
               ) : null;
             })()}
-            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-base smalltablet:text-lg">
-              {detail.content || "공지사항 내용이 없습니다."}
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words text-base smalltablet:text-lg">
+              {detail.content ? convertUrlsToLinks(detail.content) : "공지사항 내용이 없습니다."}
             </p>
             
             {detail.files && detail.files.length > 0 && (
