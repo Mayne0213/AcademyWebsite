@@ -63,21 +63,6 @@ const LoginForm = () => {
           >
             회원가입
           </Link>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Link
-              href={"/signIn/idFind"}
-              className="hover:underline hover:text-gray-700"
-            >
-              아이디 찾기
-            </Link>
-            <span className="text-gray-300">|</span>
-            <Link
-              href={"/signIn/pwFind"}
-              className="hover:underline hover:text-gray-700"
-            >
-              비밀번호 찾기
-            </Link>
-          </div>
         </div>
 
         <Button
