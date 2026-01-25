@@ -13,6 +13,7 @@ interface FileItemProps {
     originalName?: string;
     announcementFileOriginalName?: string;
     announcementFileKey?: string;
+    fileName?: string;
     key?: string;
     url?: string;
   };
@@ -22,7 +23,7 @@ const FileItem = ({ file }: FileItemProps) => {
   const router = useRouter();
   const fileType = file.fileType || file.announcementFileType;
   const fileName = file.originalName || file.announcementFileOriginalName;
-  const fileKey = file.key || file.announcementFileKey || file.url;
+  const fileKey = file.key || file.announcementFileKey || file.fileName || file.url;
 
   // 파일 다운로드 핸들러
   const handleFileDownload = async () => {
