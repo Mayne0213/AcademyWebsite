@@ -17,6 +17,7 @@ import {
   XCircle
 } from "lucide-react";
 import { ActiveFilter } from "@/src/entities/student/ui";
+import { ExamCategory, EXAM_CATEGORY_LABELS } from "@/src/entities/exam/model/types";
 import {
   BarChart,
   Bar,
@@ -27,7 +28,9 @@ import {
   Tooltip,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LineChart,
+  Line
 } from 'recharts';
 
 // 통계 데이터 타입 정의
@@ -103,9 +106,28 @@ interface DashboardStats {
     studentIsActive: boolean;
     examId: number;
     examName: string;
+    examCategory: string;
     examDate: string;
     totalScore: number;
     grade: number;
+  }>;
+  // P/NP 시험용
+  passFailDistribution: Array<{
+    status: string;
+    count: number;
+    percentage: number;
+  }>;
+  failedStudents: Array<{
+    studentId: number;
+    studentName: string;
+    score: number;
+    passScore: number;
+  }>;
+  consecutiveFailStudents: Array<{
+    studentId: number;
+    studentName: string;
+    consecutiveFails: number;
+    lastExams: string[];
   }>;
 }
 
@@ -115,6 +137,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [studentFilter, setStudentFilter] = useState<'all' | 'active' | 'inactive'>('active');
+  const [categoryFilter, setCategoryFilter] = useState<ExamCategory>('GRADED');
 
   // 통계 데이터 가져오기
   useEffect(() => {
@@ -123,8 +146,8 @@ export default function Home() {
         setIsLoading(true);
         setError(null);
 
-        // 학습 리포트 요약 API 호출
-        const response = await fetch('/api/learning-report/summary');
+        // 학습 리포트 요약 API 호출 (카테고리 필터 적용)
+        const response = await fetch(`/api/learning-report/summary?category=${categoryFilter}`);
         const result = await response.json();
 
         if (result.success) {
@@ -141,7 +164,7 @@ export default function Home() {
     };
 
     fetchStats();
-  }, []);
+  }, [categoryFilter]);
 
   // 로딩 상태
   if (isLoading) {
@@ -305,16 +328,16 @@ export default function Home() {
     const studentData = stats.allStudents.find(s => s.studentId === student.studentId);
     return studentData ? filterByActive(studentData.isActive) : false;
   }) || [];
-  
+
   // 필터링된 시험 결과로 평균 점수/등급 재계산
   const filteredAverageScore = filteredExamResults.length > 0
     ? filteredExamResults.reduce((sum, result) => sum + result.totalScore, 0) / filteredExamResults.length
     : (stats?.averageScore || 0);
-  
+
   const filteredAverageGrade = filteredExamResults.length > 0
     ? filteredExamResults.reduce((sum, result) => sum + result.grade, 0) / filteredExamResults.length
     : (stats?.averageGrade || 0);
-  
+
   // 필터 적용 여부
   const hasFilter = studentFilter !== 'all';
 
@@ -371,7 +394,7 @@ export default function Home() {
       totalParticipants: number;
       totalScore: number;
     }>();
-    
+
     filteredExamResults.forEach(result => {
       const existing = examMap.get(result.examId);
       if (existing) {
@@ -387,7 +410,7 @@ export default function Home() {
         });
       }
     });
-    
+
     return Array.from(examMap.values())
       .map(exam => ({
         ...exam,
@@ -397,8 +420,44 @@ export default function Home() {
       .slice(0, 5);
   })() : (stats?.recentExams || []);
 
+  // P/NP 시험 합격률 계산
+  const passRate = stats?.passFailDistribution
+    ? (stats.passFailDistribution.find(d => d.status === 'Pass')?.percentage || 0)
+    : 0;
+
   // 통계 카드 데이터
-  const statCards = [
+  const statCards = categoryFilter === 'PASS_FAIL' ? [
+    {
+      title: "전체 학생 수",
+      value: hasFilter ? filteredStudentCount : (stats?.totalStudents || 0),
+      icon: Users,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50"
+    },
+    {
+      title: "총 시험 수",
+      value: stats?.totalExams || 0,
+      icon: BookOpen,
+      color: "text-green-600",
+      bgColor: "bg-green-50"
+    },
+    {
+      title: "합격률",
+      value: passRate,
+      icon: TrendingUp,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      unit: "%"
+    },
+    {
+      title: "불합격자 수",
+      value: stats?.failedStudents?.length || 0,
+      icon: AlertCircle,
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+      unit: "명"
+    }
+  ] : [
     {
       title: "전체 학생 수",
       value: hasFilter ? filteredStudentCount : (stats?.totalStudents || 0),
@@ -441,11 +500,32 @@ export default function Home() {
         {/* 헤더 */}
         <div className="mb-8">
           <div className="flex flex-col smalltablet:flex-row smalltablet:items-center smalltablet:justify-between gap-4 mb-4">
-            <h1 className="text-2xl smalltablet:text-3xl tablet:text-4xl font-sansKR-Bold text-gray-900">
-              학원 대시보드
-            </h1>
+            <div>
+              <h1 className="text-2xl smalltablet:text-3xl tablet:text-4xl font-sansKR-Bold text-gray-900">
+                학원 대시보드
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {EXAM_CATEGORY_LABELS[categoryFilter]} 시험 기준 통계
+              </p>
+            </div>
             {/* 필터 */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col smalltablet:flex-row items-start smalltablet:items-center gap-3">
+              {/* 시험 카테고리 필터 */}
+              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                {(Object.keys(EXAM_CATEGORY_LABELS) as ExamCategory[]).map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setCategoryFilter(category)}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-200 ${categoryFilter === category
+                        ? 'bg-white text-blue-600 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                  >
+                    {EXAM_CATEGORY_LABELS[category]}
+                  </button>
+                ))}
+              </div>
+              {/* 학생 활성 필터 */}
               <ActiveFilter
                 selectedStatus={studentFilter}
                 onStatusChange={setStudentFilter}
@@ -474,74 +554,158 @@ export default function Home() {
         </div>
 
         {/* 차트 섹션 */}
-        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-6 mb-8">
-          {/* 등급별 학생 분포 */}
-          <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
-            <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              등급별 학생 분포
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={filteredGradeDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="grade" />
-                  <Tooltip
-                    formatter={(value: number, name: string) => [`${value}개`]}
-                    // labelFormatter={(label) => label}
-                  />
-                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                    {filteredGradeDistribution.map((entry, index) => (
-                      <Cell key={`bar-cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+        {categoryFilter === 'PASS_FAIL' ? (
+          /* P/NP 시험용 차트 */
+          <div className="grid grid-cols-1 tablet:grid-cols-2 gap-6 mb-8">
+            {/* Pass/Fail 현황 */}
+            <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
+              <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Pass / Fail 현황
+              </h3>
+              <div className="h-64 flex items-center justify-center">
+                <div className="flex gap-8">
+                  {stats?.passFailDistribution?.map((item, index) => (
+                    <div key={index} className="text-center">
+                      <div
+                        className={`w-32 h-32 rounded-full flex items-center justify-center ${
+                          item.status === 'Pass' ? 'bg-green-100' : 'bg-red-100'
+                        }`}
+                      >
+                        <div>
+                          <p className={`text-3xl font-sansKR-Bold ${
+                            item.status === 'Pass' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {item.count}
+                          </p>
+                          <p className="text-sm text-gray-600">{item.percentage}%</p>
+                        </div>
+                      </div>
+                      <p className={`mt-2 font-sansKR-SemiBold ${
+                        item.status === 'Pass' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {item.status}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* 등급별 비율 파이 차트 */}
-          <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
-            <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              등급별 비율
-            </h3>
-            <div className="relative h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={filteredPieGradeDistribution}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="count"
-                  >
-                    {filteredPieGradeDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+            {/* 연속 불합격 현황 */}
+            <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
+              <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+                연속 불합격 현황
+              </h3>
+              <div className="h-64 overflow-y-auto">
+                {stats?.consecutiveFailStudents && stats.consecutiveFailStudents.length > 0 ? (
+                  <div className="space-y-2">
+                    {stats.consecutiveFailStudents.map((student, index) => (
+                      <a
+                        key={index}
+                        href={`main/student/${student.studentId}`}
+                        className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200 hover:bg-orange-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-sansKR-Bold text-orange-600">{student.consecutiveFails}</span>
+                          </div>
+                          <div>
+                            <p className="font-sansKR-Medium text-gray-900">{student.studentName}</p>
+                            <p className="text-xs text-gray-500 truncate max-w-[150px]">
+                              {student.lastExams[0]}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-sansKR-Bold text-orange-600">{student.consecutiveFails}회 연속</p>
+                          <p className="text-xs text-gray-500">불합격</p>
+                        </div>
+                      </a>
                     ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              {/* 등급별 통계 표시 */}
-              <div className="absolute bottom-2 left-2 space-y-1">
-                {filteredPieGradeDistribution.map((entry, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
-                    />
-                    <span className="font-sansKR-SemiBold text-gray-700">
-                      {entry.grade}: {entry.percentage}%
-                    </span>
                   </div>
-                ))}
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500">
+                    <div className="text-center">
+                      <Award className="h-12 w-12 mx-auto mb-2 text-green-300" />
+                      <p>연속 불합격 학생이 없습니다</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* 등급제 시험용 차트 */
+          <div className="grid grid-cols-1 tablet:grid-cols-2 gap-6 mb-8">
+            {/* 등급별 학생 분포 */}
+            <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
+              <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                등급별 학생 분포
+              </h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={filteredGradeDistribution} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="grade" />
+                    <Tooltip
+                      formatter={(value: number, name: string) => [`${value}개`]}
+                    />
+                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                      {filteredGradeDistribution.map((entry, index) => (
+                        <Cell key={`bar-cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* 등급별 비율 파이 차트 */}
+            <div className="bg-white rounded-lg shadow-sm border p-4 smalltablet:p-6">
+              <h3 className="text-lg smalltablet:text-xl font-sansKR-SemiBold text-gray-900 mb-4 flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                등급별 비율
+              </h3>
+              <div className="relative h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={filteredPieGradeDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="count"
+                    >
+                      {filteredPieGradeDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                {/* 등급별 통계 표시 */}
+                <div className="absolute bottom-2 left-2 space-y-1">
+                  {filteredPieGradeDistribution.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2 text-xs">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}
+                      />
+                      <span className="font-sansKR-SemiBold text-gray-700">
+                        {entry.grade}: {entry.percentage}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
 
         {/* 최근 활동 피드 */}

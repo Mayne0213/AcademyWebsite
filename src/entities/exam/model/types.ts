@@ -1,9 +1,19 @@
 import { Student } from "@/src/entities/student/model";
 
+// Prisma ExamCategory enum과 동일하게 정의 (확장 시 schema.prisma와 함께 수정)
+export type ExamCategory = "GRADED" | "PASS_FAIL";
+
+// 카테고리 표시명 매핑
+export const EXAM_CATEGORY_LABELS: Record<ExamCategory, string> = {
+  GRADED: "등급제",
+  PASS_FAIL: "P/NP"
+};
+
 // 시험 엔티티
 export interface Exam {
   examId: number;
   examName: string;
+  examCategory: ExamCategory;
   totalQuestions: number;
   correctAnswers: JSON; // Json 타입
   questionScores: JSON; // Json 타입
@@ -16,6 +26,7 @@ export interface Exam {
 export interface ExamSummary {
   examId: number;
   examName: string;
+  examCategory: ExamCategory;
   totalQuestions: number;
   createdAt: Date;
   updatedAt: Date;
@@ -59,8 +70,10 @@ export interface ExamBasicActions {
 // 시험 생성 요청 타입
 export interface CreateExamRequest {
   examName: string;
+  examCategory: ExamCategory;
   totalQuestions: number;
   correctAnswers: any;
   questionScores: any;
   questionTypes: any;
+  passScore?: number;
 }

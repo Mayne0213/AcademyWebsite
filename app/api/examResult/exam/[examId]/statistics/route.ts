@@ -25,6 +25,8 @@ export async function GET(
         examId: true,
         examName: true,
         totalQuestions: true,
+        examCategory: true,
+        passScore: true,
         questionTypes: true,
         questionScores: true,
       },
@@ -56,6 +58,7 @@ export async function GET(
         questionResults: true,
         student: {
           select: {
+            memberId: true,
             studentName: true,
             academyId: true,
           },
@@ -126,7 +129,7 @@ export async function GET(
       result.questionResults.forEach(questionResult => {
         const questionNumber = questionResult.questionNumber;
         const stats = questionStats.get(questionNumber);
-        
+
         if (stats) {
           stats.totalAttempts++;
           if (questionResult.isCorrect) {
@@ -135,7 +138,7 @@ export async function GET(
             stats.incorrectAnswers++;
           }
           stats.totalScore += questionResult.score;
-          
+
           // 선지별 통계 집계 (selectedChoice가 없는 경우 기본값 사용)
           const choice = questionResult.selectedChoice || 'N/A';
           const choiceStat = stats.choiceStats.get(choice) || { count: 0, isCorrect: false };
@@ -150,11 +153,11 @@ export async function GET(
     const questionStatistics = Array.from(questionStats.entries()).map(([questionNumber, stats]) => {
       const questionType = exam.questionTypes as any;
       const questionTypeStr = questionType?.[questionNumber - 1] || "객관식";
-      
+
       // 실제 배점 가져오기
       const questionScores = exam.questionScores as number[];
       const actualScore = questionScores?.[questionNumber] || 0;
-      
+
       // 선지별 통계 생성
       const choiceStatistics = Array.from(stats.choiceStats.entries()).map(([choice, choiceStat]) => ({
         choice,
@@ -162,7 +165,7 @@ export async function GET(
         selectionRate: stats.totalAttempts > 0 ? choiceStat.count / stats.totalAttempts : 0,
         isCorrect: choiceStat.isCorrect,
       }));
-      
+
       return {
         questionNumber,
         totalAttempts: stats.totalAttempts,
@@ -187,7 +190,7 @@ export async function GET(
 
     // 평균 등급 계산 (실제 데이터베이스의 등급 사용)
     const grades = examResults.map(result => result.grade);
-    const averageGrade = grades.length > 0 ? 
+    const averageGrade = grades.length > 0 ?
       Math.round(grades.reduce((sum, grade) => sum + grade, 0) / grades.length * 10) / 10 : 0;
 
     // 등급별 학생 분포 계산 (9등급까지)
@@ -195,7 +198,7 @@ export async function GET(
     for (let i = 1; i <= 9; i++) {
       gradeDistribution.set(i, 0);
     }
-    
+
     examResults.forEach(result => {
       const grade = result.grade;
       if (grade >= 1 && grade <= 9) {
@@ -209,9 +212,35 @@ export async function GET(
       percentage: totalParticipants > 0 ? Math.round((count / totalParticipants) * 1000) / 10 : 0
     }));
 
+    // P/NP 계산 (passScore가 있는 경우)
+    let passCount = undefined;
+    let failCount = undefined;
+    let failedStudents: { studentId: number; studentName: string; score: number }[] = [];
+
+    if (exam.passScore !== null) {
+      passCount = 0;
+      failCount = 0;
+      examResults.forEach(result => {
+        if (result.totalScore >= exam.passScore!) {
+          passCount!++;
+        } else {
+          failCount!++;
+          failedStudents.push({
+            studentId: result.student?.memberId || 0,
+            studentName: result.student?.studentName || '알 수 없음',
+            score: result.totalScore,
+          });
+        }
+      });
+      // Sort failed students by score (lowest first)
+      failedStudents.sort((a, b) => a.score - b.score);
+    }
+
     const statistics = {
       examId: exam.examId,
       examName: exam.examName,
+      examCategory: exam.examCategory,
+      passScore: exam.passScore,
       totalQuestions: exam.totalQuestions,
       totalParticipants,
       averageScore: Math.round(averageScore * 10) / 10, // 소수점 첫째자리까지
@@ -222,10 +251,12 @@ export async function GET(
       overallCorrectRate: Math.round(overallCorrectRate * 1000) / 1000, // 소수점 셋째자리까지
       overallIncorrectRate: Math.round(overallIncorrectRate * 1000) / 1000,
       gradeDistribution: gradeDistributionArray,
+      passCount,
+      failCount,
+      failedStudents: failedStudents.length > 0 ? failedStudents : undefined,
     };
 
     return NextResponse.json({ success: true, data: statistics });
-    // return NextResponse.json(statistics);
 
   } catch (error) {
     return NextResponse.json(

@@ -202,14 +202,16 @@ model CounselingReservation {
 }
 
 model Exam {
-  examId              Int      @id @default(autoincrement())
-  examName            String
+  examId          Int          @id @default(autoincrement())
+  examName        String
+  examCategory    ExamCategory @default(PASS_FAIL)
   totalQuestions  Int
   correctAnswers  Json
   questionScores  Json
   questionTypes   Json
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  passScore       Int?         // P/NP 기준 점수 (Vocabulary 전용)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   results         ExamResult[] @relation("ExamToExamResult")
 
@@ -301,4 +303,9 @@ enum TextbookCategory {
   PPT           // PPT
   ETC           // 기타자료
   ASSISTANT     // 조교자료
+}
+
+enum ExamCategory {
+  GRADED        // 등급제
+  PASS_FAIL     // P/NP
 }

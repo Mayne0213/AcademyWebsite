@@ -1,3 +1,5 @@
+import { ExamCategory } from "@/src/entities/exam/model/types";
+
 export interface ExamResult {
   examResultId: number;
   examId: number;
@@ -110,6 +112,11 @@ export interface ExamStatistics {
   overallCorrectRate: number;
   overallIncorrectRate: number;
   gradeDistribution: GradeDistribution[];
+  examCategory: ExamCategory;
+  passScore?: number;
+  passCount?: number;
+  failCount?: number;
+  failedStudents?: { studentId: number; studentName: string; score: number }[];
 }
 
 export interface ExamStatisticsSummary {

@@ -1,6 +1,6 @@
 import { Button } from "@/src/shared/ui/button";
 import { Modal } from "@/src/shared/ui/Modal";
-import { ExamSummary } from "@/src/entities/exam/model/types";
+import { ExamSummary, EXAM_CATEGORY_LABELS } from "@/src/entities/exam/model/types";
 import { Calendar, Pencil, BarChart3, FileText } from "lucide-react";
 import { useState } from "react";
 import { useExamFeatureStore } from "../model";
@@ -9,11 +9,11 @@ import { FORMATS } from "@/src/shared/lib/formats";
 import ExamAnswers from "./ExamAnswers";
 import Link from "next/link";
 
-export default function ExamItem({ 
+export default function ExamItem({
   exam
-}: {exam: ExamSummary}) {
+}: { exam: ExamSummary }) {
   const { deleteExam, readExamDetail } = useExamFeatureStore();
-  const { examDetail } = useExamStore(); 
+  const { examDetail } = useExamStore();
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
 
   // 삭제 확인 및 실행 함수
@@ -23,17 +23,19 @@ export default function ExamItem({
     }
   };
 
+  const categoryLabel = exam.examCategory ? EXAM_CATEGORY_LABELS[exam.examCategory] : "기타";
+
   return (
     <>
       <div className="bg-white rounded-xl border border-gray-300">
         <div className="p-4 flex justify-between items-start gap-2">
           <div className="flex-1">
-            <h4 className="font-sansKR-SemiBold text-lg text-gray-900 mb-2 truncate">
+            <h4 className="font-sansKR-SemiBold text-lg text-gray-900 truncate mb-2">
               {exam.examName}
             </h4>
             <div className="space-y-1 text-sm text-gray-500">
               <div className="flex items-center gap-1">
-                <Pencil className="w-4 h-4" /> {exam.totalQuestions}문제
+                <Pencil className="w-4 h-4" /> {categoryLabel}
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" /> {FORMATS.formatDate(exam.createdAt.toString())}

@@ -15,10 +15,12 @@ export async function GET(
       select: {
         examId: true,
         examName: true,
+        examCategory: true,
         totalQuestions: true,
         correctAnswers: true,
         questionScores: true,
         questionTypes: true,
+        passScore: true,
         createdAt: true,
         updatedAt: true,
       }
@@ -50,17 +52,19 @@ export async function PUT(
     const examId = parseInt(id);
     const body = await req.json();
 
-    const { examName, totalQuestions, correctAnswers, questionScores, questionTypes } = body;
+    const { examName, examCategory, totalQuestions, correctAnswers, questionScores, questionTypes, passScore } = body;
 
     // 시험 정보 수정
     const updatedExam = await prisma.exam.update({
       where: { examId: examId },
       data: {
         examName,
+        examCategory,
         totalQuestions,
         correctAnswers,
         questionScores,
         questionTypes,
+        passScore,
         updatedAt: new Date(),
       },
     });
