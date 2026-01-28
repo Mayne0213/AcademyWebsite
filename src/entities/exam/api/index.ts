@@ -1,4 +1,4 @@
-import { Exam, ExamSummary } from "@/src/entities/exam/model/types";
+import { Exam, ExamSummary, ExamCategory } from "@/src/entities/exam/model/types";
 import { apiGet, apiPost, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
 import { toast } from "sonner";
@@ -6,9 +6,16 @@ import { toast } from "sonner";
 // 시험 API 관련 함수들
 export const examApi = {
   // 시험 목록 조회 (간단한 정보만 - 지연 데이터 fetch)
-  readExamSummaries: async (page: number = 1, itemsPerPage: number = 6): Promise<{ exams: ExamSummary[]; totalCount: number }> => {
+  readExamSummaries: async (
+    page: number = 1,
+    itemsPerPage: number = 6,
+    category?: ExamCategory
+  ): Promise<{ exams: ExamSummary[]; totalCount: number }> => {
     try {
-      const url = `${API_ENDPOINTS.EXAM.BASE}?page=${page}&pageSize=${itemsPerPage}`;
+      let url = `${API_ENDPOINTS.EXAM.BASE}?page=${page}&pageSize=${itemsPerPage}`;
+      if (category) {
+        url += `&category=${category}`;
+      }
       const result = await apiGet<{ exams: ExamSummary[]; totalCount: number }>(url);
       return result;
     } catch (error) {

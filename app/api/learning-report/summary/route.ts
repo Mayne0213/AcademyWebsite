@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/prisma/client';
+import { ExamCategory } from '@prisma/client';
 
 // Route 캐싱 비활성화 (동적 데이터)
 export const dynamic = 'force-dynamic';
@@ -14,10 +15,11 @@ export async function GET(request: NextRequest) {
     const maxGrade = searchParams.get('maxGrade');
     const minScore = searchParams.get('minScore');
     const maxScore = searchParams.get('maxScore');
+    const category = searchParams.get('category') as ExamCategory | null; // 시험 카테고리 필터
 
     // 필터 조건 구성
     const whereClause: any = {};
-    
+
     if (startDate && endDate) {
       whereClause.createdAt = {
         gte: new Date(startDate),
@@ -37,11 +39,19 @@ export async function GET(request: NextRequest) {
       if (maxScore) whereClause.totalScore.lte = parseInt(maxScore);
     }
 
+    // 카테고리 필터 조건 (exam relation에 적용)
+    if (category) {
+      whereClause.exam = {
+        examCategory: category
+      };
+    }
+
     // 전체 학생 수 조회 (활성/비활성 모두 포함, 클라이언트에서 필터링)
     const totalStudents = await prisma.student.count();
 
-    // 전체 시험 수 조회
-    const totalExams = await prisma.exam.count();
+    // 전체 시험 수 조회 (카테고리 필터 적용)
+    const examWhereClause = category ? { examCategory: category } : {};
+    const totalExams = await prisma.exam.count({ where: examWhereClause });
 
     // 전체 학생 목록 조회 (등록년도 및 활성화 상태 포함)
     const allStudentsList = await prisma.student.findMany({
@@ -52,7 +62,7 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // 전체 시험 결과 조회 (모든 학생 포함, 클라이언트에서 필터링)
+    // 전체 시험 결과 조회 (카테고리 필터 적용)
     const examResults = await prisma.examResult.findMany({
       where: whereClause,
       include: {
@@ -60,7 +70,9 @@ export async function GET(request: NextRequest) {
           select: {
             examId: true,
             examName: true,
-            totalQuestions: true
+            examCategory: true,
+            totalQuestions: true,
+            passScore: true
           }
         },
         student: {
@@ -83,6 +95,7 @@ export async function GET(request: NextRequest) {
       studentIsActive: result.student.isActive,
       examId: result.exam.examId,
       examName: result.exam.examName,
+      examCategory: result.exam.examCategory,
       examDate: result.createdAt.toISOString(),
       totalScore: result.totalScore,
       grade: result.grade
@@ -99,11 +112,11 @@ export async function GET(request: NextRequest) {
 
     // 학생별 평균 점수 계산
     const studentScores = new Map<number, { totalScore: number; totalGrade: number; count: number; name: string }>();
-    
+
     examResults.forEach(result => {
       const studentId = result.student.memberId;
       const existing = studentScores.get(studentId);
-      
+
       if (existing) {
         existing.totalScore += result.totalScore;
         existing.totalGrade += result.grade;
@@ -207,6 +220,88 @@ export async function GET(request: NextRequest) {
       percentage: totalExamResults > 0 ? Math.round((count / totalExamResults) * 1000) / 10 : 0
     }));
 
+    // P/NP 시험용 Pass/Fail 분포 계산
+    let passCount = 0;
+    let failCount = 0;
+    const failedStudentsList: Array<{ studentId: number; studentName: string; score: number; passScore: number }> = [];
+
+    examResults.forEach(result => {
+      const passScore = result.exam.passScore;
+      if (passScore !== null && passScore !== undefined) {
+        if (result.totalScore >= passScore) {
+          passCount++;
+        } else {
+          failCount++;
+          failedStudentsList.push({
+            studentId: result.student.memberId,
+            studentName: result.student.studentName,
+            score: result.totalScore,
+            passScore: passScore
+          });
+        }
+      }
+    });
+
+    const passFailDistribution = [
+      { status: 'Pass', count: passCount, percentage: totalExamResults > 0 ? Math.round((passCount / totalExamResults) * 1000) / 10 : 0 },
+      { status: 'Fail', count: failCount, percentage: totalExamResults > 0 ? Math.round((failCount / totalExamResults) * 1000) / 10 : 0 }
+    ];
+
+    // 학생별 연속 불합격 현황 계산
+    const studentResultsMap = new Map<number, { name: string; results: { examName: string; passed: boolean; date: Date }[] }>();
+
+    examResults.forEach(result => {
+      const passScore = result.exam.passScore;
+      if (passScore === null || passScore === undefined) return;
+
+      const studentId = result.student.memberId;
+      const passed = result.totalScore >= passScore;
+
+      if (!studentResultsMap.has(studentId)) {
+        studentResultsMap.set(studentId, {
+          name: result.student.studentName,
+          results: []
+        });
+      }
+
+      studentResultsMap.get(studentId)!.results.push({
+        examName: result.exam.examName,
+        passed,
+        date: result.createdAt
+      });
+    });
+
+    // 연속 불합격 횟수 계산
+    const consecutiveFailStudents: Array<{ studentId: number; studentName: string; consecutiveFails: number; lastExams: string[] }> = [];
+
+    studentResultsMap.forEach((data, studentId) => {
+      // 날짜순 정렬 (최신순)
+      const sortedResults = data.results.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+      let consecutiveFails = 0;
+      const failedExams: string[] = [];
+
+      for (const result of sortedResults) {
+        if (!result.passed) {
+          consecutiveFails++;
+          failedExams.push(result.examName);
+        } else {
+          break; // 합격하면 연속 불합격 끊김
+        }
+      }
+
+      if (consecutiveFails >= 2) {
+        consecutiveFailStudents.push({
+          studentId,
+          studentName: data.name,
+          consecutiveFails,
+          lastExams: failedExams.slice(0, 3) // 최근 3개만
+        });
+      }
+    });
+
+    // 연속 불합격 횟수로 정렬
+    consecutiveFailStudents.sort((a, b) => b.consecutiveFails - a.consecutiveFails);
 
     // 최근 학생 등록 (최근 가입자 기준)
     const recentStudents = await prisma.student.findMany({
@@ -293,7 +388,11 @@ export async function GET(request: NextRequest) {
       // 전체 학생 목록
       allStudents,
       // 클라이언트 필터링용 시험 결과
-      examResultsForFilter
+      examResultsForFilter,
+      // P/NP 시험용 Pass/Fail 분포
+      passFailDistribution,
+      failedStudents: failedStudentsList.slice(0, 20), // 상위 20명만
+      consecutiveFailStudents: consecutiveFailStudents.slice(0, 10) // 상위 10명
     };
 
     return NextResponse.json({
