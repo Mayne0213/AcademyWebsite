@@ -18,12 +18,12 @@ const UploadTextbook = () => {
             onClick={() => inputRef.current?.click()}
         >
             <label htmlFor="upload-file" className="text-blue-600 font-semibold text-lg cursor-pointer">
-            + 교재 PDF 파일 업로드
+            + 교재 PDF / 오디오 파일 업로드
             </label>
             <input
             id="upload-file"
             type="file"
-            accept=".pdf"
+            accept=".pdf,.mp3,.wav,.m4a,.ogg,.aac"
             className="hidden"
             ref={inputRef}
             onChange={handleFileChange}

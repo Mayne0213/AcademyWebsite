@@ -1,5 +1,5 @@
 import { Textbook } from "@/components/type/textbookType";
-import { Pencil, Download, Trash, Star } from "lucide-react";
+import { Pencil, Download, Trash, Star, FileText, Headphones } from "lucide-react";
 import React from "react";
 
 interface TextbookProps {
@@ -13,6 +13,8 @@ const TextbookItem: React.FC<TextbookProps> = ({
   onToggleFavorite,
   onRemoveTextbook,
 }) => {
+  const isAudio = textbook.fileType === "audio";
+
   return (
     <li
       key={textbook.textbookId}
@@ -20,9 +22,16 @@ const TextbookItem: React.FC<TextbookProps> = ({
     >
       <div className="p-4 flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <p className="font-sansKR-SemiBold text-lg">
-            {textbook.textbookName}
-          </p>
+          <div className="flex items-center gap-2">
+            {isAudio ? (
+              <Headphones className="w-5 h-5 text-purple-500 shrink-0" />
+            ) : (
+              <FileText className="w-5 h-5 text-red-500 shrink-0" />
+            )}
+            <p className="font-sansKR-SemiBold text-lg">
+              {textbook.textbookName}
+            </p>
+          </div>
           <button
             onClick={() => onToggleFavorite(textbook.textbookId)}
             className="text-yellow-400 hover:text-yellow-500 ml-2"

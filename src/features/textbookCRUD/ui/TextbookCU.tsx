@@ -98,13 +98,18 @@ const TextbookCU: React.FC<TextbookCUProps> = ({ onClose }) => {
       {/* 파일 업로드 섹션 */}
       <div className="mt-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          파일 업로드 (PDF만 가능) <span className="text-red-500">*</span>
+          파일 업로드 (PDF, 오디오) <span className="text-red-500">*</span>
         </label>
         <FileUploadDropzone
           onUploadComplete={handleFileUploadComplete}
           multiple={false}
           accept={{
-            'application/pdf': ['.pdf']
+            'application/pdf': ['.pdf'],
+            'audio/mpeg': ['.mp3'],
+            'audio/wav': ['.wav'],
+            'audio/mp4': ['.m4a'],
+            'audio/ogg': ['.ogg'],
+            'audio/aac': ['.aac'],
           }}
           folder="file"
         />

@@ -215,6 +215,7 @@ model Exam {
 
   results         ExamResult[] @relation("ExamToExamResult")
 
+  @@index([examCategory])
   @@map("exam")
 }
 
