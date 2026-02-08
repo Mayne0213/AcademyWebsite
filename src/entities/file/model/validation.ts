@@ -7,6 +7,7 @@ import type { File, CreateFileRequest } from './types';
 
 const ALLOWED_IMAGE_TYPES = VALIDATION_PATTERNS.FILE.ALLOWED_IMAGE_TYPES;
 const ALLOWED_DOCUMENT_TYPES = VALIDATION_PATTERNS.FILE.ALLOWED_DOCUMENT_TYPES;
+const ALLOWED_AUDIO_TYPES = VALIDATION_PATTERNS.FILE.ALLOWED_AUDIO_TYPES;
 
 // Zod 스키마 정의
 export const FileSchema = z.object({
@@ -15,7 +16,7 @@ export const FileSchema = z.object({
   originalName: z.string().min(1, '원본 파일명을 입력해주세요.'),
   fileUrl: z.string().refine(VALIDATION_FUNCTIONS.isValidUrl, ERROR_MESSAGES.VALIDATION.INVALID_URL),
   fileType: z.string().refine(
-    (type) => ALLOWED_IMAGE_TYPES.includes(type as any) || ALLOWED_DOCUMENT_TYPES.includes(type as any),
+    (type) => ALLOWED_IMAGE_TYPES.includes(type as any) || ALLOWED_DOCUMENT_TYPES.includes(type as any) || ALLOWED_AUDIO_TYPES.includes(type as any),
     '지원하지 않는 파일 타입입니다.'
   ),
   fileSize: z.number().optional(),
@@ -67,7 +68,7 @@ export const FILE_VALIDATION = {
 
   // 파일 타입 검증
   validateFileType: (fileType: string) => {
-    return ALLOWED_IMAGE_TYPES.includes(fileType as any) || ALLOWED_DOCUMENT_TYPES.includes(fileType as any);
+    return ALLOWED_IMAGE_TYPES.includes(fileType as any) || ALLOWED_DOCUMENT_TYPES.includes(fileType as any) || ALLOWED_AUDIO_TYPES.includes(fileType as any);
   },
 
   // 파일 크기 검증
@@ -83,6 +84,11 @@ export const FILE_VALIDATION = {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
     'application/vnd.ms-excel': ['.xls'],
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+    'audio/mpeg': ['.mp3'],
+    'audio/wav': ['.wav'],
+    'audio/mp4': ['.m4a'],
+    'audio/ogg': ['.ogg'],
+    'audio/aac': ['.aac'],
   }),
 
   // 파일 업로드 에러 메시지 생성
@@ -93,7 +99,7 @@ export const FILE_VALIDATION = {
         message = `${fileName}: 지원하지 않는 파일 타입입니다.`;
         break;
       case 'file-too-large':
-        message = `${fileName}: 파일 크기가 너무 큽니다. (최대 10MB)`;
+        message = `${fileName}: 파일 크기가 너무 큽니다. (최대 50MB)`;
         break;
       case 'file-too-small':
         message = `${fileName}: 파일 크기가 너무 작습니다.`;

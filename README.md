@@ -1,296 +1,223 @@
-# OMR Grading Application
+# Academy Management System
 
-Next.js + Python OMR 채점 애플리케이션을 위한 Docker 기반 배포 환경입니다.
+A full-stack academy management platform built with Next.js 14 and PostgreSQL. Provides student dashboards, admin panels, OMR grading, learning reports, and multi-academy support.
 
-## 🚀 Features
+## Tech Stack
 
-- **Next.js Frontend**: React 기반 사용자 인터페이스
-- **Python OMR Processing**: OpenCV를 사용한 OMR 채점 엔진
-- **MySQL Database**: AWS RDS (프로덕션) / 로컬 MySQL (개발)
-- **AWS S3 Integration**: 파일 업로드/다운로드
-- **Docker Containerization**: 일관된 배포 환경
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript 5 |
+| Database | PostgreSQL + Prisma 6 |
+| State | Zustand 5, React Hook Form |
+| Auth | JWT (jose) + bcrypt, cookie-based sessions |
+| Styling | Tailwind CSS 3.4, Shadcn/UI (Radix) |
+| Storage | AWS S3 (pre-signed URLs) |
+| Charts | Recharts |
+| PDF | @react-pdf/renderer, jspdf, html2canvas |
+| Animation | Framer Motion, Swiper |
+| Validation | Zod |
 
-## 🏗️ Architecture
+## Architecture
 
-```text
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Python        │
-│   (Next.js)     │◄──►│   (API Routes)  │◄──►│   (OMR Script)  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Static Files  │    │   Database      │    │   File Storage  │
-│   (Public)      │    │   (MySQL)       │    │   (AWS S3)      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+The project follows **Feature-Sliced Design (FSD)** methodology:
+
+```
+src/
+  app/         → Application config, providers, global styles
+  entities/    → Domain models (API, store, types, UI per entity)
+  features/    → Business logic (CRUD operations, workflows)
+  shared/      → Reusable utilities, hooks, UI primitives
+  widgets/     → Page-level layout components (navbar, sidebar, footer)
 ```
 
-## 📋 Prerequisites
+## Project Structure
 
-- **Docker**: 20.10+
-- **Docker Compose**: 2.0+
-- **Git**: 코드 버전 관리
-- **Node.js**: 18+ (로컬 개발용)
-- **Python**: 3.8+ (로컬 개발용)
+```
+.
+├── app/                          # Next.js App Router
+│   ├── (routing)/
+│   │   ├── dashboard/            # Student-facing pages
+│   │   │   ├── announcement/
+│   │   │   ├── asset/
+│   │   │   ├── grade/
+│   │   │   ├── qna/
+│   │   │   ├── reservation/
+│   │   │   └── review/
+│   │   ├── home/                 # Public landing & auth
+│   │   │   ├── (contents)/       # Academy info, curriculum, news
+│   │   │   ├── signIn/
+│   │   │   └── signUp/
+│   │   └── main/                 # Admin panel
+│   │       ├── exam/             # Exam management & statistics
+│   │       ├── student/          # Student management
+│   │       ├── omr/              # OMR grading
+│   │       ├── announcement/     # Notice management
+│   │       ├── report/           # Learning reports
+│   │       ├── textbook/         # Textbook management
+│   │       ├── review/           # Review management
+│   │       ├── listening/        # Listening material creation
+│   │       ├── message/          # SMS sending
+│   │       ├── setCounseling/    # Counseling schedule
+│   │       ├── admin/            # Staff management
+│   │       └── academyManagement/
+│   └── api/                      # 42 API route handlers
+│       ├── academy/
+│       ├── admin/
+│       ├── announcement/
+│       ├── exam/
+│       ├── examResult/
+│       ├── files/                # S3 upload/download/delete
+│       ├── health/
+│       ├── learning-report/
+│       ├── member/               # signIn, signUp, signOut, me
+│       ├── omr/
+│       ├── qna/
+│       ├── reservation/
+│       ├── review/
+│       ├── schedule/
+│       ├── student/
+│       ├── textbook/
+│       └── toggle/
+├── src/
+│   ├── app/                      # App config & providers
+│   │   ├── config/               # Metadata, schemas
+│   │   ├── providers/            # Auth provider
+│   │   └── styles/               # Global CSS, fonts
+│   ├── entities/                 # 14 domain entities
+│   │   ├── academy/
+│   │   ├── admin/
+│   │   ├── announcement/
+│   │   ├── exam/
+│   │   ├── examResult/
+│   │   ├── file/
+│   │   ├── qna/
+│   │   ├── reservation/
+│   │   ├── review/
+│   │   ├── schedule/
+│   │   ├── student/
+│   │   ├── textbook/
+│   │   ├── toggle/
+│   │   └── user/                 # Auth, JWT, session
+│   ├── features/                 # 18 business features
+│   │   ├── academyCRUD/
+│   │   ├── adminCRUD/
+│   │   ├── announcementCRUD/
+│   │   ├── examCRUD/             # Includes statistics
+│   │   ├── fileDelete/
+│   │   ├── fileUpload/
+│   │   ├── learningReport/       # Performance analytics
+│   │   ├── omrGrading/           # Optical mark recognition
+│   │   ├── qnaCRUD/
+│   │   ├── reportGeneration/     # PDF export
+│   │   ├── reservationCRUD/
+│   │   ├── reviewCRUD/
+│   │   ├── reviewPopup/
+│   │   ├── scheduleCRUD/
+│   │   ├── signIn/
+│   │   ├── signUp/
+│   │   ├── studentCRUD/
+│   │   └── textbookCRUD/
+│   ├── shared/                   # Shared utilities
+│   │   ├── api/                  # HTTP client
+│   │   ├── config/               # Messages, time slots, validation
+│   │   ├── hooks/                # Pagination, search, sort
+│   │   ├── lib/                  # Formatting, device detection
+│   │   ├── model/                # Pagination model
+│   │   ├── seo/                  # JSON-LD
+│   │   └── ui/                   # Shadcn/UI + custom components
+│   └── widgets/                  # Layout components
+│       ├── footer/
+│       ├── header/
+│       ├── landingPage/          # 15 landing sections
+│       ├── navbar/
+│       └── sidebar/
+├── prisma/
+│   ├── schema.prisma             # 18 models, 4 enums
+│   └── client.tsx
+├── components/                   # Legacy textbook components
+├── public/
+│   ├── fonts/                    # NotoSansKR, MaruBuri, GangwonEdu
+│   └── homeCopy/                 # Landing page images
+├── middleware.tsx                 # Route protection & redirects
+├── tailwind.config.ts
+├── next.config.mjs
+├── package.json
+└── tsconfig.json
+```
 
-## 🐳 Quick Start
+## Database Schema
 
-### 1. 프로젝트 클론
+PostgreSQL with 18 Prisma models across these domains:
+
+| Domain | Models | Description |
+|--------|--------|-------------|
+| Auth | User | Roles: DEVELOPER, ADMIN, STUDENT |
+| People | Admin, Student | Staff and learner profiles |
+| Organization | Academy, AcademyFile | Multi-academy support |
+| Content | Announcement, AnnouncementFile | Notices with attachments |
+| Q&A | QnABoard, QnAFile, QnABoardComment | Student question board |
+| Exam | Exam, ExamResult, ExamQuestionResult | Tests, scoring, per-question results |
+| Scheduling | CounselingSchedule, CounselingReservation | Appointment booking |
+| Materials | Textbook | Categorized study resources (S3) |
+| Misc | Review, Toggle | Testimonials, feature flags |
+
+## Roles & Access
+
+| Area | Path | Access |
+|------|------|--------|
+| Landing page | `/home/*` | Public |
+| Student dashboard | `/dashboard/*` | Authenticated (any role) |
+| Admin panel | `/main/*` | ADMIN, DEVELOPER only |
+
+Middleware handles JWT validation and role-based redirects.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- PostgreSQL
+- AWS S3 bucket (for file storage)
+
+### Environment Variables
+
 ```bash
-git clone <your-repository>
-cd frontend
-```
+# Database
+DATABASE_URL="postgresql://user:password@host:port/database"
 
-### 2. 환경변수 설정
-```bash
-# .env 파일 생성
-cp .env.example .env
-
-# 환경변수 편집
-nano .env
-```
-
-### 3. 도커 실행
-```bash
-# 프로덕션 환경
-docker-compose up -d
-
-# 개발 환경
-docker-compose -f docker-compose.dev.yml up -d
-```
-
-### 4. 애플리케이션 접속
-```text
-http://localhost:3000
-```
-
-## 🔧 Development
-
-### 로컬 개발 환경
-```bash
-# 의존성 설치
-npm install
-pip install -r scripts/requirements.txt
-
-# 개발 서버 실행
-npm run dev
-```
-
-### 도커 개발 환경
-```bash
-# 개발용 컨테이너 실행
-docker-compose -f docker-compose.dev.yml up -d
-
-# 로그 확인
-docker-compose -f docker-compose.dev.yml logs -f app
-
-# 컨테이너 중지
-docker-compose -f docker-compose.dev.yml down
-```
-
-## 🚀 Production Deployment
-
-### 자동 배포 스크립트 사용
-```bash
-# 배포 스크립트 실행 권한 부여
-chmod +x deploy.sh
-
-# 배포 실행
-./deploy.sh
-```
-
-### 수동 배포
-```bash
-# 이미지 빌드
-docker-compose build --no-cache
-
-# 컨테이너 실행
-docker-compose up -d
-
-# 상태 확인
-docker-compose ps
-```
-
-## 📁 Project Structure
-
-```text
-frontend/
-├── app/                    # Next.js App Router
-│   ├── api/               # API 엔드포인트
-│   │   └── omr/           # OMR 채점 API
-│   └── ...
-├── scripts/                # Python 스크립트
-│   ├── omr_grading.py     # OMR 채점 엔진
-│   └── requirements.txt    # Python 의존성
-├── src/                    # 소스 코드
-│   ├── entities/           # 도메인 엔티티
-│   ├── features/           # 비즈니스 로직
-│   └── shared/             # 공통 유틸리티
-├── prisma/                 # 데이터베이스 스키마
-├── Dockerfile              # 도커 이미지 빌드
-├── docker-compose.yml      # 프로덕션 환경
-├── docker-compose.dev.yml  # 개발 환경
-└── deploy.sh               # 배포 자동화
-```
-
-## 🔐 Environment Variables
-
-### 필수 환경변수
-```bash
-# 데이터베이스
-DATABASE_URL="mysql://username:password@host:port/database"
-
-# JWT 인증
+# Authentication
 JWT_SECRET="your-secret-key"
 
 # AWS S3
 AWS_ACCESS_KEY_ID="your-access-key"
 AWS_SECRET_ACCESS_KEY="your-secret-key"
 AWS_REGION="ap-northeast-2"
-AWS_S3_BUCKET_NAME="your-bucket-name"
+AWS_S3_BUCKET_NAME="your-bucket"
 AWS_S3_BUCKET_URL="https://your-bucket.s3.region.amazonaws.com"
 ```
 
-### 개발 환경 추가 변수
+### Installation
+
 ```bash
-# 로컬 MySQL
-MYSQL_DATABASE=AcademyDB
-MYSQL_USER=root
-MYSQL_PASSWORD=your-password
-MYSQL_ROOT_PASSWORD=your-root-password
+npm install
+npx prisma generate
+npx prisma db push      # Apply schema to database
+npm run dev              # Start dev server at http://localhost:3000
 ```
 
-## 🐳 Docker Commands
+### Production
 
-### 컨테이너 관리
 ```bash
-# 컨테이너 상태 확인
-docker-compose ps
-
-# 로그 확인
-docker-compose logs -f app
-
-# 컨테이너 재시작
-docker-compose restart app
-
-# 컨테이너 중지
-docker-compose down
+npm run build            # Runs prisma generate + next build
+npm start
 ```
 
-### 이미지 관리
-```bash
-# 이미지 목록
-docker images
+## Key Features
 
-# 이미지 삭제
-docker rmi omr-grading-app:latest
-
-# 이미지 히스토리
-docker history omr-grading-app:latest
-```
-
-### 볼륨 관리
-```bash
-# 볼륨 목록
-docker volume ls
-
-# 볼륨 삭제
-docker volume rm frontend_mysql_data_dev
-```
-
-## 🔍 Troubleshooting
-
-### 일반적인 문제들
-
-#### 1. 포트 충돌
-```bash
-# 포트 사용 확인
-lsof -i :3000
-
-# 다른 포트 사용
-docker-compose up -d -p 3001:3000
-```
-
-#### 2. 권한 문제
-```bash
-# 도커 그룹에 사용자 추가
-sudo usermod -aG docker $USER
-
-# 로그아웃 후 재로그인
-```
-
-#### 3. 메모리 부족
-```bash
-# 도커 메모리 제한 확인
-docker stats
-
-# 도커 데몬 재시작
-sudo systemctl restart docker
-```
-
-### 로그 확인
-```bash
-# 애플리케이션 로그
-docker-compose logs app
-
-# 데이터베이스 로그
-docker-compose logs db
-
-# 실시간 로그
-docker-compose logs -f
-```
-
-## 📊 Monitoring
-
-### 헬스 체크
-```bash
-# 애플리케이션 상태 확인
-curl http://localhost:3000/api/health
-
-# 데이터베이스 연결 확인
-docker-compose exec db mysql -u root -p -e "SELECT 1"
-```
-
-### 리소스 사용량
-```bash
-# 컨테이너 리소스 사용량
-docker stats
-
-# 시스템 리소스
-htop
-```
-
-## 🔄 CI/CD
-
-### GitHub Actions (선택사항)
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to EC2
-on:
-  push:
-    branches: [main]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to EC2
-        run: |
-          # 배포 스크립트 실행
-```
-
-## 📚 Additional Resources
-
-- [Docker Documentation](https://docs.docker.com/)
-- [Docker Compose Documentation](https://docs.docker.com/compose/)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [OpenCV Python Documentation](https://docs.opencv.org/4.x/)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+- **OMR Grading** - Client-side optical mark recognition for exam scoring
+- **Learning Reports** - Performance analytics with charts, exportable as PDF
+- **Multi-Academy** - Manage multiple academy branches under one system
+- **Counseling Booking** - Time-slot based reservation system
+- **File Management** - S3-backed uploads with pre-signed URLs for announcements, Q&A, textbooks
+- **Review Popup** - Toggleable student testimonial display on landing page

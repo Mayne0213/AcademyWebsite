@@ -22,7 +22,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
   onUploadComplete,
   multiple = false,
   accept = FILE_VALIDATION.getAcceptObject(),
-  maxSize = 10 * 1024 * 1024, // 10MB
+  maxSize = 50 * 1024 * 1024, // 50MB
   className = "",
   disabled = false,
   folder = 'file'

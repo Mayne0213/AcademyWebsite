@@ -54,6 +54,10 @@ export const VALIDATION_FUNCTIONS = {
   isValidDocumentType: (fileType: string): boolean => {
     return VALIDATION_PATTERNS.FILE.ALLOWED_DOCUMENT_TYPES.includes(fileType as any);
   },
+
+  isValidAudioType: (fileType: string): boolean => {
+    return VALIDATION_PATTERNS.FILE.ALLOWED_AUDIO_TYPES.includes(fileType as any);
+  },
   
   isValidFileSize: (size: number, isImage: boolean = false): boolean => {
     const maxSize = isImage ? VALIDATION_PATTERNS.FILE.MAX_IMAGE_SIZE : VALIDATION_PATTERNS.FILE.MAX_FILE_SIZE;
@@ -66,8 +70,9 @@ export const VALIDATION_FUNCTIONS = {
     
     const isImage = VALIDATION_FUNCTIONS.isValidImageType(file.type);
     const isDocument = VALIDATION_FUNCTIONS.isValidDocumentType(file.type);
-    
-    if (!isImage && !isDocument) {
+    const isAudio = VALIDATION_FUNCTIONS.isValidAudioType(file.type);
+
+    if (!isImage && !isDocument && !isAudio) {
       errors.push(ERROR_MESSAGES.FILE.INVALID_TYPE);
     }
     

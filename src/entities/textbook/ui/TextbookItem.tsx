@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Download, Trash, Star } from "lucide-react";
+import { Download, Trash, Star, FileText, Headphones } from "lucide-react";
 import { Textbook, TEXTBOOK_CATEGORY_LABELS } from "@/src/entities/textbook/model/types";
 import { fileApi } from "@/src/entities/file/api";
 
@@ -36,13 +36,22 @@ const TextbookItem: React.FC<TextbookItemProps> = ({
     }
   };
 
+  const isAudio = textbook.fileType?.startsWith('audio/');
+
   return (
     <li className="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between max-h-[160px]">
       <div className="p-4 flex flex-col">
         <div className="flex justify-between items-start mb-2">
-          <p className="font-sansKR-SemiBold text-lg">
-            {textbook.textbookName}
-          </p>
+          <div className="flex items-center gap-2">
+            {isAudio ? (
+              <Headphones className="w-5 h-5 text-purple-500 shrink-0" />
+            ) : (
+              <FileText className="w-5 h-5 text-red-500 shrink-0" />
+            )}
+            <p className="font-sansKR-SemiBold text-lg">
+              {textbook.textbookName}
+            </p>
+          </div>
           {onToggleImportant && (
             <button
               onClick={() => onToggleImportant(textbook.textbookId, !textbook.isImportant)}

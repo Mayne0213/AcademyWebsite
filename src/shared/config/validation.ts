@@ -37,9 +37,18 @@ export const VALIDATION_PATTERNS = {
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     ] as const,
+
+    // 허용된 오디오 타입
+    ALLOWED_AUDIO_TYPES: [
+      "audio/mpeg",
+      "audio/wav",
+      "audio/mp4",
+      "audio/ogg",
+      "audio/aac",
+    ] as const,
     
     // 파일 크기 제한
-    MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+    MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
     MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
   },
 } as const; 

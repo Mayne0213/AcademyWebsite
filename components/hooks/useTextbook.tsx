@@ -9,6 +9,7 @@ interface Textbook{
     updatedAt: string,
     category: string,
     favorite?: boolean,
+    fileType?: 'pdf' | 'audio',
 }
 
 interface TextbookState {
