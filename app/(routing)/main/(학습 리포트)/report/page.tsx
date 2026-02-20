@@ -42,6 +42,9 @@ interface StudentExamResult {
     examDate: Date;
     examResultId: number;
   }>;
+  // AI 분석 데이터
+  examCommentary?: string;
+  studentFeedback?: string;
 }
 
 // 새로운 상태 구조: examResultId를 키로 사용
@@ -298,8 +301,12 @@ export default function ReportPage() {
         examDetails?.success ? examDetails.data.correctAnswers || {} : {}
       );
 
-      // 학생의 최근 4개 시험 이력 조회
-      const recentExamHistory = await fetchStudentRecentExamHistory(student.studentId);
+      // 학생의 최근 4개 시험 이력 조회 + AI 데이터 fetch
+      const [recentExamHistory, aiCommentaryRes, aiFeedbackRes] = await Promise.all([
+        fetchStudentRecentExamHistory(student.studentId),
+        fetch(`/api/ai-analysis/exam/${student.examId}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`/api/ai-analysis/student/${student.examResultId}`).then(r => r.ok ? r.json() : null).catch(() => null),
+      ]);
 
       // 학생 정보 업데이트 - examResultId 기반으로 정확한 업데이트
       const updatedStudent = {
@@ -310,7 +317,9 @@ export default function ReportPage() {
         questionTypeStatistics,
         questionTypes: examDetails?.success ? examDetails.data.questionTypes || {} : {},
         topIncorrectQuestions,
-        recentExamHistory
+        recentExamHistory,
+        examCommentary: aiCommentaryRes?.success ? aiCommentaryRes.data?.content : undefined,
+        studentFeedback: aiFeedbackRes?.success ? aiFeedbackRes.data?.content : undefined,
       };
 
       // 새로운 맵 구조로 업데이트
@@ -336,7 +345,9 @@ export default function ReportPage() {
           updatedStudent.questionResults || [],
           updatedStudent.questionTypeStatistics || [],
           updatedStudent.questionTypes || {},
-          updatedStudent.studentName
+          updatedStudent.studentName,
+          updatedStudent.examCommentary,
+          updatedStudent.studentFeedback
         );
       } catch (jpgError) {
         console.error('JPG 생성 실패:', jpgError);
@@ -610,6 +621,8 @@ const StudentResultCard: React.FC<{
                 questionTypeStatistics={student.questionTypeStatistics || []}
                 questionTypes={student.questionTypes || {}}
                 studentName={student.studentName}
+                examCommentary={student.examCommentary}
+                studentFeedback={student.studentFeedback}
               />
             </>
           ) : (

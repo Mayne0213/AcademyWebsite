@@ -33,6 +33,8 @@ interface StudentReportJPGProps {
   }>;
   questionTypes: Record<number, string> | null;
   studentName: string;
+  examCommentary?: string;
+  studentFeedback?: string;
 }
 
 // 확장된 문제 결과 타입
@@ -404,18 +406,121 @@ const LearningProgressHTML = React.memo(({
 
 LearningProgressHTML.displayName = 'LearningProgressHTML';
 
+// AI 피드백 페이지 컴포넌트 (Page 2)
+const AIFeedbackPageHTML = React.memo(({
+  examName,
+  studentName,
+  examCommentary,
+  studentFeedback,
+}: {
+  examName: string;
+  studentName: string;
+  examCommentary?: string;
+  studentFeedback?: string;
+}) => {
+  if (!examCommentary && !studentFeedback) return null;
+
+  return (
+    <div
+      id="student-report-jpg-page2"
+      style={{
+        width: '794px',
+        height: '1123px',
+        backgroundColor: 'white',
+        padding: 32,
+        fontSize: 8,
+        fontFamily: 'NotoSansKR-Regular, sans-serif',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* 헤더 */}
+      <div style={{ fontSize: 24, marginBottom: 8, textAlign: 'center', fontWeight: 'bold', color: '#1f2937', fontFamily: 'NotoSansKR-Bold, sans-serif' }}>
+        {examName}
+      </div>
+      <div style={{ fontSize: 14, marginBottom: 32, textAlign: 'center', fontWeight: 'bold', color: '#1f2937', fontFamily: 'NotoSansKR-Bold, sans-serif' }}>
+        {studentName} 학생 - AI 분석 리포트
+      </div>
+
+      {/* 모의고사 총평 */}
+      {examCommentary && (
+        <div style={{ marginBottom: 32 }}>
+          <div style={{
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: '#1f2937',
+            marginBottom: 12,
+            paddingBottom: 8,
+            borderBottom: '2px solid #7c3aed',
+            fontFamily: 'NotoSansKR-Bold, sans-serif',
+          }}>
+            모의고사 총평
+          </div>
+          <div style={{
+            fontSize: 11,
+            lineHeight: '1.8',
+            color: '#374151',
+            fontFamily: 'NotoSansKR-Regular, sans-serif',
+            whiteSpace: 'pre-wrap',
+            padding: 16,
+            backgroundColor: '#f9fafb',
+            borderRadius: 8,
+            border: '1px solid #e5e7eb',
+          }}>
+            {examCommentary}
+          </div>
+        </div>
+      )}
+
+      {/* 개인별 피드백 */}
+      {studentFeedback && (
+        <div style={{ marginBottom: 32 }}>
+          <div style={{
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: '#1f2937',
+            marginBottom: 12,
+            paddingBottom: 8,
+            borderBottom: '2px solid #3b82f6',
+            fontFamily: 'NotoSansKR-Bold, sans-serif',
+          }}>
+            개인별 피드백
+          </div>
+          <div style={{
+            fontSize: 11,
+            lineHeight: '1.8',
+            color: '#374151',
+            fontFamily: 'NotoSansKR-Regular, sans-serif',
+            whiteSpace: 'pre-wrap',
+            padding: 16,
+            backgroundColor: '#f0f9ff',
+            borderRadius: 8,
+            border: '1px solid #bfdbfe',
+          }}>
+            {studentFeedback}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+AIFeedbackPageHTML.displayName = 'AIFeedbackPageHTML';
+
 // JPG 캡처용 HTML 리포트 컴포넌트
-const StudentReportHTML = React.memo(({ 
-  selectedExamId, 
+const StudentReportHTML = React.memo(({
+  selectedExamId,
   selectedExamName,
   selectedExamData,
   recentExamHistory,
-  examCorrectAnswers, 
-  examStatistics, 
+  examCorrectAnswers,
+  examStatistics,
   questionResults,
   questionTypeStatistics,
   questionTypes,
-  studentName
+  studentName,
+  examCommentary,
+  studentFeedback
 }: StudentReportJPGProps) => {
   // 데이터 전처리 - 렌더링 전에 모든 계산 완료
   const processedData = useMemo(() => {
@@ -481,7 +586,8 @@ const StudentReportHTML = React.memo(({
   }
 
   return (
-    <div 
+    <>
+    <div
       id="student-report-jpg"
       style={{
         width: '794px',  // A4 너비 (210mm * 3.78)
@@ -526,16 +632,90 @@ const StudentReportHTML = React.memo(({
             examCorrectAnswers={examCorrectAnswers}
           />
 
-          <LearningProgressHTML 
+          <LearningProgressHTML
             examHistory={recentExamHistory}
           />
         </div>
       </div>
     </div>
+
+    {/* Page 2: AI 분석 (총평/피드백이 있을 때만) */}
+    {(examCommentary || studentFeedback) && (
+      <AIFeedbackPageHTML
+        examName={selectedExamData.examName}
+        studentName={studentName}
+        examCommentary={examCommentary}
+        studentFeedback={studentFeedback}
+      />
+    )}
+    </>
   );
 });
 
 StudentReportHTML.displayName = 'StudentReportHTML';
+
+// 공통 JPG 캡처 헬퍼 함수
+const captureReportPages = async (
+  reportContainer: HTMLElement,
+  studentName: string
+) => {
+  const dateStr = new Date().toISOString().split('T')[0];
+
+  // Page 1 캡처
+  const page1Element = reportContainer.querySelector('#student-report-jpg');
+  if (page1Element) {
+    const canvas1 = await html2canvas(page1Element as HTMLElement, {
+      scale: 4,
+      width: 794,
+      height: 1123,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      removeContainer: true,
+    });
+
+    canvas1.toBlob((blob) => {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `학습리포트_${studentName || 'Unknown'}_${dateStr}.jpg`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+    }, 'image/jpeg', 1.0);
+  }
+
+  // Page 2 캡처 (AI 분석 페이지가 있을 때만)
+  const page2Element = reportContainer.querySelector('#student-report-jpg-page2');
+  if (page2Element) {
+    // Page 1 다운로드 완료 대기
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const canvas2 = await html2canvas(page2Element as HTMLElement, {
+      scale: 4,
+      width: 794,
+      height: 1123,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      removeContainer: true,
+    });
+
+    canvas2.toBlob((blob) => {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `학습리포트_${studentName || 'Unknown'}_${dateStr}_AI분석.jpg`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+    }, 'image/jpeg', 1.0);
+  }
+};
 
 // JPG 다운로드 버튼 컴포넌트
 const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
@@ -548,7 +728,9 @@ const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
   questionResults,
   questionTypeStatistics,
   questionTypes,
-  studentName
+  studentName,
+  examCommentary,
+  studentFeedback
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -560,12 +742,10 @@ const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
     setIsGenerating(true);
 
     try {
-      // html2canvas 텍스트 정렬 문제 해결을 위한 CSS 스타일 주입
       const style = document.createElement('style');
       document.head.appendChild(style);
       style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
 
-      // 동적으로 HTML 리포트 생성
       const reportContainer = document.createElement('div');
       reportContainer.style.cssText = `
         position: fixed;
@@ -575,7 +755,6 @@ const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
       `;
       document.body.appendChild(reportContainer);
 
-      // React 컴포넌트를 HTML로 렌더링
       const root = ReactDOM.createRoot(reportContainer);
       root.render(
         <StudentReportHTML
@@ -589,40 +768,15 @@ const StudentReportJPG: React.FC<StudentReportJPGProps> = ({
           questionTypeStatistics={questionTypeStatistics}
           questionTypes={questionTypes}
           studentName={studentName}
+          examCommentary={examCommentary}
+          studentFeedback={studentFeedback}
         />
       );
 
-      // 렌더링 완료 대기
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // html2canvas로 캡처
-      const reportElement = reportContainer.querySelector('#student-report-jpg');
-      if (reportElement) {
-        const canvas = await html2canvas(reportElement as HTMLElement, {
-          scale: 4,
-          width: 794,
-          height: 1123,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          removeContainer: true
-        });
+      await captureReportPages(reportContainer, studentName);
 
-        // JPG 다운로드
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = `학습리포트_${studentName || 'Unknown'}_${new Date().toISOString().split('T')[0]}.jpg`;
-            link.href = url;
-            link.click();
-            URL.revokeObjectURL(url);
-          }
-        }, 'image/jpeg', 1.0);
-      }
-
-      // 정리
       root.unmount();
       document.body.removeChild(reportContainer);
     } catch (error) {
@@ -683,15 +837,15 @@ export const generateStudentReportJPG = async (
     count: number;
   }>,
   questionTypes: Record<number, string> | null,
-  studentName: string
+  studentName: string,
+  examCommentary?: string,
+  studentFeedback?: string
 ): Promise<void> => {
   try {
-    // html2canvas 텍스트 정렬 문제 해결을 위한 CSS 스타일 주입
     const style = document.createElement('style');
     document.head.appendChild(style);
     style.sheet?.insertRule('body > div:last-child img { display: inline-block; }');
 
-    // 동적으로 HTML 리포트 생성
     const reportContainer = document.createElement('div');
     reportContainer.style.cssText = `
       position: fixed;
@@ -701,7 +855,6 @@ export const generateStudentReportJPG = async (
     `;
     document.body.appendChild(reportContainer);
 
-    // React 컴포넌트를 HTML로 렌더링
     const root = ReactDOM.createRoot(reportContainer);
     root.render(
       <StudentReportHTML
@@ -715,40 +868,15 @@ export const generateStudentReportJPG = async (
         questionTypeStatistics={questionTypeStatistics}
         questionTypes={questionTypes}
         studentName={studentName}
+        examCommentary={examCommentary}
+        studentFeedback={studentFeedback}
       />
     );
 
-    // 렌더링 완료 대기
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // html2canvas로 캡처
-    const reportElement = reportContainer.querySelector('#student-report-jpg');
-    if (reportElement) {
-      const canvas = await html2canvas(reportElement as HTMLElement, {
-        scale: 4,
-        width: 794,
-        height: 1123,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        removeContainer: true
-      });
+    await captureReportPages(reportContainer, studentName);
 
-      // JPG 다운로드
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = `학습리포트_${studentName || 'Unknown'}_${new Date().toISOString().split('T')[0]}.jpg`;
-          link.href = url;
-          link.click();
-          URL.revokeObjectURL(url);
-        }
-      }, 'image/jpeg', 1.0);
-    }
-
-    // 정리
     root.unmount();
     document.body.removeChild(reportContainer);
   } catch (error) {

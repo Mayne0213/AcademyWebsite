@@ -214,6 +214,7 @@ model Exam {
   updatedAt       DateTime     @updatedAt
 
   results         ExamResult[] @relation("ExamToExamResult")
+  aiAnalysis      ExamAIAnalysis? @relation("ExamToAIAnalysis")
 
   @@index([examCategory])
   @@map("exam")
@@ -233,6 +234,7 @@ model ExamResult {
 
   // 개별 문제 결과를 별도 테이블로 분리
   questionResults ExamQuestionResult[]
+  aiFeedback      StudentAIFeedback? @relation("ExamResultToAIFeedback")
 
   @@map("exam_results")
   @@index([examId])
@@ -309,4 +311,30 @@ enum TextbookCategory {
 enum ExamCategory {
   GRADED        // 등급제
   PASS_FAIL     // P/NP
+}
+
+model ExamAIAnalysis {
+  id          Int       @id @default(autoincrement())
+  examId      Int       @unique
+  content     String    @db.Text
+  isEdited    Boolean   @default(false)
+  generatedAt DateTime  @default(now())
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  exam        Exam      @relation("ExamToAIAnalysis", fields: [examId], references: [examId], onDelete: Cascade)
+  @@map("exam_ai_analysis")
+}
+
+model StudentAIFeedback {
+  id           Int        @id @default(autoincrement())
+  examResultId Int        @unique
+  content      String     @db.Text
+  isEdited     Boolean    @default(false)
+  generatedAt  DateTime   @default(now())
+  editedAt     DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  examResult   ExamResult @relation("ExamResultToAIFeedback", fields: [examResultId], references: [examResultId], onDelete: Cascade)
+  @@map("student_ai_feedback")
 }
