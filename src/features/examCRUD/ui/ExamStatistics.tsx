@@ -20,6 +20,7 @@ import {
 import { BarChart, Bar, XAxis, ResponsiveContainer, LabelList, CartesianGrid } from 'recharts';
 import { MockExamStats } from "./statistics/MockExamStats";
 import { VocabularyStats } from "./statistics/VocabularyStats";
+import AIAnalysisSection from "@/src/features/aiAnalysis/ui/AIAnalysisSection";
 
 export default function ExamStatistics() {
   const params = useParams();
@@ -580,6 +581,11 @@ export default function ExamStatistics() {
           </table>
         </div>
       </div>
+
+      {/* AI 분석 (GRADED 시험에만 표시) */}
+      {statistics.examCategory === 'GRADED' && (
+        <AIAnalysisSection examId={examId} />
+      )}
 
       {/* 문제별 통계 */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 smalltablet:p-6">
