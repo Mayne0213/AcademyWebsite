@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+  provider      = "prisma-client-js"
+  output        = "../node_modules/.prisma/client"
   binaryTargets = ["native"]
 }
 
@@ -10,138 +10,131 @@ datasource db {
 }
 
 model User {
-  memberId     Int               @id @default(autoincrement())
-  userId       String            @unique
+  userId       String   @unique
   userPassword String
-  role         Role              @default(STUDENT)
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt @default(now())
-
-  student      Student?          @relation("UserToStudent")
-  admin        Admin?            @relation("UserToAdmin")
+  createdAt    DateTime @default(now())
+  role         Role     @default(STUDENT)
+  memberId     Int      @id @default(autoincrement())
+  updatedAt    DateTime @default(now()) @updatedAt
+  admin        Admin?   @relation("UserToAdmin")
+  student      Student? @relation("UserToStudent")
 }
 
 model Admin {
-  adminName    String
-  adminPhone   String         @unique
-  adminPosition String         @default("조교")
-  adminMemo     String?
-  announcements Announcement[] @relation("AdminToAnnouncements")
-  academies      Academy[]      @relation("AdminToAcademy")
-  qnaComments   QnABoardComment[] @relation("AdminToQnAComment")
-  counselingSchedules    CounselingSchedule[] @relation("AdminToCounselingSchedule")
+  adminName              String
+  adminPhone             String                  @unique
+  memberId               Int                     @id
+  adminMemo              String?
+  adminPosition          String                  @default("조교")
+  user                   User                    @relation("UserToAdmin", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  announcements          Announcement[]          @relation("AdminToAnnouncements")
   counselingReservations CounselingReservation[] @relation("AdminToCounselingReservation")
-
-  memberId     Int            @id
-  user         User           @relation("UserToAdmin", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  counselingSchedules    CounselingSchedule[]    @relation("AdminToCounselingSchedule")
+  qnaComments            QnABoardComment[]       @relation("AdminToQnAComment")
+  academies              Academy[]               @relation("AdminToAcademy")
 }
 
 model Student {
-  academyId         Int
-  studentName       String
-  studentPhone      String            @unique
-  studentHighschool String?
-  studentBirthYear  Int
-  studentMemo       String?           @db.Text
-  isActive          Boolean           @default(true)
-  qnas              QnABoard[]        @relation("StudentToQnA")
-  qnaComments       QnABoardComment[] @relation("StudentToQnAComment")
+  academyId              Int
+  studentName            String
+  studentPhone           String                  @unique
+  studentHighschool      String?
+  studentBirthYear       Int
+  studentMemo            String?
+  memberId               Int                     @id
+  isActive               Boolean                 @default(true)
   counselingReservations CounselingReservation[] @relation("StudentToCounselingReservation")
-  examResults       ExamResult[]      @relation("StudentToExamResult")
+  qnas                   QnABoard[]              @relation("StudentToQnA")
+  qnaComments            QnABoardComment[]       @relation("StudentToQnAComment")
+  academy                Academy                 @relation("AcademyToStudents", fields: [academyId], references: [academyId])
+  user                   User                    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  examResults            ExamResult[]            @relation("StudentToExamResult")
 
-  memberId          Int     @id
-  user              User    @relation("UserToStudent", fields: [memberId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
-  academy           Academy @relation("AcademyToStudents", fields: [academyId], references: [academyId])
-
-  @@index([academyId], map: "Student_academyId_idx")
+  @@index([academyId])
 }
 
 model Academy {
-  academyId        Int            @id @default(autoincrement())
-  academyName      String         @unique
-  academyPhone     String         @unique
-  academyAddress   String
-  isActive         Boolean        @default(true)
-
-  academyStudents  Student[]      @relation("AcademyToStudents")
-  academyAdmins    Admin[]        @relation("AdminToAcademy")
+  academyId            Int            @id @default(autoincrement())
+  academyName          String         @unique
+  academyPhone         String         @unique
+  academyAddress       String
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @default(now()) @updatedAt
+  isActive             Boolean        @default(true)
+  files                AcademyFile[]
+  academyStudents      Student[]      @relation("AcademyToStudents")
+  academyAdmins        Admin[]        @relation("AdminToAcademy")
   academyAnnouncements Announcement[] @relation("AnnouncementToAcademy")
-  files            AcademyFile[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt @default(now())
 }
 
 model AcademyFile {
-  fileId       Int      @id @default(autoincrement())
   academyId    Int
-  fileName     String   // S3 Key
-  originalName String
-  fileUrl      String
-  fileType     String
-  fileSize     Int?
+  fileId       Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
-
+  fileName     String
+  fileSize     Int?
+  fileType     String
+  fileUrl      String
+  originalName String
   academy      Academy  @relation(fields: [academyId], references: [academyId], onDelete: Cascade)
 
   @@index([academyId])
 }
 
 model Announcement {
-  announcementId        Int                @id @default(autoincrement())
-  announcementTitle                 String       @default("")
-  announcementContent               String       @default("")
-  isItAssetAnnouncement Boolean            @default(false)
+  announcementId            Int                @id @default(autoincrement())
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
+  authorId                  Int?
+  isItAssetAnnouncement     Boolean            @default(false)
   isItImportantAnnouncement Boolean            @default(false)
-  files                 AnnouncementFile[]
-  academies             Academy[]          @relation("AnnouncementToAcademy")
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
-  authorId              Int?
-  author                Admin?             @relation("AdminToAnnouncements", fields: [authorId], references: [memberId])
-  @@index([authorId], map: "Announcement_authorId_idx")
+  announcementContent       String             @default("")
+  announcementTitle         String             @default("")
+  author                    Admin?             @relation("AdminToAnnouncements", fields: [authorId], references: [memberId])
+  files                     AnnouncementFile[]
+  academies                 Academy[]          @relation("AnnouncementToAcademy")
+
+  @@index([authorId])
 }
 
 model AnnouncementFile {
-  fileId         Int      @id @default(autoincrement())
   announcementId Int
-  fileName       String   // S3 Key
-  originalName   String
-  fileUrl        String
-  fileType       String
+  fileId         Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  fileName       String
   fileSize       Int?
-  createdAt      DateTime @default(now())
-
+  fileType       String
+  fileUrl        String
+  originalName   String
   announcement   Announcement @relation(fields: [announcementId], references: [announcementId], onDelete: Cascade)
 
   @@index([announcementId])
 }
 
-
 model QnABoard {
-  qnaId       Int               @id @default(autoincrement())
-  qnaTitle    String
-  qnaContent  String            @db.Text
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  qnaUserId   Int               // 기존 API와의 호환성을 위해 유지
+  qnaId        Int               @id @default(autoincrement())
+  qnaTitle     String
+  qnaContent   String
+  qnaUserId    Int
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
   isItAnswered Boolean           @default(false)
-  comments    QnABoardComment[] @relation("QnAWithComments")
-  files       QnAFile[]
-  student     Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  student      Student           @relation("StudentToQnA", fields: [qnaUserId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  comments     QnABoardComment[] @relation("QnAWithComments")
+  files        QnAFile[]
 
-  @@index([qnaUserId], map: "QnABoard_qnaUserId_idx")
+  @@index([qnaUserId])
 }
 
 model QnAFile {
   fileId       Int      @id @default(autoincrement())
   qnaId        Int
-  fileName     String   // S3 Key
+  fileName     String
   originalName String
   fileUrl      String
   fileType     String
   fileSize     Int?
   createdAt    DateTime @default(now())
-
   qna          QnABoard @relation(fields: [qnaId], references: [qnaId], onDelete: Cascade)
 
   @@index([qnaId])
@@ -149,15 +142,15 @@ model QnAFile {
 
 model QnABoardComment {
   commentId      Int      @id @default(autoincrement())
-  commentContent String   @db.Text
-  studentId      Int?
-  adminId        Int?
+  commentContent String
   qnaId          Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  student        Student? @relation("StudentToQnAComment", fields: [studentId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
+  adminId        Int?
+  studentId      Int?
   admin          Admin?   @relation("AdminToQnAComment", fields: [adminId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
   qna            QnABoard @relation("QnAWithComments", fields: [qnaId], references: [qnaId], onDelete: Cascade)
+  student        Student? @relation("StudentToQnAComment", fields: [studentId], references: [memberId], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([studentId])
   @@index([adminId])
@@ -165,91 +158,83 @@ model QnABoardComment {
 }
 
 model CounselingSchedule {
-  scheduleId    Int      @id @default(autoincrement())
-  adminId       Int
-  date          DateTime // 날짜만 저장 (시간 제외)
-  timeSlotId    Int      // config의 TIME_SLOTS에서 관리
-  isAvailable   Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  admin         Admin    @relation("AdminToCounselingSchedule", fields: [adminId], references: [memberId], onDelete: Cascade)
-  reservations  CounselingReservation?
-  
+  scheduleId   Int                    @id @default(autoincrement())
+  adminId      Int
+  date         DateTime
+  timeSlotId   Int
+  isAvailable  Boolean                @default(true)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  reservations CounselingReservation?
+  admin        Admin                  @relation("AdminToCounselingSchedule", fields: [adminId], references: [memberId], onDelete: Cascade)
+
   @@unique([adminId, date, timeSlotId])
   @@index([adminId])
   @@index([date])
 }
 
 model CounselingReservation {
-  reservationId   Int      @id @default(autoincrement())
-  studentId       Int
-  adminId         Int
-  scheduleId      Int
-  consultationContent String @db.Text
-  status          ReservationStatus @default(CONFIRMED)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  student         Student  @relation("StudentToCounselingReservation", fields: [studentId], references: [memberId], onDelete: Cascade)
-  admin           Admin    @relation("AdminToCounselingReservation", fields: [adminId], references: [memberId], onDelete: Cascade)
-  schedule        CounselingSchedule @relation(fields: [scheduleId], references: [scheduleId], onDelete: Cascade)
-  
-  @@unique([scheduleId])
+  reservationId       Int                @id @default(autoincrement())
+  studentId           Int
+  adminId             Int
+  scheduleId          Int                @unique
+  consultationContent String
+  status              ReservationStatus  @default(CONFIRMED)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  admin               Admin              @relation("AdminToCounselingReservation", fields: [adminId], references: [memberId], onDelete: Cascade)
+  schedule            CounselingSchedule @relation(fields: [scheduleId], references: [scheduleId], onDelete: Cascade)
+  student             Student            @relation("StudentToCounselingReservation", fields: [studentId], references: [memberId], onDelete: Cascade)
+
   @@index([studentId])
   @@index([adminId])
   @@index([scheduleId])
 }
 
 model Exam {
-  examId          Int          @id @default(autoincrement())
-  examName        String
-  examCategory    ExamCategory @default(PASS_FAIL)
-  totalQuestions  Int
-  correctAnswers  Json
-  questionScores  Json
-  questionTypes   Json
-  passScore       Int?         // P/NP 기준 점수 (Vocabulary 전용)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-
-  results         ExamResult[] @relation("ExamToExamResult")
-  aiAnalysis      ExamAIAnalysis? @relation("ExamToAIAnalysis")
+  examId         Int             @id @default(autoincrement())
+  examName       String
+  totalQuestions Int
+  correctAnswers Json
+  questionScores Json
+  questionTypes  Json
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  examCategory   ExamCategory    @default(PASS_FAIL)
+  passScore      Int?
+  aiAnalysis     ExamAIAnalysis? @relation("ExamToAIAnalysis")
+  results        ExamResult[]    @relation("ExamToExamResult")
 
   @@index([examCategory])
   @@map("exam")
 }
 
 model ExamResult {
-  examResultId Int      @id @default(autoincrement())
-  examId      Int
-  studentId   Int
-  totalScore  Int
-  grade       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  exam        Exam     @relation("ExamToExamResult", fields: [examId], references: [examId], onDelete: Cascade)
-  student     Student  @relation("StudentToExamResult", fields: [studentId], references: [memberId], onDelete: Cascade)
-
-  // 개별 문제 결과를 별도 테이블로 분리
+  examResultId    Int                  @id @default(autoincrement())
+  examId          Int
+  studentId       Int
+  totalScore      Int
+  grade           Int
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
   questionResults ExamQuestionResult[]
-  aiFeedback      StudentAIFeedback? @relation("ExamResultToAIFeedback")
+  exam            Exam                 @relation("ExamToExamResult", fields: [examId], references: [examId], onDelete: Cascade)
+  student         Student              @relation("StudentToExamResult", fields: [studentId], references: [memberId], onDelete: Cascade)
+  aiFeedback      StudentAIFeedback?   @relation("ExamResultToAIFeedback")
 
-  @@map("exam_results")
   @@index([examId])
   @@index([studentId])
+  @@map("exam_results")
 }
 
 model ExamQuestionResult {
-  id          Int      @id @default(autoincrement())
-  examResultId Int
-  questionNumber Int    // 문제 번호
-  selectedChoice String? // 선택한 선지 (A, B, C, D 등)
-  isCorrect   Boolean  // 정답 여부
-  score       Int      // 해당 문제 점수
-
-  examResult  ExamResult @relation(fields: [examResultId], references: [examResultId], onDelete: Cascade)
+  id             Int        @id @default(autoincrement())
+  examResultId   Int
+  questionNumber Int
+  selectedChoice String?
+  isCorrect      Boolean
+  score          Int
+  examResult     ExamResult @relation(fields: [examResultId], references: [examResultId], onDelete: Cascade)
 
   @@unique([examResultId, questionNumber])
   @@index([examResultId])
@@ -261,29 +246,57 @@ model ExamQuestionResult {
 model Review {
   id            Int      @id @default(autoincrement())
   reviewerName  String
-  reviewTitle   String   @default("")
-  reviewContent String   @db.Text
+  reviewContent String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  reviewTitle   String   @default("")
 }
 
 model Toggle {
-  id                Int      @id @default(1)
-  isReviewPopupOn   Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              Int      @id @default(1)
+  isReviewPopupOn Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Textbook {
   textbookId   Int              @id @default(autoincrement())
-  textbookName String           // 파일명 (원본 파일명)
-  fileName     String           // S3 Key
-  fileType     String           @default("application/pdf")
-  fileSize     Int?
+  textbookName String
   isImportant  Boolean          @default(false)
   category     TextbookCategory
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
+  fileName     String
+  fileSize     Int?
+  fileType     String           @default("application/pdf")
+}
+
+model ExamAIAnalysis {
+  id          Int       @id @default(autoincrement())
+  examId      Int       @unique
+  content     String
+  isEdited    Boolean   @default(false)
+  generatedAt DateTime  @default(now())
+  editedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  exam        Exam      @relation("ExamToAIAnalysis", fields: [examId], references: [examId], onDelete: Cascade)
+
+  @@map("exam_ai_analysis")
+}
+
+model StudentAIFeedback {
+  id           Int        @id @default(autoincrement())
+  examResultId Int        @unique
+  content      String
+  isEdited     Boolean    @default(false)
+  generatedAt  DateTime   @default(now())
+  editedAt     DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  examResult   ExamResult @relation("ExamResultToAIFeedback", fields: [examResultId], references: [examResultId], onDelete: Cascade)
+
+  @@map("student_ai_feedback")
 }
 
 enum Role {
@@ -293,48 +306,22 @@ enum Role {
 }
 
 enum ReservationStatus {
-  PENDING    // 대기중
-  CONFIRMED  // 확정
-  CANCELLED  // 취소됨
-  COMPLETED  // 완료
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }
 
 enum TextbookCategory {
-  LISTENING     // 듣기파일
-  MATERIAL      // 수업교재
-  WEEKLY_TEST   // 주간테스트
-  PPT           // PPT
-  ETC           // 기타자료
-  ASSISTANT     // 조교자료
+  LISTENING
+  MATERIAL
+  WEEKLY_TEST
+  PPT
+  ETC
+  ASSISTANT
 }
 
 enum ExamCategory {
-  GRADED        // 등급제
-  PASS_FAIL     // P/NP
-}
-
-model ExamAIAnalysis {
-  id          Int       @id @default(autoincrement())
-  examId      Int       @unique
-  content     String    @db.Text
-  isEdited    Boolean   @default(false)
-  generatedAt DateTime  @default(now())
-  editedAt    DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  exam        Exam      @relation("ExamToAIAnalysis", fields: [examId], references: [examId], onDelete: Cascade)
-  @@map("exam_ai_analysis")
-}
-
-model StudentAIFeedback {
-  id           Int        @id @default(autoincrement())
-  examResultId Int        @unique
-  content      String     @db.Text
-  isEdited     Boolean    @default(false)
-  generatedAt  DateTime   @default(now())
-  editedAt     DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  examResult   ExamResult @relation("ExamResultToAIFeedback", fields: [examResultId], references: [examResultId], onDelete: Cascade)
-  @@map("student_ai_feedback")
+  GRADED
+  PASS_FAIL
 }
