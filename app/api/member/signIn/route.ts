@@ -34,6 +34,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (user.role === "STUDENT" && user.student?.isActive === false) {
+      return NextResponse.json(
+        { success: false, message: "퇴원 처리된 계정입니다. 학원에 문의해 주세요." },
+        { status: 403 },
+      );
+    }
+
     const token = jwt.sign(
       { memberId: user.memberId, role: user.role },
       JWT_SECRET,
