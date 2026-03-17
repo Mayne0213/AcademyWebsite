@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const OMR_API_URL = 'https://lumie0213.kro.kr/api/temp/grading';
+const OMR_API_URL = 'https://lumie.lumie-infra.com/api/temp/grading';
 
 export async function POST(request: NextRequest) {
   try {
