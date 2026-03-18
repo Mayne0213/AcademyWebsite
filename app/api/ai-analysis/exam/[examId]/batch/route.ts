@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 
-const ANALYSIS_API_URL = process.env.ANALYSIS_API_URL || "https://analysis-svc.kro.kr";
+const ANALYSIS_API_URL = process.env.ANALYSIS_API_URL || "https://lumie0213.kro.kr";
 
 // POST: 시험의 모든 학생 피드백 일괄 생성
 export async function POST(
