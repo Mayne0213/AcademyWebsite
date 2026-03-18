@@ -9,6 +9,7 @@ import {
   generateStudentFeedback,
   updateStudentFeedback,
   getAllFeedbacksForExam,
+  batchGenerateFeedbacks,
 } from "../api/aiAnalysisApi";
 import type {
   ExamAIAnalysis,
@@ -51,7 +52,6 @@ export default function AIAnalysisSection({ examId }: AIAnalysisSectionProps) {
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [batchProgress, setBatchProgress] = useState<StudentProgress[]>([]);
   const [batchDone, setBatchDone] = useState(false);
-  const cancelRef = useRef(false);
 
   // 총평 조회
   const loadCommentary = useCallback(async () => {
@@ -117,63 +117,62 @@ export default function AIAnalysisSection({ examId }: AIAnalysisSectionProps) {
     }
   };
 
-  // 일괄 피드백 생성 (모달 + 프론트 순차 호출)
+  // 일괄 피드백 생성 (서버 batch API + SSE 스트리밍)
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const handleBatchGenerate = async (overwrite: boolean) => {
     if (!feedbackStatus) return;
-    const generatedIds = new Set(feedbackStatus.feedbacks.map((f) => f.examResult.examResultId));
-    const targets: ExamResultSummary[] = overwrite
-      ? feedbackStatus.allExamResults
-      : feedbackStatus.allExamResults.filter((er) => !generatedIds.has(er.examResultId));
 
-    if (targets.length === 0) return;
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
-    cancelRef.current = false;
     setIsBatchGenerating(true);
     setBatchDone(false);
-    setBatchProgress(
-      targets.map((er) => ({
-        examResultId: er.examResultId,
-        studentName: er.student.studentName,
-        status: "pending" as StudentProgressStatus,
-      }))
-    );
+    setBatchProgress([]);
     setShowBatchModal(true);
 
-    for (let i = 0; i < targets.length; i++) {
-      if (cancelRef.current) break;
-      const er = targets[i];
-
-      setBatchProgress((prev) =>
-        prev.map((p) =>
-          p.examResultId === er.examResultId ? { ...p, status: "generating" } : p
-        )
+    try {
+      await batchGenerateFeedbacks(
+        examId,
+        overwrite,
+        (event, data) => {
+          if (event === "init") {
+            setBatchProgress(
+              data.targets.map((t: { examResultId: number; studentName: string }) => ({
+                examResultId: t.examResultId,
+                studentName: t.studentName,
+                status: "pending" as StudentProgressStatus,
+              }))
+            );
+          } else if (event === "progress") {
+            setBatchProgress((prev) =>
+              prev.map((p) =>
+                p.examResultId === data.examResultId
+                  ? { ...p, status: data.status, error: data.error }
+                  : p
+              )
+            );
+          } else if (event === "done") {
+            setBatchDone(true);
+            setIsBatchGenerating(false);
+          }
+        },
+        abortController.signal
       );
-
-      try {
-        await generateStudentFeedback(er.examResultId);
-        setBatchProgress((prev) =>
-          prev.map((p) =>
-            p.examResultId === er.examResultId ? { ...p, status: "done" } : p
-          )
-        );
-      } catch {
-        setBatchProgress((prev) =>
-          prev.map((p) =>
-            p.examResultId === er.examResultId
-              ? { ...p, status: "error", error: "생성 실패" }
-              : p
-          )
-        );
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== "AbortError") {
+        setBatchDone(true);
       }
+    } finally {
+      setIsBatchGenerating(false);
+      setBatchDone(true);
+      abortControllerRef.current = null;
+      await loadFeedbackStatus();
     }
-
-    setBatchDone(true);
-    setIsBatchGenerating(false);
-    await loadFeedbackStatus();
   };
 
   const handleCancelBatch = () => {
-    cancelRef.current = true;
+    abortControllerRef.current?.abort();
   };
 
   const closeBatchModal = () => {
