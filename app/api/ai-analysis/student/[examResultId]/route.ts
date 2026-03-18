@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
 
-const ANALYSIS_API_URL = process.env.ANALYSIS_API_URL || "https://lumie0213.kro.kr";
+const ANALYSIS_API_URL = process.env.ANALYSIS_API_URL || "https://lumie-edu.com";
 
 // GET: 저장된 개인별 피드백 조회
 export async function GET(
