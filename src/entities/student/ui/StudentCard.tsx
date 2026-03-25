@@ -10,7 +10,9 @@ import {
   Calendar,
   Building2,
   Trash2,
-  Edit
+  Edit,
+  UserX,
+  UserCheck
 } from "lucide-react";
 
 interface StudentCardProps {
@@ -19,10 +21,28 @@ interface StudentCardProps {
 
 export function StudentCard({ onEditClick }: StudentCardProps) {
   const { studentDetail } = useStudentStore();
-  const { deleteStudent } = useStudentFeatureStore();
+  const { deleteStudent, toggleActive } = useStudentFeatureStore();
   const router = useRouter();
   const currentYear = new Date().getFullYear();
   const age = currentYear - (studentDetail?.studentBirthYear || 0);
+
+  // 퇴원/복원 함수
+  const handleToggleActive = async () => {
+    if (!studentDetail) return;
+
+    const isCurrentlyActive = studentDetail.isActive;
+    const confirmMessage = isCurrentlyActive
+      ? `${studentDetail.studentName} 학생을 퇴원 처리하시겠습니까?\n\n퇴원 처리 후에도 데이터는 유지되며, 이후 복원할 수 있습니다.`
+      : `${studentDetail.studentName} 학생을 다시 재원생으로 복원하시겠습니까?`;
+
+    if (confirm(confirmMessage)) {
+      try {
+        await toggleActive(studentDetail.memberId, !isCurrentlyActive);
+      } catch (error) {
+        console.error('학생 상태 변경 실패:', error);
+      }
+    }
+  };
 
   // 학생 삭제 함수
   const handleDeleteStudent = async () => {
@@ -62,6 +82,21 @@ export function StudentCard({ onEditClick }: StudentCardProps) {
             >
               <Edit className="w-4 h-4" />
               <span>수정</span>
+            </button>
+            <button
+              onClick={handleToggleActive}
+              className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg transition-colors text-sm text-white ${
+                studentDetail?.isActive
+                  ? "bg-amber-500 hover:bg-amber-600"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+              title={studentDetail?.isActive ? "퇴원 처리" : "재원 복원"}
+            >
+              {studentDetail?.isActive ? (
+                <><UserX className="w-4 h-4" /><span>퇴원</span></>
+              ) : (
+                <><UserCheck className="w-4 h-4" /><span>복원</span></>
+              )}
             </button>
             <button
               onClick={handleDeleteStudent}

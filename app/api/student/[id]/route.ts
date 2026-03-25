@@ -49,6 +49,7 @@ export async function GET(
     const transformedStudent = {
       ...student.user,
       name: student.studentName, // Use studentName as name for UserInfo interface
+      isActive: student.isActive,
       academyId: student.academyId,
       studentName: student.studentName,
       studentPhone: student.studentPhone,
@@ -91,6 +92,77 @@ export async function DELETE(
     console.error("DELETE /api/student/[id] error:", error);
     return NextResponse.json(
       { message: "Failed to delete student" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const memberId = Number(params.id);
+
+    if (isNaN(memberId)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid memberId" },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+
+    if (typeof body.isActive !== "boolean") {
+      return NextResponse.json(
+        { success: false, message: "isActive 필드가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    const updatedStudent = await prisma.student.update({
+      where: { memberId },
+      data: { isActive: body.isActive },
+      include: {
+        academy: true,
+        user: {
+          select: {
+            memberId: true,
+            userId: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        qnas: {
+          select: {
+            qnaId: true,
+            qnaTitle: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+
+    const transformedStudent = {
+      ...updatedStudent.user,
+      name: updatedStudent.studentName,
+      isActive: updatedStudent.isActive,
+      academyId: updatedStudent.academyId,
+      studentName: updatedStudent.studentName,
+      studentPhone: updatedStudent.studentPhone,
+      studentHighschool: updatedStudent.studentHighschool,
+      studentBirthYear: updatedStudent.studentBirthYear,
+      studentMemo: updatedStudent.studentMemo,
+      studentQnas: updatedStudent.qnas,
+      academy: updatedStudent.academy,
+    };
+
+    return NextResponse.json({ success: true, data: transformedStudent });
+  } catch (error) {
+    console.error("PATCH /api/student/[id] error:", error);
+    return NextResponse.json(
+      { success: false, message: "학생 상태 변경에 실패했습니다." },
       { status: 500 }
     );
   }

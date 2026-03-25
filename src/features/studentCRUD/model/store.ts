@@ -46,10 +46,26 @@ export const useStudentFeatureStore = () => {
     }
   }, [entityStore]);
 
+  const toggleActive = useCallback(async (studentId: number, isActive: boolean) => {
+    entityStore.setLoading(true);
+    try {
+      const updated = await studentApi.toggleActive(studentId, isActive);
+      entityStore.readStudentById(updated);
+      // 학생 목록에서도 상태 업데이트
+      const currentStudents = entityStore.students;
+      entityStore.readStudents(
+        currentStudents.map(s => s.memberId === studentId ? { ...s, isActive } : s)
+      );
+    } finally {
+      entityStore.setLoading(false);
+    }
+  }, [entityStore]);
+
   return {
     readStudents,
     updateStudent,
     readStudentById,
     deleteStudent,
+    toggleActive,
   };
 };

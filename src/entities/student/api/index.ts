@@ -56,4 +56,27 @@ export const studentApi = {
       throw error;
     }
   },
+
+  toggleActive: async (studentId: number, isActive: boolean): Promise<Student> => {
+    try {
+      const response = await fetch(API_ENDPOINTS.STUDENT.BY_ID(studentId), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "학생 상태 변경에 실패했습니다.");
+      }
+
+      const result = await response.json();
+      toast.success(isActive ? "학생이 복원되었습니다." : "학생이 퇴원 처리되었습니다.");
+      return result.data;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "학생 상태 변경에 실패했습니다.";
+      toast.error(errorMessage);
+      throw error;
+    }
+  },
 };
