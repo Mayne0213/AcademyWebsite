@@ -1,5 +1,5 @@
 // entities/qna/api/index.ts
-import { QnABoard, QnABoardComment, QnADetail, CreateCommentRequest, CreateQnARequest } from "@/src/entities/qna/model/types";
+import { QnABoard, QnABoardComment, QnADetail, QnACategory, CreateCommentRequest, CreateQnARequest } from "@/src/entities/qna/model/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/src/shared/api/http";
 import { API_ENDPOINTS } from "@/src/shared/config/api";
 import { toast } from "sonner";
@@ -107,12 +107,43 @@ export const qnaApi = {
         qnaId: result.qnaId,
         qnaTitle: result.qnaTitle,
         qnaContent: result.qnaContent,
+        categoryName: result.categoryName,
         createdAt: result.createdAt,
         updatedAt: result.updatedAt,
         student: result.student,
         comments: result.comments || [],
         files: result.files || []
       };
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // 카테고리 목록 조회
+  getCategories: async (): Promise<QnACategory[]> => {
+    try {
+      return await apiGet<QnACategory[]>(API_ENDPOINTS.QNA.CATEGORY.BASE);
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // 카테고리 생성
+  createCategory: async (categoryName: string): Promise<QnACategory> => {
+    try {
+      const result = await apiPost<QnACategory>(API_ENDPOINTS.QNA.CATEGORY.BASE, { categoryName });
+      toast.success("카테고리가 생성되었습니다.");
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // 카테고리 삭제
+  deleteCategory: async (categoryId: number): Promise<void> => {
+    try {
+      await apiDelete<void>(API_ENDPOINTS.QNA.CATEGORY.BY_ID(categoryId));
+      toast.success("카테고리가 삭제되었습니다.");
     } catch (error) {
       throw error;
     }

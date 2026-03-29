@@ -1,28 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/src/app/providers";
 import { useQnAFeatureStore } from "@/src/features/qnaCRUD";
+import { useQnACategoryStore } from "@/src/entities/qna/model/categoryStore";
 import { FileUploadDropzone, FileDisplay } from "@/src/entities/file/ui";
 import type { File as FileEntity } from "@/src/entities/file/model/types";
 import type { CreateQnARequest } from "@/src/entities/qna/model/types";
 
 export const QnaCreate: React.FC = () => {
   const router = useRouter();
-  const { createQnA } = useQnAFeatureStore();
+  const { createQnA, readCategories } = useQnAFeatureStore();
+  const { categories } = useQnACategoryStore();
   const { user } = useAuth();
 
   const [form, setForm] = useState({
     qnaTitle: "",
     qnaContent: "",
+    categoryName: "",
   });
+
+  useEffect(() => {
+    readCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 파일 업로드 상태 관리
   const [files, setFiles] = useState<FileEntity[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -69,6 +77,7 @@ export const QnaCreate: React.FC = () => {
         qnaContent: form.qnaContent.trim(),
         qnaUserId: user.memberId,
         isItAnswered: false,
+        ...(form.categoryName && { categoryName: form.categoryName }),
         files: files,
       };
 
@@ -104,6 +113,25 @@ export const QnaCreate: React.FC = () => {
         <p className="text-xs text-gray-500 mt-1">
           {form.qnaTitle.length}/100자
         </p>
+      </div>
+
+      <div>
+        <label className="block text-sm text-gray-700 mb-1">
+          카테고리
+        </label>
+        <select
+          name="categoryName"
+          value={form.categoryName}
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+        >
+          <option value="">카테고리 선택 (선택사항)</option>
+          {categories.map((c) => (
+            <option key={c.categoryId} value={c.categoryName}>
+              {c.categoryName}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

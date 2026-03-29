@@ -36,6 +36,10 @@ export const API_ENDPOINTS = {
       BY_QNA_ID: (qnaId: number) => `/api/qna/${qnaId}/comment`,
       BY_ID: (qnaId: number, commentId: number) => `/api/qna/${qnaId}/comment/${commentId}`,
     },
+    CATEGORY: {
+      BASE: "/api/qnaCategory",
+      BY_ID: (id: number) => `/api/qnaCategory/${id}`,
+    },
   },
 
   // 교재 관련 엔드포인트

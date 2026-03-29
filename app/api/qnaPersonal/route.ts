@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
       select: {
         qnaId: true,
         qnaTitle: true,
+        categoryName: true,
         updatedAt: true,
         student: {
           select: {

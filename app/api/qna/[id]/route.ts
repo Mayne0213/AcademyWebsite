@@ -14,7 +14,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   try {
     const id = Number(params.id);
     const body = await req.json();
-    const { qnaTitle, qnaContent, files } = body;
+    const { qnaTitle, qnaContent, files, categoryName } = body;
 
     if (!qnaTitle || !qnaContent) {
       return NextResponse.json({ success: false, message: "입력 값이 누락되었습니다." }, { status: 400 });
@@ -25,6 +25,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: {
         qnaTitle,
         qnaContent,
+        ...(categoryName !== undefined && { categoryName: categoryName || null }),
         files: files && files.length > 0 ? {
           deleteMany: {},
           create: files.map((file: any) => ({

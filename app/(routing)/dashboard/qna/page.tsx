@@ -40,6 +40,11 @@ const QnaHeader: React.FC<{
     <div className="flex justify-between items-start gap-2 sm:gap-4">
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center gap-2">
+          {item.categoryName && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 shrink-0">
+              {item.categoryName}
+            </span>
+          )}
           <h3
             className={`text-gray-900 mb-1 ${
               isCompact ? "text-base truncate" : "text-lg"

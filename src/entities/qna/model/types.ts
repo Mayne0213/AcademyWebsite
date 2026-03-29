@@ -1,10 +1,18 @@
 import { Student } from "@/src/entities/student/model/types";
 
+// QnA 카테고리
+export interface QnACategory {
+  categoryId: number;
+  categoryName: string;
+  createdAt: Date;
+}
+
 // QnA 엔티티 (Prisma 스키마와 정확히 일치)
 export interface QnABoard  {
   qnaId: number;
   qnaTitle: string;
   qnaContent: string;
+  categoryName?: string | null;
   createdAt: Date;
   updatedAt: Date;
   qnaUserId: number;
@@ -19,6 +27,7 @@ export interface QnADetail {
   qnaId: number;
   qnaTitle: string;
   qnaContent: string;
+  categoryName?: string | null;
   createdAt: Date;
   updatedAt: Date;
   student: Student;
@@ -84,6 +93,7 @@ export interface CreateQnARequest {
   qnaContent: string;
   qnaUserId: number;
   isItAnswered: boolean;
+  categoryName?: string;
   files?: {
     fileId?: number;
     fileName?: string;

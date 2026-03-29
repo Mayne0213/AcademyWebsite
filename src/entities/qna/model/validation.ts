@@ -20,6 +20,7 @@ export const QnABoardSchema = z.object({
   qnaTitle: z.string().max(200, 'QnA 제목은 200자를 초과할 수 없습니다.'),
   qnaContent: z.string().min(1, 'QnA 내용은 필수입니다.'),
   qnaImageUrl: z.string().refine(VALIDATION_FUNCTIONS.isValidUrl, '유효하지 않은 이미지 URL 형식입니다.').optional(),
+  categoryName: z.string().max(50, '카테고리 이름은 50자를 초과할 수 없습니다.').nullable().optional(),
   qnaUserId: z.number().positive('유효하지 않은 사용자 ID입니다.'),
   qnaComments: z.array(QnABoardCommentSchema),
   qnaStudent: z.any(),

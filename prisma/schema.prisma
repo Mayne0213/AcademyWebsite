@@ -111,11 +111,18 @@ model AnnouncementFile {
   @@index([announcementId])
 }
 
+model QnACategory {
+  categoryId   Int      @id @default(autoincrement())
+  categoryName String   @unique
+  createdAt    DateTime @default(now())
+}
+
 model QnABoard {
   qnaId        Int               @id @default(autoincrement())
   qnaTitle     String
   qnaContent   String
   qnaUserId    Int
+  categoryName String?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
   isItAnswered Boolean           @default(false)

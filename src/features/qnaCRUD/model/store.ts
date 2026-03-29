@@ -2,12 +2,14 @@ import { useCallback } from 'react';
 import { QnABoard, CreateCommentRequest, CreateQnARequest } from "@/src/entities/qna/model/types";
 import { qnaApi } from '@/src/entities/qna/api';
 import { useQnABoardStore, useQnaDetailStore } from "@/src/entities/qna/model/store";
+import { useQnACategoryStore } from "@/src/entities/qna/model/categoryStore";
 import { usePaginationStore } from '@/src/shared/model/pagination';
 
 // API 호출과 전역 상태 관리를 통합하는 훅
 export const useQnAFeatureStore = () => {
   const entityStore = useQnABoardStore.getState();
   const detailStore = useQnaDetailStore.getState();
+  const categoryStore = useQnACategoryStore.getState();
   const paginationStore = usePaginationStore.getState();
 
   const readQnAs = useCallback(async (page: number = 1, itemsPerPage: number = 6) => {
@@ -100,6 +102,37 @@ export const useQnAFeatureStore = () => {
     }
   }, [detailStore]);
 
+  const readCategories = useCallback(async () => {
+    categoryStore.setCategoryLoading(true);
+    try {
+      const categories = await qnaApi.getCategories();
+      categoryStore.setCategories(categories);
+    } catch (error) {
+      console.error('readCategories error:', error);
+    } finally {
+      categoryStore.setCategoryLoading(false);
+    }
+  }, [categoryStore]);
+
+  const createCategory = useCallback(async (categoryName: string) => {
+    try {
+      const category = await qnaApi.createCategory(categoryName);
+      categoryStore.addCategory(category);
+      return category;
+    } catch (error) {
+      throw error;
+    }
+  }, [categoryStore]);
+
+  const deleteCategory = useCallback(async (categoryId: number) => {
+    try {
+      await qnaApi.deleteCategory(categoryId);
+      categoryStore.removeCategory(categoryId);
+    } catch (error) {
+      throw error;
+    }
+  }, [categoryStore]);
+
   return {
     readQnAs,
     readPersonalQnAs,
@@ -109,5 +142,8 @@ export const useQnAFeatureStore = () => {
     createQnA,
     updateQnA,
     deleteQnA,
+    readCategories,
+    createCategory,
+    deleteCategory,
   };
 };

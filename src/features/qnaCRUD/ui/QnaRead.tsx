@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Plus, X, Settings } from 'lucide-react';
 import { useQnABoardStore } from '@/src/entities/qna/model/store';
 import { useQnAFeatureStore } from '@/src/features/qnaCRUD';
+import { useQnACategoryStore } from '@/src/entities/qna/model/categoryStore';
 import { Button } from '@/src/shared/ui/button';
 import { usePaginationStore } from '@/src/shared/model/pagination';
 
@@ -35,23 +37,55 @@ interface QnaReadProps {
 
 export default function QnaRead({ onQnaSelect, selectedQnaId }: QnaReadProps) {
   const { qnas, isLoading } = useQnABoardStore();
-  const { readQnAs } = useQnAFeatureStore();
+  const { readQnAs, readCategories, createCategory, deleteCategory } = useQnAFeatureStore();
+  const { categories } = useQnACategoryStore();
   const { currentPage, itemsPerPage } = usePaginationStore();
   const [filter, setFilter] = useState<'all' | 'answered' | 'unanswered'>('all');
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   useEffect(() => {
     readQnAs(currentPage, itemsPerPage);
+    readCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
+
+  const handleCreateCategory = async () => {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    try {
+      await createCategory(name);
+      setNewCategoryName('');
+    } catch (error) {
+      console.error('카테고리 생성 오류:', error);
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: number) => {
+    if (confirm('카테고리를 삭제하시겠습니까? 기존 질문의 카테고리는 그대로 유지됩니다.')) {
+      try {
+        await deleteCategory(categoryId);
+        if (categoryFilter !== 'all') {
+          setCategoryFilter('all');
+        }
+      } catch (error) {
+        console.error('카테고리 삭제 오류:', error);
+      }
+    }
+  };
 
   // 필터링된 QnA 목록
   const filteredQnas = (qnas || []).filter(q => {
     const matchesSearch = q.qnaTitle.toLowerCase().includes(search.toLowerCase()) ||
                          q.qnaContent.toLowerCase().includes(search.toLowerCase());
-    
+
     if (!matchesSearch) return false;
-    
+
+    const matchesCategory = categoryFilter === 'all' || q.categoryName === categoryFilter;
+    if (!matchesCategory) return false;
+
     // isItAnswered 필드를 사용하여 답변 여부 판단
     switch (filter) {
       case 'answered':
@@ -63,56 +97,118 @@ export default function QnaRead({ onQnaSelect, selectedQnaId }: QnaReadProps) {
     }
   });
 
-  // 헤더 컴포넌트
-  const HeaderSection = () => (
-    <div className="p-4 border-b bg-gray-50">
-      <div className="flex flex-wrap items-center gap-4">
-        <div className="space-x-2">
-          <Button
-            onClick={() => setFilter('all')}
-            className={`px-3 py-1 rounded ${
-              filter === 'all'
-                ? 'bg-blue-500 text-white hover:bg-blue-500'
-                : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-700'
-            }`}
-          >
-            전체
-          </Button>
-          <Button
-            onClick={() => setFilter('unanswered')}
-            className={`px-3 py-1 rounded ${
-              filter === 'unanswered'
-                ? 'bg-blue-500 text-white hover:bg-blue-500'
-                : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-700'
-            }`}
-          >
-            미답변
-          </Button>
-          <Button
-            onClick={() => setFilter('answered')}
-            className={`px-3 py-1 rounded ${
-              filter === 'answered'
-                ? 'bg-blue-500 text-white hover:bg-blue-500'
-                : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-700'
-            }`}
-          >
-            답변 완료
-          </Button>
-        </div>
-        <input
-          type="text"
-          placeholder="검색..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-1 rounded w-64 shadow-sm"
-        />
-      </div>
-    </div>
-  );
-
   return (
     <section className="border rounded-lg shadow-sm">
-      <HeaderSection />
+      <div className="p-4 border-b bg-gray-50 space-y-3">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="space-x-2">
+            <Button
+              onClick={() => setFilter('all')}
+              className={`px-3 py-1 rounded ${
+                filter === 'all'
+                  ? 'bg-blue-500 text-white hover:bg-blue-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-700'
+              }`}
+            >
+              전체
+            </Button>
+            <Button
+              onClick={() => setFilter('unanswered')}
+              className={`px-3 py-1 rounded ${
+                filter === 'unanswered'
+                  ? 'bg-blue-500 text-white hover:bg-blue-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-700'
+              }`}
+            >
+              미답변
+            </Button>
+            <Button
+              onClick={() => setFilter('answered')}
+              className={`px-3 py-1 rounded ${
+                filter === 'answered'
+                  ? 'bg-blue-500 text-white hover:bg-blue-500'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-700'
+              }`}
+            >
+              답변 완료
+            </Button>
+          </div>
+          <input
+            type="text"
+            placeholder="검색..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border px-3 py-1 rounded w-64 shadow-sm"
+          />
+        </div>
+
+        {/* 카테고리 필터 + 관리 */}
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="all">전체 카테고리</option>
+            {categories.map((c) => (
+              <option key={c.categoryId} value={c.categoryName}>
+                {c.categoryName}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => setShowCategoryManager(!showCategoryManager)}
+            className="inline-flex items-center gap-1 px-2 py-1 text-sm text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            카테고리 관리
+          </button>
+        </div>
+
+        {/* 카테고리 관리 패널 */}
+        {showCategoryManager && (
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="새 카테고리 이름"
+                maxLength={50}
+                className="flex-1 border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onKeyDown={(e) => e.key === 'Enter' && handleCreateCategory()}
+              />
+              <button
+                onClick={handleCreateCategory}
+                disabled={!newCategoryName.trim()}
+                className="inline-flex items-center gap-1 px-3 py-1 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                추가
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <span
+                  key={c.categoryId}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200"
+                >
+                  {c.categoryName}
+                  <button
+                    onClick={() => handleDeleteCategory(c.categoryId)}
+                    className="text-blue-400 hover:text-red-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {categories.length === 0 && (
+                <p className="text-xs text-gray-400">등록된 카테고리가 없습니다.</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* 로딩 상태 */}
       {isLoading ? (
@@ -137,7 +233,14 @@ export default function QnaRead({ onQnaSelect, selectedQnaId }: QnaReadProps) {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-semibold text-lg">{q.qnaTitle}</h3>
+                    <div className="flex items-center gap-2">
+                      {q.categoryName && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                          {q.categoryName}
+                        </span>
+                      )}
+                      <h3 className="font-semibold text-lg">{q.qnaTitle}</h3>
+                    </div>
                     <p className="text-sm text-gray-500">{new Date(q.createdAt).toLocaleString('ko-KR')}</p>
                     <p className="text-sm text-gray-600">{q.student?.studentName || "알 수 없음"}</p>
                   </div>

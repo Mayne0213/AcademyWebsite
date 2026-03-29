@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { qnaTitle, qnaContent, qnaUserId, files } = body;
+    const { qnaTitle, qnaContent, qnaUserId, files, categoryName } = body;
 
     if (!qnaTitle || !qnaContent) {
       return NextResponse.json({ success: false, message: "입력 값이 누락되었습니다." }, { status: 400 });
@@ -120,6 +120,7 @@ export async function POST(req: Request) {
         qnaTitle,
         qnaContent,
         qnaUserId,
+        categoryName: categoryName || null,
       },
       include: {
         student: {
