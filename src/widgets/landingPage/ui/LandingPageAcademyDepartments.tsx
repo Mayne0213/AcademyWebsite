@@ -31,15 +31,18 @@ const LandingPageAcademyDepartments = () => {
   const { readAcademies } = useAcademyFeatureStore();
   const [selectedInfos, setSelectedInfos] = useState<string[]>([]);
 
+  // 운영 중인 학원만 노출 (관리자 페이지에서 isActive 토글로 제어)
+  const visibleAcademies = academies.filter((academy) => academy.isActive);
+
   useEffect(() => {
     readAcademies();
   }, [readAcademies]);
 
   useEffect(() => {
-    if (academies.length > 0) {
-      setSelectedInfos(Array(academies.length).fill("주소"));
+    if (visibleAcademies.length > 0) {
+      setSelectedInfos(Array(visibleAcademies.length).fill("주소"));
     }
-  }, [academies]);
+  }, [visibleAcademies.length]);
 
   const handleInfoChange = (index: number, value: string) => {
     const newSelected = [...selectedInfos];
@@ -51,7 +54,7 @@ const LandingPageAcademyDepartments = () => {
     <SectionUp className="relative py-16 max-w-7xl mx-auto px-4" amount={0.1}>
         <h2 className={STYLES.title}>현강 관별 소개</h2>
         <div className={`flex flex-col max-w-sm smalltablet:max-w-none smalltablet:grid gap-8 ${STYLES.grid}`}>
-          {academies.map((academy, index) => (
+          {visibleAcademies.map((academy, index) => (
             <AcademyDepartmentCard
               key={academy.academyId}
               academy={academy}

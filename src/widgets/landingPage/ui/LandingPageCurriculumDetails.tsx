@@ -25,29 +25,29 @@ const roadmapSteps = [
   },
   {
     step: "기본 개념",
-    title: "New 한줄독해",
+    title: "한줄독해 (기본/심화)",
     description: "문장 구조를 파악하고 독해 능력의 기본기를 쌓는 단계입니다.",
     icon: Lightbulb,
     bg: "bg-[#c1d0b3]",
   },
   {
-    step: "독해 기초",
-    title: "코드독해 [기본]",
+    step: "독해 기본",
+    title: "새싹 모의고사",
     description:
       "체계적인 독해 방법론을 통해 글의 핵심을 파악하는 능력을 기릅니다.",
     icon: Search,
     bg: "bg-[#add9db]",
   },
   {
-    step: "독해 기본",
-    title: "코드독해 [심화]",
+    step: "기출 분석",
+    title: "기출의공식 + N제",
     description:
-      "복잡한 지문도 빠르고 정확하게 분석할 수 있는 고급 독해력을 완성합니다.",
+      "오답률을 기준으로 선별한 평가원 기출로 주요 유형을 정리하고, 고퀄리티 제작문항으로 적용합니다.",
     icon: Monitor,
     bg: "bg-[#f2d39e]",
   },
   {
-    step: "독해 심화",
+    step: "단기 완성",
     title: "빈칸, 순삽, 어법 2주 완성",
     description: "수능 핵심 유형을 집중 공략하여 실전 감각을 완성합니다.",
     icon: RefreshCw,

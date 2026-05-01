@@ -7,7 +7,7 @@ import { useState, useMemo, useCallback } from "react";
 import DeviceType, { useDeviceDetect } from "@/src/shared/lib/deviceType";
 
 import testPaper from "@/public/homeCopy/testPapers/testPaper1Edge.webp";
-import environment from "@/public/homeCopy/lectures/online/lecture1.webp";
+import environment from "@/public/homeCopy/lectures/offline/realClassroom.jpeg";
 import omr from "@/public/homeCopy/OMR/OMR.webp";
 import videoLecture from "@/public/homeCopy/lectures/online/lecture1.webp";
 import analysis from "@/public/homeCopy/testPapers/textAnalysis1Edge.webp";
@@ -175,10 +175,9 @@ const TestPaperImage = React.memo(({ active }: { active: typeof features[0] }) =
         <Image
           src={active.image}
           alt="모의고사 이미지"
-          width={1000}
-          height={600}
+          fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
-          className="object-left-top object-cover"
+          className="object-cover object-center"
           loading="lazy"
           placeholder="blur"
         />

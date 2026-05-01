@@ -9,7 +9,7 @@ import React from "react"; // Added missing import
 // 시험 카테고리별 기본 설정
 const CATEGORY_TEMPLATES: Record<ExamCategory, { totalQuestions: number; description: string }> = {
     "GRADED": { totalQuestions: 45, description: "45문제, 100점 만점" },
-    "PASS_FAIL": { totalQuestions: 20, description: "20문제, P/NP" }
+    "PASS_FAIL": { totalQuestions: 20, description: "1~45문제, P/NP" }
 };
 
 const Grading = () => {
@@ -30,7 +30,7 @@ const Grading = () => {
             correctAnswers: {} as any,
             questionScores: {} as any,
             questionTypes: {} as any,
-            passScore: category === "PASS_FAIL" ? 16 : undefined // P/NP 시험 기본 Pass 점수 16
+            passScore: category === "PASS_FAIL" ? Math.min(16, count) : undefined // P/NP 시험 기본 Pass 점수 (문항 수 초과 시 클램프)
         };
 
         for (let i = 1; i <= count; i++) {
@@ -93,10 +93,18 @@ const Grading = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === "totalQuestions" ? parseInt(value) || 0 : value
-        }));
+        if (name === "totalQuestions") {
+            const parsed = parseInt(value) || 0;
+            const clamped = Math.min(45, Math.max(1, parsed));
+            setFormData(prev => ({ ...prev, totalQuestions: clamped }));
+            return;
+        }
+        if (name === "passScore") {
+            const parsed = parseInt(value) || 0;
+            setFormData(prev => ({ ...prev, passScore: Math.min(prev.totalQuestions, Math.max(1, parsed)) }));
+            return;
+        }
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleQuestionInputChange = (
@@ -261,13 +269,15 @@ const Grading = () => {
                             onChange={handleInputChange}
                             required
                             min="1"
-                            max="100"
+                            max="45"
                             className="w-full p-2 border border-gray-300 rounded"
                             placeholder="45"
-                            disabled
+                            disabled={formData.examCategory === "GRADED"}
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                            {EXAM_CATEGORY_LABELS[formData.examCategory]} 유형은 {CATEGORY_TEMPLATES[formData.examCategory].totalQuestions}문제 고정
+                            {formData.examCategory === "GRADED"
+                                ? `${EXAM_CATEGORY_LABELS[formData.examCategory]} 유형은 ${CATEGORY_TEMPLATES[formData.examCategory].totalQuestions}문제 고정`
+                                : `P/NP 유형은 1~45문제 사이에서 자유롭게 설정 가능`}
                         </p>
                     </div>
                 </div>

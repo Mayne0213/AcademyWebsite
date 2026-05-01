@@ -10,13 +10,14 @@ import { SectionUp } from "@/src/shared/ui/designSystem";
 
 import Image, { type StaticImageData } from "next/image";
 
-import BOOK_IMAGE_URL_1 from "@/public/homeCopy/textbooks/book1.jpg";
-import BOOK_IMAGE_URL_2 from "@/public/homeCopy/textbooks/book2.jpg";
-import BOOK_IMAGE_URL_3 from "@/public/homeCopy/textbooks/book3.jpg";
-import BOOK_IMAGE_URL_4 from "@/public/homeCopy/textbooks/book4.jpg";
-import BOOK_IMAGE_URL_5 from "@/public/homeCopy/textbooks/book5.jpg";
+import BOOK_IMAGE_URL_1 from "@/public/homeCopy/textbooks/한줄독해_기본.png";
+import BOOK_IMAGE_URL_2 from "@/public/homeCopy/textbooks/한줄독해_심화.png";
+import BOOK_IMAGE_URL_3 from "@/public/homeCopy/textbooks/새싹모의고사.png";
+import BOOK_IMAGE_URL_4 from "@/public/homeCopy/textbooks/기출의공식.png";
+import BOOK_IMAGE_URL_5 from "@/public/homeCopy/textbooks/리스닝파티.png";
+import BOOK_IMAGE_URL_6 from "@/public/homeCopy/textbooks/하루한알.png";
 
-const bookList = [BOOK_IMAGE_URL_1, BOOK_IMAGE_URL_2, BOOK_IMAGE_URL_3, BOOK_IMAGE_URL_4, BOOK_IMAGE_URL_5];
+const bookList = [BOOK_IMAGE_URL_1, BOOK_IMAGE_URL_2, BOOK_IMAGE_URL_3, BOOK_IMAGE_URL_4, BOOK_IMAGE_URL_5, BOOK_IMAGE_URL_6];
 
 const STYLES = {
   textBookPadding: [

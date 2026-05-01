@@ -13,7 +13,7 @@ import AcademyFilter from "@/src/entities/academy/ui/AcademyFilter";
 import useFilteredSortedPaginatedUsers from "@/components/hooks/useFilteredSortedPaginatedUsers";
 
 const Student = () => {
-  const { readStudents } = useStudentFeatureStore();
+  const { readStudents, toggleActive, deleteStudent } = useStudentFeatureStore();
   const { students, isLoading: studentsLoading } = useStudentStore();
 
   const { readAcademies } = useAcademyFeatureStore();
@@ -23,6 +23,62 @@ const Student = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedAcademyId, setSelectedAcademyId] = useState<number | null>(null);
   const [activeStatusFilter, setActiveStatusFilter] = useState<'all' | 'active' | 'inactive'>('active');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isBulkProcessing, setIsBulkProcessing] = useState<boolean>(false);
+
+  const handleToggleSelect = (memberId: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(memberId) ? prev.filter((id) => id !== memberId) : [...prev, memberId]
+    );
+  };
+
+  const handleToggleSelectAll = (memberIds: number[], select: boolean) => {
+    setSelectedIds((prev) => {
+      if (select) {
+        const merged = new Set([...prev, ...memberIds]);
+        return Array.from(merged);
+      }
+      const removeSet = new Set(memberIds);
+      return prev.filter((id) => !removeSet.has(id));
+    });
+  };
+
+  const runBulk = async (
+    confirmMessage: string,
+    action: (id: number) => Promise<void>
+  ) => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(confirmMessage)) return;
+    setIsBulkProcessing(true);
+    try {
+      await Promise.all(selectedIds.map((id) => action(id)));
+      setSelectedIds([]);
+      await readStudents();
+    } catch (error) {
+      console.error("일괄 처리 중 오류:", error);
+      alert("일부 학생 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkWithdraw = () =>
+    runBulk(
+      `선택한 ${selectedIds.length}명의 학생을 퇴원 처리하시겠습니까?\n\n퇴원 처리 후에도 데이터는 유지되며, 이후 복원할 수 있습니다.`,
+      (id) => toggleActive(id, false)
+    );
+
+  const handleBulkRestore = () =>
+    runBulk(
+      `선택한 ${selectedIds.length}명의 학생을 재원생으로 복원하시겠습니까?`,
+      (id) => toggleActive(id, true)
+    );
+
+  const handleBulkDelete = () =>
+    runBulk(
+      `선택한 ${selectedIds.length}명의 학생을 영구 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`,
+      (id) => deleteStudent(id)
+    );
 
 
 
@@ -104,11 +160,56 @@ const Student = () => {
         </div>
       </div>
 
+      {selectedIds.length > 0 && (
+        <div className="flex flex-col smalltablet:flex-row smalltablet:items-center smalltablet:justify-between gap-2 mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <span className="text-sm font-sansKR-SemiBold text-blue-900">
+            {selectedIds.length}명 선택됨
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              disabled={isBulkProcessing}
+              className="px-3 py-1.5 text-sm rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              선택 해제
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkRestore}
+              disabled={isBulkProcessing}
+              className="px-3 py-1.5 text-sm rounded-md bg-green-500 text-white hover:bg-green-600 disabled:opacity-50"
+            >
+              일괄 복원
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkWithdraw}
+              disabled={isBulkProcessing}
+              className="px-3 py-1.5 text-sm rounded-md bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
+            >
+              일괄 퇴원
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              disabled={isBulkProcessing}
+              className="px-3 py-1.5 text-sm rounded-md bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
+            >
+              일괄 삭제
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex-grow">
         <StudentRead
           users={paginatedUsers}
           isLoading={studentsLoading || academiesLoading}
           totalUsers={totalUsers}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+          onToggleSelectAll={handleToggleSelectAll}
         />
       </div>
       <div className={`${totalUsers === 0 ? "hidden" : ""} mt-4 smalltablet:mt-6`}>

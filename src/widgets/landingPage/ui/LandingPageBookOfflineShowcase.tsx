@@ -8,22 +8,25 @@ import "swiper/css/pagination";
 
 import BackgroundGrayShape from "@/src/shared/ui/BackgroundGrayShelf";
 import { SectionUp } from "@/src/shared/ui/designSystem";
-import book7 from "@/public/homeCopy/textbooks/book7.png";
-import book6 from "@/public/homeCopy/textbooks/book6.png";
+import seedVoca from "@/public/homeCopy/textbooks/씨앗보카.png";
+import ebsAnalysis from "@/public/homeCopy/textbooks/ebs연계.png";
 import test1 from "@/public/homeCopy/testPapers/test1.png";
 
 const BOOKS_DATA = [
   {
-    src: book7,
+    src: seedVoca,
     title: "고3 필수 현강 단어장",
     desc: "현강생 독점 자료",
     content: ["EBS 1타 강사가 직접 제작하는", "고교과정 필수 단어장"],
   },
   {
-    src: book6,
-    title: "개인 맞춤 내신 교재",
+    src: ebsAnalysis,
+    title: "연계교재 분석지",
     desc: "현강생 독점 자료",
-    content: ["개인의 수준과 학교에 맞춘", "맞춤형 내신 대비 교재"],
+    content: [
+      "연계교재 지문을 꼼꼼히 분석하여",
+      "수능 뿐만이 아니라 내신까지 완벽대비",
+    ],
   },
   {
     src: test1,
