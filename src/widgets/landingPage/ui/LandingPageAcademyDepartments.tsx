@@ -19,7 +19,7 @@ import { useAcademyFeatureStore } from "@/src/features/academyCRUD/model/store";
 
 const STYLES = {
   title: "text-center font-MaruBuri-Bold mb-10 text-4xl smalltablet:text-5xl",
-  grid: "smalltablet:grid smalltablet:grid-cols-2 smalltablet:gap-8 smalltablet:px-[2vw] tablet:grid-cols-3 tablet:px-[30px] desktop:grid-cols-3 desktop:px-[20px]",
+  grid: "smalltablet:grid smalltablet:grid-cols-2 smalltablet:gap-8 tablet:grid-cols-3 desktop:grid-cols-3",
   card: "flex flex-col bg-white rounded-2xl shadow-md overflow-hidden p-5 gap-4",
   imageWrapper: "relative h-48 rounded-xl overflow-hidden flex items-center justify-center bg-gray-100",
   cardTitle: "flex justify-between items-center border-b pb-3 text-xl font-MaruBuri-SemiBold",
@@ -51,9 +51,10 @@ const LandingPageAcademyDepartments = () => {
   };
 
   return (
-    <SectionUp className="relative py-16 max-w-7xl mx-auto px-4" amount={0.1}>
+    <SectionUp className="relative py-16 px-4 smalltablet:px-6 tablet:px-6 desktop:px-6" amount={0.1}>
+      <div className="max-w-7xl mx-auto">
         <h2 className={STYLES.title}>현강 관별 소개</h2>
-        <div className={`flex flex-col max-w-sm smalltablet:max-w-none smalltablet:grid gap-8 ${STYLES.grid}`}>
+        <div className={`flex flex-col max-w-sm smalltablet:max-w-none mx-auto smalltablet:grid gap-8 ${STYLES.grid}`}>
           {visibleAcademies.map((academy, index) => (
             <AcademyDepartmentCard
               key={academy.academyId}
@@ -64,6 +65,7 @@ const LandingPageAcademyDepartments = () => {
             />
           ))}
         </div>
+      </div>
     </SectionUp>
   );
 };

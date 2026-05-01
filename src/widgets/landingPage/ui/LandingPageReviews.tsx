@@ -21,9 +21,10 @@ const reviews = [
 
 const STYLES = {
   container: [
-    "pt-10 pb-16",
-    "tablet:pt-12",
-    "desktop:pt-16",
+    "pt-10 pb-16 px-4",
+    "smalltablet:px-6",
+    "tablet:pt-12 tablet:px-6",
+    "desktop:pt-16 desktop:px-6",
   ].join(" "),
   containers: [
     "mb-10 text-4xl",
@@ -31,7 +32,7 @@ const STYLES = {
     "tablet:mb-12 tablet:text-5xl",
     "desktop:mb-16",
   ].join(" "),
-  grid: "px-[20px] smalltablet:grid-cols-2 smalltablet:px-[5vw] tablet:grid-cols-3 tablet:px-[30px] desktop:grid-cols-4 desktop:px-[20px]",
+  grid: "smalltablet:grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4",
 
 };
 
@@ -39,26 +40,28 @@ const LandingPageReviews = () => {
   return (
     <SectionUp className={`relative ${STYLES.container}`}>
       <BackgroundGrayShape />
-      <h2 className={`text-center text-black font-MaruBuri-Bold ${STYLES.containers}`}>학생 후기</h2>
-      <div className="block smalltablet:hidden px-[20px]">
-        <Swiper
-          modules={[Pagination]}
-          pagination={{ clickable: true }}
-          spaceBetween={20}
-          slidesPerView={1}
-          className="max-w-[350px]"
-        >
+      <div className="max-w-7xl mx-auto">
+        <h2 className={`text-center text-black font-MaruBuri-Bold ${STYLES.containers}`}>학생 후기</h2>
+        <div className="block smalltablet:hidden">
+          <Swiper
+            modules={[Pagination]}
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            slidesPerView={1}
+            className="max-w-[350px]"
+          >
+            {reviews.map((review, idx) => (
+              <SwiperSlide key={idx} className="mb-[70px]">
+                <ReviewCard review={review} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+        <div className={`hidden smalltablet:grid gap-6 items-center justify-center justify-items-center auto-rows-fr ${STYLES.grid}`}>
           {reviews.map((review, idx) => (
-            <SwiperSlide key={idx} className="mb-[70px]">
-              <ReviewCard review={review} />
-            </SwiperSlide>
+            <ReviewCard key={idx} review={review} />
           ))}
-        </Swiper>
-      </div>
-      <div className={`hidden smalltablet:grid gap-6 max-w-7xl mx-auto items-center justify-center justify-items-center auto-rows-fr ${STYLES.grid}`}>
-        {reviews.map((review, idx) => (
-          <ReviewCard key={idx} review={review} />
-        ))}
+        </div>
       </div>
     </SectionUp>
   );
