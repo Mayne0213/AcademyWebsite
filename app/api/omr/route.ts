@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     apiFormData.append('question_types', questionTypes);
 
     // FastAPI 서버에 요청
-    const apiUrl = `${OMR_API_URL}/api/omr/grade`;
+    const apiUrl = OMR_API_URL;
     console.log(`OMR API 요청 시작: ${apiUrl}`);
 
     const response = await fetch(apiUrl, {
